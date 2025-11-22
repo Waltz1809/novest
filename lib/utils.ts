@@ -1,0 +1,20 @@
+// lib/utils.ts
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// 1. Hàm gộp class (AI dùng cái này để style giao diện)
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
+
+// 2. Hàm tạo Slug tiếng Việt (Quan trọng cho SEO)
+export function toSlug(str: string): string {
+    if (!str) return "";
+    str = str.toLowerCase();
+    str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Xóa dấu
+    str = str.replace(/[đĐ]/g, "d");
+    str = str.replace(/([^0-9a-z-\s])/g, ""); // Xóa ký tự đặc biệt
+    str = str.replace(/(\s+)/g, "-"); // Thay khoảng trắng bằng gạch ngang
+    str = str.replace(/^-+|-+$/g, ""); // Xóa gạch dư
+    return str;
+}

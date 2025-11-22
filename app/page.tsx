@@ -52,7 +52,7 @@ export default async function Home() {
           {novels.map((novel) => (
             <Link
               key={novel.id}
-              href={`/novel/${novel.slug}`}
+              href={`/truyen/${novel.slug}`}
               className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full"
             >
               {/* Cover Image Area */}
