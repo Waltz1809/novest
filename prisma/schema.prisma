@@ -1,0 +1,174 @@
+// File: prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ================= NGƯỜI DÙNG & PHÂN QUYỀN =================
+model User {
+  id       String  @id @default(cuid())
+  username String?
+  email    String  @unique
+  password String?
+
+  // Sửa Enum thành String
+  role   String  @default("READER") // Giá trị: ADMIN, TRANSLATOR, READER
+  avatar String?
+
+  wallet Wallet?
+
+  comments       Comment[]
+  reviews        Review[]
+  library        Library[]
+  readingHistory ReadingHistory[]
+  purchases      UserPurchase[]
+
+  createdAt DateTime @default(now())
+}
+
+// ================= VÍ TIỀN & GIAO DỊCH =================
+model Wallet {
+  id      String @id @default(cuid())
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id])
+  balance Int    @default(0)
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id       String @id @default(cuid())
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  amount      Int
+  // Sửa Enum thành String
+  type        String // Giá trị: DEPOSIT, PURCHASE, WITHDRAW, INCOME
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+// ================= NỘI DUNG TRUYỆN =================
+model Novel {
+  id            Int     @id @default(autoincrement())
+  title         String
+  slug          String  @unique
+  originalTitle String?
+  author        String
+  // SQLite không cần @db.Text, dùng String là tự hiểu dài vô tận
+  description   String
+  coverImage    String?
+
+  // Sửa Enum thành String
+  status String @default("ONGOING") // Giá trị: ONGOING, COMPLETED, PAUSED
+
+  rating    Float  @default(0)
+  viewCount BigInt @default(0)
+
+  volumes     Volume[]
+  genres      Genre[]
+  reviews     Review[]
+  inLibraries Library[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model Volume {
+  id    Int    @id @default(autoincrement())
+  title String
+  order Int
+
+  novelId Int
+  novel   Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  chapters Chapter[]
+}
+
+model Chapter {
+  id      BigInt @id @default(autoincrement())
+  title   String
+  // SQLite không cần @db.Text
+  content String
+  order   Int
+
+  isLocked Boolean @default(false)
+  price    Int     @default(0)
+
+  volumeId Int
+  volume   Volume @relation(fields: [volumeId], references: [id])
+
+  viewCount Int @default(0)
+
+  history   ReadingHistory[]
+  purchases UserPurchase[]
+
+  createdAt DateTime @default(now())
+
+  @@index([volumeId, order])
+}
+
+model UserPurchase {
+  userId      String
+  chapterId   BigInt
+  pricePaid   Int
+  purchasedAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  chapter Chapter @relation(fields: [chapterId], references: [id])
+
+  @@id([userId, chapterId])
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  slug   String  @unique
+  novels Novel[]
+}
+
+// ================= TƯƠNG TÁC =================
+model Library {
+  userId  String
+  novelId Int
+  user    User   @relation(fields: [userId], references: [id])
+  novel   Novel  @relation(fields: [novelId], references: [id])
+
+  @@id([userId, novelId])
+}
+
+model ReadingHistory {
+  userId    String
+  chapterId BigInt
+  user      User     @relation(fields: [userId], references: [id])
+  chapter   Chapter  @relation(fields: [chapterId], references: [id])
+  readAt    DateTime @default(now())
+
+  @@id([userId, chapterId])
+}
+
+model Comment {
+  id        BigInt   @id @default(autoincrement())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id      Int     @id @default(autoincrement())
+  rating  Int
+  content String?
+  userId  String
+  novelId Int
+  user    User    @relation(fields: [userId], references: [id])
+  novel   Novel   @relation(fields: [novelId], references: [id])
+}
