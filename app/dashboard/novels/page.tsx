@@ -103,7 +103,7 @@ export default async function NovelsPage() {
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
-                                                        href={`/dashboard/novels/${novel.id}/edit`}
+                                                        href={`/dashboard/novels/edit/${novel.id}`}
                                                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                                                         title="Sửa"
                                                     >

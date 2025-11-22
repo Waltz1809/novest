@@ -1,3 +1,4 @@
+@import "@uploadthing/react/styles.css";
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
