@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react";
 import UnlockButton from "@/components/novel/unlock-button";
+import ChapterContent from "@/components/novel/chapter-content";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -80,19 +81,25 @@ export default async function ChapterReadingPage({ params }: PageProps) {
     // VIP Check
     let isLocked = chapter.isLocked && chapter.price > 0;
 
-    // Check if user purchased
-    if (isLocked && session?.user?.id) {
-        const purchase = await db.userPurchase.findUnique({
-            where: {
-                userId_chapterId: {
-                    userId: session.user.id,
-                    chapterId: chapter.id,
-                },
-            },
-        });
-
-        if (purchase) {
+    // Check if user purchased or is admin/translator
+    if (isLocked && session?.user) {
+        // Allow Admin/Translator to bypass
+        if (session.user.role === "ADMIN" || session.user.role === "TRANSLATOR") {
             isLocked = false;
+        } else {
+            // Check purchase
+            const purchase = await db.userPurchase.findUnique({
+                where: {
+                    userId_chapterId: {
+                        userId: session.user.id,
+                        chapterId: chapter.id,
+                    },
+                },
+            });
+
+            if (purchase) {
+                isLocked = false;
+            }
         }
     }
 
@@ -185,9 +192,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                             )}
                         </div>
                     ) : (
-                        <article className="prose prose-lg prose-gray max-w-none font-serif text-xl leading-loose text-gray-800 whitespace-pre-line">
-                            {chapter.content}
-                        </article>
+                        <ChapterContent content={chapter.content} />
                     )}
                 </div>
 

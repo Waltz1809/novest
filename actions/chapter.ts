@@ -39,25 +39,17 @@ export async function createChapter(data: {
     volumeId: number;
     price: number;
     isLocked: boolean;
+    slug: string;
+    order: number;
 }) {
     const session = await auth();
     if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
         throw new Error("Unauthorized");
     }
 
-    const { title, content, novelId, volumeId, price, isLocked } = data;
+    const { title, content, novelId, volumeId, price, isLocked, slug, order } = data;
 
-    // 1. Calculate Order
-    const lastChapter = await db.chapter.findFirst({
-        where: { volumeId },
-        orderBy: { order: "desc" },
-    });
-    const order = lastChapter ? lastChapter.order + 1 : 1;
-
-    // 2. Generate Slug (c + order)
-    const slug = `c${order}`;
-
-    // 3. Create Chapter
+    // Create Chapter
     await db.chapter.create({
         data: {
             title,
@@ -70,7 +62,7 @@ export async function createChapter(data: {
         },
     });
 
-    // 4. Revalidate
+    // Revalidate
     const novel = await db.novel.findUnique({ where: { id: novelId } });
     if (novel) {
         revalidatePath(`/truyen/${novel.slug}`);

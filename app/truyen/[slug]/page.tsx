@@ -23,6 +23,12 @@ export default async function NovelDetailPage({ params }: PageProps) {
                 include: {
                     chapters: {
                         orderBy: { order: "asc" },
+                        select: {
+                            id: true,
+                            title: true,
+                            order: true,
+                            slug: true,
+                        }
                     },
                 },
             },
@@ -35,8 +41,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-            {/* Header (Simplified for now, ideally reusable) */}
-            {/* Header (Simplified for now, ideally reusable) */}
+            {/* Header */}
             <MainHeader />
 
             <main className="container mx-auto px-4 py-8">
@@ -138,7 +143,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                 {volume.chapters.map((chapter) => (
                                                     <Link
                                                         key={chapter.id}
-                                                        href={`/truyen/${novel.slug}/chuong-${chapter.id}`}
+                                                        href={`/truyen/${novel.slug}/${chapter.slug}`}
                                                         className="flex items-center justify-between p-3 rounded-lg hover:bg-indigo-50 transition-colors group border border-transparent hover:border-indigo-100"
                                                     >
                                                         <span className="text-sm text-gray-600 group-hover:text-indigo-700 font-medium truncate">

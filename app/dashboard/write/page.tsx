@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import RichTextEditor from "@/components/editor/rich-text-editor";
-import { Save, BookOpen, Layers, DollarSign, Lock, Loader2 } from "lucide-react";
+import { Save, BookOpen, DollarSign, Lock, Loader2, Hash, Link as LinkIcon, Type } from "lucide-react";
 import { getNovels, getVolumes, createChapter } from "@/actions/chapter";
 import { useRouter } from "next/navigation";
 
@@ -26,11 +26,15 @@ export default function WriteChapterPage() {
 
     // Form State
     const [content, setContent] = useState("");
-    const [title, setTitle] = useState("");
+    const [chapterNumber, setChapterNumber] = useState("");
+    const [chapterName, setChapterName] = useState("");
     const [novelId, setNovelId] = useState("");
     const [volumeId, setVolumeId] = useState("");
     const [price, setPrice] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
+
+    // Derived State
+    const slug = chapterNumber ? `c${chapterNumber}` : "";
 
     // Fetch Novels on Mount
     useEffect(() => {
@@ -50,26 +54,30 @@ export default function WriteChapterPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!novelId || !volumeId || !title || !content) {
+        if (!novelId || !volumeId || !chapterNumber || !chapterName || !content) {
             alert("Vui lòng điền đầy đủ thông tin");
             return;
         }
 
+        const fullTitle = `Chương ${chapterNumber}: ${chapterName}`;
+
         startTransition(async () => {
             try {
                 await createChapter({
-                    title,
+                    title: fullTitle,
                     content,
                     novelId: parseInt(novelId),
                     volumeId: parseInt(volumeId),
                     price,
                     isLocked,
+                    slug,
+                    order: parseInt(chapterNumber),
                 });
                 alert("Đăng chương thành công!");
-                // Reset form or redirect
-                setTitle("");
+                // Reset form
+                setChapterName("");
+                setChapterNumber((prev) => (parseInt(prev) + 1).toString()); // Auto increment
                 setContent("");
-                // router.push(...) // Optional: redirect to the new chapter
             } catch (error) {
                 console.error(error);
                 alert("Có lỗi xảy ra khi đăng chương");
@@ -97,14 +105,47 @@ export default function WriteChapterPage() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-180px)]">
                 {/* Left Column: Editor (Takes up most space) */}
                 <div className="lg:col-span-3 flex flex-col gap-4 h-full">
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Nhập tên chương (Ví dụ: Chương 1: Mở đầu)"
-                        className="w-full px-4 py-3 text-lg font-bold border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm"
-                        required
-                    />
+                    {/* Title Inputs Group */}
+                    <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-2 space-y-1">
+                            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                <Hash className="w-3 h-3" /> Số chương
+                            </label>
+                            <input
+                                type="number"
+                                value={chapterNumber}
+                                onChange={(e) => setChapterNumber(e.target.value)}
+                                placeholder="1"
+                                className="w-full px-3 py-2 font-bold border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm"
+                                required
+                            />
+                        </div>
+                        <div className="col-span-2 space-y-1">
+                            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                <LinkIcon className="w-3 h-3" /> Slug
+                            </label>
+                            <input
+                                type="text"
+                                value={slug}
+                                readOnly
+                                className="w-full px-3 py-2 font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded-lg cursor-not-allowed outline-none shadow-sm"
+                            />
+                        </div>
+                        <div className="col-span-8 space-y-1">
+                            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1">
+                                <Type className="w-3 h-3" /> Tên chương
+                            </label>
+                            <input
+                                type="text"
+                                value={chapterName}
+                                onChange={(e) => setChapterName(e.target.value)}
+                                placeholder="Ví dụ: Thiên thạch rơi xuống"
+                                className="w-full px-3 py-2 font-bold border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm"
+                                required
+                            />
+                        </div>
+                    </div>
+
                     <div className="flex-1 min-h-0">
                         <RichTextEditor
                             content={content}
