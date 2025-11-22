@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
-import { Book, User } from "lucide-react";
+import { Book } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import UserButton from "@/components/auth/user-button";
+import MainHeader from "@/components/layout/main-header";
 
 // Revalidate data every 60 seconds (optional, good for static/ISR)
 export const revalidate = 60;
@@ -19,20 +19,8 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="bg-indigo-600 p-1.5 rounded-lg">
-              <Book className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-indigo-900 tracking-tight">
-              Novest
-            </span>
-          </Link>
-
-          <UserButton />
-        </div>
-      </header>
+      {/* Header */}
+      <MainHeader />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

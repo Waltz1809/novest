@@ -1,7 +1,9 @@
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react";
+import UnlockButton from "@/components/novel/unlock-button";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -15,6 +17,7 @@ interface PageProps {
 
 export default async function ChapterReadingPage({ params }: PageProps) {
     const { slug, chapterSlug } = await params;
+    const session = await auth();
 
     // 1. Extract Chapter ID from slug (e.g., "chuong-123" -> 123)
     const parts = chapterSlug.split("-");
@@ -38,9 +41,6 @@ export default async function ChapterReadingPage({ params }: PageProps) {
     }
 
     // 3. Fetch All Chapters for Navigation Context
-    // We need to find the novel ID first to fetch all its chapters
-    // Or we can fetch the novel with all chapters sorted.
-    // Let's fetch the novel with a lightweight query for chapters.
     const novel = await db.novel.findUnique({
         where: { slug },
         select: {
@@ -77,7 +77,23 @@ export default async function ChapterReadingPage({ params }: PageProps) {
         currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
 
     // VIP Check
-    const isLocked = chapter.isLocked && chapter.price > 0;
+    let isLocked = chapter.isLocked && chapter.price > 0;
+
+    // Check if user purchased
+    if (isLocked && session?.user?.id) {
+        const purchase = await db.userPurchase.findUnique({
+            where: {
+                userId_chapterId: {
+                    userId: session.user.id,
+                    chapterId: chapter.id,
+                },
+            },
+        });
+
+        if (purchase) {
+            isLocked = false;
+        }
+    }
 
     return (
         <div className="min-h-screen bg-[#f9f7f1] text-gray-800 font-serif">
@@ -158,9 +174,14 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                             <p className="text-gray-500 mb-6">
                                 Chương này đã bị khóa. Vui lòng mở khóa để tiếp tục đọc.
                             </p>
-                            <button className="px-6 py-3 bg-indigo-600 text-white font-sans font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                                Mở khóa ngay ({chapter.price} xu)
-                            </button>
+
+                            {session?.user ? (
+                                <UnlockButton chapterId={chapter.id} price={chapter.price} />
+                            ) : (
+                                <Link href="/api/auth/signin" className="inline-block px-6 py-3 bg-indigo-600 text-white font-sans font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                                    Đăng nhập để mở khóa
+                                </Link>
+                            )}
                         </div>
                     ) : (
                         <article className="prose prose-lg prose-gray max-w-none font-serif text-xl leading-loose text-gray-800 whitespace-pre-line">

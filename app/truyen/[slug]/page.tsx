@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Book, User, Calendar, Eye, Star, List, ChevronRight } from "lucide-react";
+import MainHeader from "@/components/layout/main-header";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -35,22 +36,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
             {/* Header (Simplified for now, ideally reusable) */}
-            <header className="bg-white shadow-sm sticky top-0 z-50">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="bg-indigo-600 p-1.5 rounded-lg">
-                            <Book className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-xl font-bold text-indigo-900 tracking-tight">
-                            Novest
-                        </span>
-                    </Link>
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
-                        <User className="w-4 h-4" />
-                        <span>Login</span>
-                    </button>
-                </div>
-            </header>
+            {/* Header (Simplified for now, ideally reusable) */}
+            <MainHeader />
 
             <main className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}

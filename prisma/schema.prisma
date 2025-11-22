@@ -44,21 +44,22 @@ model User {
   emailVerified DateTime?
   image         String?
   role          String    @default("READER") // ADMIN, TRANSLATOR, READER
-  
-  accounts      Account[]
-  sessions      Session[]
-  
+
+  accounts Account[]
+  sessions Session[]
+
   // Quan hệ với Ví tiền & Truyện
-  wallet        Wallet?
-  
+  wallet Wallet?
+
   // Các bảng tương tác (Tạm thời chưa dùng nhưng cứ khai báo sẵn)
   // comments      Comment[]
   // reviews       Review[]
   // library       Library[] 
   // readingHistory ReadingHistory[]
   // purchases     UserPurchase[]
+  purchases UserPurchase[]
 
-  createdAt     DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model VerificationToken {
@@ -71,23 +72,23 @@ model VerificationToken {
 
 // ================= 2. MODEL VÍ TIỀN (MỚI THÊM) =================
 model Wallet {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
-  balance     Int      @default(0) // Số dư xu
-  
+  id      String @id @default(cuid())
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id])
+  balance Int    @default(0) // Số dư xu
+
   transactions Transaction[]
 }
 
 model Transaction {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   walletId    String
-  wallet      Wallet   @relation(fields: [walletId], references: [id])
-  amount      Int      
-  type        String   // DEPOSIT, PURCHASE...
+  wallet      Wallet  @relation(fields: [walletId], references: [id])
+  amount      Int
+  type        String // DEPOSIT, PURCHASE...
   description String?
-  
-  createdAt   DateTime @default(now())
+
+  createdAt DateTime @default(now())
 }
 
 // ================= 3. MODEL TRUYỆN (GIỮ NGUYÊN NHƯ FILE BẠN GỬI) =================
@@ -99,17 +100,17 @@ model Novel {
   description String?
   status      String  @default("ONGOING")
   coverImage  String?
-  
-  volumes     Volume[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  volumes Volume[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Volume {
-  id      Int    @id @default(autoincrement())
-  title   String
-  order   Int
+  id    Int    @id @default(autoincrement())
+  title String
+  order Int
 
   novelId Int
   novel   Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
@@ -127,4 +128,17 @@ model Chapter {
 
   volumeId Int
   volume   Volume @relation(fields: [volumeId], references: [id])
+
+  purchases UserPurchase[]
+}
+
+model UserPurchase {
+  userId    String
+  chapterId Int
+  price     Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  chapter   Chapter  @relation(fields: [chapterId], references: [id])
+
+  @@id([userId, chapterId])
 }
