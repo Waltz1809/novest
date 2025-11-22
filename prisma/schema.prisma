@@ -9,25 +9,107 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ================= 1. MODEL CHO NEXTAUTH (MỚI THÊM) =================
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("READER") // ADMIN, TRANSLATOR, READER
+  
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Quan hệ với Ví tiền & Truyện
+  wallet        Wallet?
+  
+  // Các bảng tương tác (Tạm thời chưa dùng nhưng cứ khai báo sẵn)
+  // comments      Comment[]
+  // reviews       Review[]
+  // library       Library[] 
+  // readingHistory ReadingHistory[]
+  // purchases     UserPurchase[]
+
+  createdAt     DateTime  @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ================= 2. MODEL VÍ TIỀN (MỚI THÊM) =================
+model Wallet {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  balance     Int      @default(0) // Số dư xu
+  
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+  amount      Int      
+  type        String   // DEPOSIT, PURCHASE...
+  description String?
+  
+  createdAt   DateTime @default(now())
+}
+
+// ================= 3. MODEL TRUYỆN (GIỮ NGUYÊN NHƯ FILE BẠN GỬI) =================
 model Novel {
-  id          Int     @id @default(autoincrement()) // Quan trọng: Phải là Int và autoincrement
+  id          Int     @id @default(autoincrement())
   title       String
   slug        String  @unique
   author      String
   description String?
   status      String  @default("ONGOING")
   coverImage  String?
+  
+  volumes     Volume[]
 
-  volumes Volume[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Volume {
-  id    Int    @id @default(autoincrement())
-  title String
-  order Int
+  id      Int    @id @default(autoincrement())
+  title   String
+  order   Int
 
   novelId Int
   novel   Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
@@ -36,7 +118,7 @@ model Volume {
 }
 
 model Chapter {
-  id       Int     @id @default(autoincrement()) // Đổi sang Int cho nhẹ đầu lúc này
+  id       Int     @id @default(autoincrement())
   title    String
   content  String
   order    Int
@@ -46,5 +128,3 @@ model Chapter {
   volumeId Int
   volume   Volume @relation(fields: [volumeId], references: [id])
 }
-
-// Tạm bỏ qua các bảng User/History để test cho được cái Novel đã
