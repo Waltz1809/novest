@@ -19,18 +19,16 @@ export default async function ChapterReadingPage({ params }: PageProps) {
     const { slug, chapterSlug } = await params;
     const session = await auth();
 
-    // 1. Extract Chapter ID from slug (e.g., "chuong-123" -> 123)
-    const parts = chapterSlug.split("-");
-    const chapterIdStr = parts[parts.length - 1];
-    const chapterId = parseInt(chapterIdStr);
-
-    if (isNaN(chapterId)) {
-        notFound();
-    }
-
-    // 2. Fetch Current Chapter
-    const chapter = await db.chapter.findUnique({
-        where: { id: chapterId },
+    // 1. Fetch Current Chapter by Slug
+    const chapter = await db.chapter.findFirst({
+        where: {
+            slug: chapterSlug,
+            volume: {
+                novel: {
+                    slug: slug
+                }
+            }
+        },
         include: {
             volume: true,
         },
@@ -39,6 +37,8 @@ export default async function ChapterReadingPage({ params }: PageProps) {
     if (!chapter) {
         notFound();
     }
+
+    const chapterId = chapter.id;
 
     // 3. Fetch All Chapters for Navigation Context
     const novel = await db.novel.findUnique({
@@ -57,6 +57,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                             id: true,
                             title: true,
                             order: true,
+                            slug: true,
                         },
                     },
                 },
@@ -130,7 +131,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                 <div className="flex items-center justify-between mb-10 font-sans text-sm">
                     {prevChapter ? (
                         <Link
-                            href={`/truyen/${slug}/chuong-${prevChapter.id}`}
+                            href={`/truyen/${slug}/${prevChapter.slug}`}
                             className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-full hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all"
                         >
                             <ChevronLeft className="w-4 h-4" /> Chương trước
@@ -151,7 +152,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
 
                     {nextChapter ? (
                         <Link
-                            href={`/truyen/${slug}/chuong-${nextChapter.id}`}
+                            href={`/truyen/${slug}/${nextChapter.slug}`}
                             className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-full hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all"
                         >
                             Chương sau <ChevronRight className="w-4 h-4" />
@@ -194,7 +195,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                 <div className="flex items-center justify-between mt-16 font-sans text-sm">
                     {prevChapter ? (
                         <Link
-                            href={`/truyen/${slug}/chuong-${prevChapter.id}`}
+                            href={`/truyen/${slug}/${prevChapter.slug}`}
                             className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-full hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all"
                         >
                             <ChevronLeft className="w-4 h-4" /> Chương trước
@@ -207,7 +208,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
 
                     {nextChapter ? (
                         <Link
-                            href={`/truyen/${slug}/chuong-${nextChapter.id}`}
+                            href={`/truyen/${slug}/${nextChapter.slug}`}
                             className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-full hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all"
                         >
                             Chương sau <ChevronRight className="w-4 h-4" />

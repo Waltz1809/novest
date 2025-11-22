@@ -3,12 +3,15 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-    // Xóa dữ liệu cũ
+    // 1. Xóa sạch dữ liệu cũ
+    await prisma.userPurchase.deleteMany() // Xóa cái này trước vì dính khóa ngoại
     await prisma.chapter.deleteMany()
     await prisma.volume.deleteMany()
     await prisma.novel.deleteMany()
 
-    // Tạo mới - KHÔNG ĐIỀN ID, để tự tăng
+    console.log('Deleted old data.')
+
+    // 2. Tạo dữ liệu mới
     const novel = await prisma.novel.create({
         data: {
             title: 'Truyện Test',
@@ -22,8 +25,10 @@ async function main() {
                     chapters: {
                         create: {
                             title: 'Chương 1',
-                            content: 'Nội dung...',
-                            order: 1
+                            content: 'Nội dung test chương 1...',
+                            order: 1,
+                            slug: 'c1', // <--- QUAN TRỌNG: Phải có cái này
+                            price: 0
                         }
                     }
                 }

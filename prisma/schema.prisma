@@ -121,6 +121,7 @@ model Volume {
 model Chapter {
   id       Int     @id @default(autoincrement())
   title    String
+  slug     String
   content  String
   order    Int
   isLocked Boolean @default(false)
