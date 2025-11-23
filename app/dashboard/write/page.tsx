@@ -14,6 +14,7 @@ interface Novel {
 interface Volume {
     id: number;
     title: string;
+    order: number;
 }
 
 export default function WriteChapterPage() {
@@ -34,7 +35,12 @@ export default function WriteChapterPage() {
     const [isLocked, setIsLocked] = useState(false);
 
     // Derived State
-    const slug = chapterNumber ? `c${chapterNumber}` : "";
+    const slug = (() => {
+        if (!volumeId || !chapterNumber) return "";
+        const selectedVolume = volumes.find(v => v.id === parseInt(volumeId));
+        if (!selectedVolume) return "";
+        return `vol-${selectedVolume.order}-chap-${chapterNumber}`;
+    })();
 
     // Fetch Novels on Mount
     useEffect(() => {
@@ -66,11 +72,9 @@ export default function WriteChapterPage() {
                 await createChapter({
                     title: fullTitle,
                     content,
-                    novelId: parseInt(novelId),
                     volumeId: parseInt(volumeId),
                     price,
                     isLocked,
-                    slug,
                     order: parseInt(chapterNumber),
                 });
                 alert("Đăng chương thành công!");

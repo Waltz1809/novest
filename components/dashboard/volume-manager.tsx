@@ -29,7 +29,7 @@ interface Chapter {
     order: number;
     isLocked: boolean;
     price: number;
-    createdAt: Date;
+    createdAt?: Date | string;
 }
 
 interface Volume {
@@ -298,8 +298,12 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                                         )}
                                                     </div>
                                                     <div className="text-xs text-gray-500 flex items-center gap-2">
-                                                        <span>{new Date(chapter.createdAt).toLocaleDateString("vi-VN")}</span>
-                                                        <span>•</span>
+                                                        {chapter.createdAt && (
+                                                            <>
+                                                                <span>{new Date(chapter.createdAt).toLocaleDateString("vi-VN")}</span>
+                                                                <span>•</span>
+                                                            </>
+                                                        )}
                                                         <span className="font-mono">{chapter.slug}</span>
                                                     </div>
                                                 </div>

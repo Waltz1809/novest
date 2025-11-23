@@ -42,7 +42,7 @@ export default async function EditNovelPage({ params }: PageProps) {
         redirect("/dashboard/novels");
     }
 
-    if (novel.authorId !== session.user.id && session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR") {
         redirect("/dashboard/novels");
     }
 
