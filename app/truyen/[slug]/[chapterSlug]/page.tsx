@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react";
 import UnlockButton from "@/components/novel/unlock-button";
 import ChapterContent from "@/components/novel/chapter-content";
+import { updateReadingHistory } from "@/actions/library";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -41,7 +42,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
 
     const chapterId = chapter.id;
 
-    // 3. Fetch All Chapters for Navigation Context
+    // 2. Fetch Novel for Navigation Context
     const novel = await db.novel.findUnique({
         where: { slug },
         select: {
@@ -68,6 +69,11 @@ export default async function ChapterReadingPage({ params }: PageProps) {
 
     if (!novel) {
         notFound();
+    }
+
+    // Update reading history (fire and forget)
+    if (session?.user) {
+        updateReadingHistory(novel.id, chapter.id);
     }
 
     // Flatten chapters to a simple list for easy prev/next finding

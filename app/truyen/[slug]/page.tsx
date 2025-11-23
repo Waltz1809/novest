@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Book, User, Calendar, Eye, Star, List, ChevronRight } from "lucide-react";
 import MainHeader from "@/components/layout/main-header";
+import { auth } from "@/auth";
+import LibraryButton from "@/components/novel/library-button";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -14,6 +16,7 @@ interface PageProps {
 
 export default async function NovelDetailPage({ params }: PageProps) {
     const { slug } = await params;
+    const session = await auth();
 
     const novel = await db.novel.findUnique({
         where: { slug },
@@ -37,6 +40,19 @@ export default async function NovelDetailPage({ params }: PageProps) {
 
     if (!novel) {
         notFound();
+    }
+
+    let isInLibrary = false;
+    if (session?.user) {
+        const libraryEntry = await db.library.findUnique({
+            where: {
+                userId_novelId: {
+                    userId: session.user.id,
+                    novelId: novel.id,
+                },
+            },
+        });
+        isInLibrary = !!libraryEntry;
     }
 
     return (
@@ -81,7 +97,12 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                 {novel.author}
                             </p>
 
+                            <div className="flex justify-center mb-6">
+                                <LibraryButton novelId={novel.id} initialIsInLibrary={isInLibrary} />
+                            </div>
+
                             <div className="flex flex-col gap-3">
+                                {/* ... (stats) */}
                                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <span className="text-sm text-gray-500 flex items-center gap-2">
                                         <Star className="w-4 h-4" /> Trạng thái

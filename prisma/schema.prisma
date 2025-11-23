@@ -51,13 +51,10 @@ model User {
   // Quan hệ với Ví tiền & Truyện
   wallet Wallet?
 
-  // Các bảng tương tác (Tạm thời chưa dùng nhưng cứ khai báo sẵn)
-  // comments      Comment[]
-  // reviews       Review[]
-  // library       Library[] 
-  // readingHistory ReadingHistory[]
-  // purchases     UserPurchase[]
-  purchases UserPurchase[]
+  // Các bảng tương tác
+  library        Library[]
+  readingHistory ReadingHistory[]
+  purchases      UserPurchase[]
 
   createdAt DateTime @default(now())
 }
@@ -105,8 +102,10 @@ model Novel {
   alternativeTitles String? // Tên khác
   searchIndex       String? // Index tìm kiếm (slug hóa của title + author + alt)
 
-  volumes Volume[]
-  genres  Genre[]
+  volumes        Volume[]
+  genres         Genre[]
+  library        Library[]
+  readingHistory ReadingHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -142,7 +141,8 @@ model Chapter {
   volumeId Int
   volume   Volume @relation(fields: [volumeId], references: [id])
 
-  purchases UserPurchase[]
+  purchases        UserPurchase[]
+  readingHistories ReadingHistory[]
 }
 
 model UserPurchase {
@@ -154,4 +154,28 @@ model UserPurchase {
   chapter   Chapter  @relation(fields: [chapterId], references: [id])
 
   @@id([userId, chapterId])
+}
+
+model Library {
+  userId    String
+  novelId   Int
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  @@id([userId, novelId])
+}
+
+model ReadingHistory {
+  userId    String
+  novelId   Int
+  chapterId Int
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novel   Novel   @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@id([userId, novelId])
 }

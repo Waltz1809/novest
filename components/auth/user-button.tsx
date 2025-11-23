@@ -1,6 +1,6 @@
-import { auth, signIn, signOut } from "@/auth"
-import { User, LogOut } from "lucide-react"
-import Image from "next/image"
+import { auth, signIn } from "@/auth"
+import { User } from "lucide-react"
+import UserMenu from "./user-menu"
 
 export default async function UserButton() {
     const session = await auth()
@@ -24,40 +24,5 @@ export default async function UserButton() {
         )
     }
 
-    return (
-        <div className="flex items-center gap-3">
-            {session.user.image ? (
-                <Image
-                    src={session.user.image}
-                    alt={session.user.name || "User Avatar"}
-                    width={32}
-                    height={32}
-                    className="rounded-full border border-gray-200"
-                />
-            ) : (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                    <User className="w-4 h-4" />
-                </div>
-            )}
-
-            <span className="text-sm font-medium text-gray-700 hidden sm:inline-block">
-                {session.user.name}
-            </span>
-
-            <form
-                action={async () => {
-                    "use server"
-                    await signOut()
-                }}
-            >
-                <button
-                    type="submit"
-                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                    title="Logout"
-                >
-                    <LogOut className="w-4 h-4" />
-                </button>
-            </form>
-        </div>
-    )
+    return <UserMenu user={session.user} />
 }

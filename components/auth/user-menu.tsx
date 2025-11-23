@@ -1,0 +1,81 @@
+"use client";
+
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+import Image from "next/image";
+import { User, LogOut, Book, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+
+interface UserMenuProps {
+    user: {
+        name?: string | null;
+        image?: string | null;
+    };
+}
+
+export default function UserMenu({ user }: UserMenuProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative" ref={menuRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+                {user.image ? (
+                    <Image
+                        src={user.image}
+                        alt={user.name || "User Avatar"}
+                        width={32}
+                        height={32}
+                        className="rounded-full border border-gray-200"
+                    />
+                ) : (
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <User className="w-4 h-4" />
+                    </div>
+                )}
+                <span className="text-sm font-medium text-gray-700 hidden sm:inline-block">
+                    {user.name}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-4 py-2 border-b border-gray-100 mb-2">
+                        <p className="text-sm font-medium text-gray-900">Tài khoản của tôi</p>
+                    </div>
+
+                    <Link
+                        href="/tu-truyen"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <Book className="w-4 h-4" />
+                        <span>Tủ truyện</span>
+                    </Link>
+
+                    <button
+                        onClick={() => signOut()}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors mt-2 border-t border-gray-100 pt-2"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}

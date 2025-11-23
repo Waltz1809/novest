@@ -26,6 +26,7 @@ interface NovelFormProps {
         alternativeTitles: string | null;
         genres: { id: number; name: string }[];
     } | null;
+    genres: Genre[];
 }
 
 interface FormData {
@@ -39,14 +40,9 @@ interface FormData {
     genreIds: number[];
 }
 
-export default function NovelForm({ initialData }: NovelFormProps) {
+export default function NovelForm({ initialData, genres }: NovelFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const [genres, setGenres] = useState<Genre[]>([]);
-
-    useEffect(() => {
-        getGenres().then(setGenres);
-    }, []);
 
     const {
         register,

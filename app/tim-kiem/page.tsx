@@ -33,7 +33,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full"
                     >
                         {/* Cover Image Area */}
-                        <div className="aspect-[2/3] relative bg-gray-100 overflow-hidden">
+                        <div className="aspect-2/3 relative bg-gray-100 overflow-hidden">
                             {novel.coverImage ? (
                                 <Image
                                     src={novel.coverImage}
@@ -53,7 +53,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                         </div>
 
                         {/* Content Area */}
-                        <div className="p-4 flex flex-col flex-grow">
+                        <div className="p-4 flex flex-col grow">
                             <h3 className="font-bold text-gray-900 line-clamp-2 mb-1 group-hover:text-indigo-600 transition-colors">
                                 {novel.title}
                             </h3>
