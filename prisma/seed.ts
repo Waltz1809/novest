@@ -1,48 +1,108 @@
-// prisma/seed.ts
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { PrismaClient } from "@prisma/client";
+
+const db = new PrismaClient();
 
 async function main() {
-    // 1. Xóa sạch dữ liệu cũ
-    await prisma.userPurchase.deleteMany() // Xóa cái này trước vì dính khóa ngoại
-    await prisma.chapter.deleteMany()
-    await prisma.volume.deleteMany()
-    await prisma.novel.deleteMany()
+    // 1. Tạo Genres
+    const genres = [
+        "Tiên Hiệp",
+        "Huyền Huyễn",
+        "Khoa Huyễn",
+        "Võ Hiệp",
+        "Đô Thị",
+        "Đồng Nhân",
+        "Lịch Sử",
+        "Quân Sự",
+        "Du Hí",
+        "Cạnh Kỹ",
+        "Linh Dị",
+        "Ngôn Tình",
+        "Đam Mỹ",
+        "Bách Hợp",
+        "Xuyên Không",
+        "Trọng Sinh",
+        "Trinh Thám",
+        "Thám Hiểm",
+        "Hệ Thống",
+        "Sắc",
+        "Ngược",
+        "Sủng",
+        "Cung Đấu",
+        "Nữ Cường",
+        "Gia Đấu",
+        "Đông Phương",
+        "Mạt Thế",
+        "Khác",
+    ];
 
-    console.log('Deleted old data.')
+    for (const name of genres) {
+        const slug = name
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[đĐ]/g, "d")
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-");
 
-    // 2. Tạo dữ liệu mới
-    const novel = await prisma.novel.create({
+        await db.genre.upsert({
+            where: { slug },
+            update: {},
+            create: {
+                name,
+                slug,
+            },
+        });
+    }
+
+    // 2. Tạo Truyện Test
+    const novel = await db.novel.upsert({
+        where: { slug: "truyen-test" },
+        update: {
+            searchIndex: "truyen test tac gia test ten khac",
+        },
+        create: {
+            title: "Truyện Test",
+            slug: "truyen-test",
+            author: "Tác giả Test",
+            description: "Mô tả truyện test",
+            status: "ONGOING",
+            searchIndex: "truyen test tac gia test ten khac",
+            genres: {
+                connect: [{ slug: "tien-hiep" }, { slug: "huyen-huyen" }],
+            },
+        },
+    });
+
+    // 3. Tạo Volume
+    const volume = await db.volume.create({
         data: {
-            title: 'Truyện Test',
-            slug: 'truyen-test',
-            author: 'Tester',
-            status: 'ONGOING',
-            volumes: {
-                create: {
-                    title: 'Quyển 1',
-                    order: 1,
-                    chapters: {
-                        create: {
-                            title: 'Chương 1',
-                            content: 'Nội dung test chương 1...',
-                            order: 1,
-                            slug: 'c1', // <--- QUAN TRỌNG: Phải có cái này
-                            price: 0
-                        }
-                    }
-                }
-            }
-        }
-    })
+            title: "Tập 1",
+            order: 1,
+            novelId: novel.id,
+        },
+    });
 
-    console.log('Seed success! Novel ID:', novel.id)
+    // 4. Tạo Chapter
+    await db.chapter.create({
+        data: {
+            title: "Chương 1: Mở đầu",
+            slug: "c1",
+            content: "<p>Nội dung chương 1...</p>",
+            order: 1,
+            volumeId: volume.id,
+        },
+    });
+
+    console.log("Seeding completed!");
 }
 
 main()
-    .then(async () => await prisma.$disconnect())
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
+    .then(async () => {
+        await db.$disconnect();
     })
+    .catch(async (e) => {
+        console.error(e);
+        await db.$disconnect();
+        process.exit(1);
+    });

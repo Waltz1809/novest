@@ -18,3 +18,9 @@ export function toSlug(str: string): string {
     str = str.replace(/^-+|-+$/g, ""); // Xóa gạch dư
     return str;
 }
+
+// 3. Tạo Search Index (Cho tìm kiếm nhanh)
+export function generateSearchIndex(title: string, author: string, alternativeTitles: string = ""): string {
+    const combined = `${title} ${author} ${alternativeTitles}`;
+    return toSlug(combined).replace(/-/g, " "); // Giữ lại khoảng trắng để tìm kiếm like
+}

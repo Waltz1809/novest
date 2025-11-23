@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/novel/image-upload";
 import { createNovel, updateNovel } from "@/actions/novel";
+import { getGenres } from "@/actions/search";
 import { Loader2, Save, Wand2 } from "lucide-react";
+import { toSlug } from "@/lib/utils";
+
+interface Genre {
+    id: number;
+    name: string;
+}
 
 interface NovelFormProps {
     initialData?: {
@@ -16,6 +23,8 @@ interface NovelFormProps {
         description: string | null;
         status: string;
         coverImage: string | null;
+        alternativeTitles: string | null;
+        genres: { id: number; name: string }[];
     } | null;
 }
 
@@ -26,11 +35,18 @@ interface FormData {
     description: string;
     status: string;
     coverImage: string;
+    alternativeTitles: string;
+    genreIds: number[];
 }
 
 export default function NovelForm({ initialData }: NovelFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [genres, setGenres] = useState<Genre[]>([]);
+
+    useEffect(() => {
+        getGenres().then(setGenres);
+    }, []);
 
     const {
         register,
@@ -46,6 +62,8 @@ export default function NovelForm({ initialData }: NovelFormProps) {
             description: initialData?.description || "",
             status: initialData?.status || "ONGOING",
             coverImage: initialData?.coverImage || "",
+            alternativeTitles: initialData?.alternativeTitles || "",
+            genreIds: initialData?.genres.map((g) => g.id) || [],
         },
     });
 
@@ -53,15 +71,7 @@ export default function NovelForm({ initialData }: NovelFormProps) {
     const title = watch("title");
 
     const generateSlug = () => {
-        const slug = title
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[đĐ]/g, "d")
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
-        setValue("slug", slug);
+        setValue("slug", toSlug(title));
     };
 
     const onSubmit = (data: FormData) => {
@@ -168,6 +178,36 @@ export default function NovelForm({ initialData }: NovelFormProps) {
                                     <option value="COMPLETED">Hoàn thành (COMPLETED)</option>
                                     <option value="PAUSED">Tạm dừng (PAUSED)</option>
                                 </select>
+                            </div>
+
+                            <div className="col-span-2 space-y-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Tên khác (Alternative Titles)
+                                </label>
+                                <input
+                                    {...register("alternativeTitles")}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    placeholder="Tên gọi khác, ngăn cách bởi dấu phẩy..."
+                                />
+                            </div>
+
+                            <div className="col-span-2 space-y-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    Thể loại
+                                </label>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 border border-gray-200 rounded-lg">
+                                    {genres.map((genre) => (
+                                        <label key={genre.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                value={genre.id}
+                                                {...register("genreIds")}
+                                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            {genre.name}
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 

@@ -56,7 +56,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                     {/* Left Column: Cover & Info */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
-                            <div className="aspect-[2/3] relative rounded-xl overflow-hidden mb-6 bg-gray-100 shadow-inner">
+                            <div className="aspect-2/3 relative rounded-xl overflow-hidden mb-6 bg-gray-100 shadow-inner">
                                 {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
                                     <Image
                                         src={novel.coverImage}

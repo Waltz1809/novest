@@ -101,10 +101,22 @@ model Novel {
   status      String  @default("ONGOING")
   coverImage  String?
 
+  // Search & SEO
+  alternativeTitles String? // Tên khác
+  searchIndex       String? // Index tìm kiếm (slug hóa của title + author + alt)
+
   volumes Volume[]
+  genres  Genre[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  slug   String  @unique
+  novels Novel[]
 }
 
 model Volume {
