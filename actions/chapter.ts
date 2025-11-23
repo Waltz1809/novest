@@ -261,12 +261,16 @@ export async function deleteVolume(volumeId: number) {
         const volume = await db.volume.findUnique({ where: { id: volumeId }, include: { novel: true } });
         if (!volume) return { error: "Volume not found" };
 
-        await db.volume.delete({ where: { id: volumeId } });
+        await db.$transaction([
+            db.chapter.deleteMany({ where: { volumeId } }),
+            db.volume.delete({ where: { id: volumeId } })
+        ]);
 
         revalidatePath(`/dashboard/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
         return { success: "Xóa tập thành công!" };
     } catch (error) {
+        console.error("Delete volume error:", error);
         return { error: "Lỗi khi xóa tập" };
     }
 }
