@@ -82,6 +82,13 @@ export default function SearchBar() {
                     placeholder="Tìm kiếm truyện, tác giả..."
                     className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none text-sm"
                     onFocus={() => query && setIsOpen(true)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            setIsOpen(false);
+                            router.push(`/tim-kiem?q=${encodeURIComponent(query)}`);
+                        }
+                    }}
                 />
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                     {isLoading ? (

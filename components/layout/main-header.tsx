@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import UserButton from "@/components/auth/user-button";
@@ -19,7 +17,7 @@ export default function MainHeader() {
                 </Link>
 
                 {/* Search Bar */}
-                <div className="hidden md:block flex-1 max-w-md mx-4">
+                <div className="flex-1 max-w-md mx-4">
                     <SearchBar />
                 </div>
 

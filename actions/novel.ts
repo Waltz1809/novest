@@ -21,7 +21,7 @@ export async function createNovel(data: {
         throw new Error("Unauthorized");
     }
 
-    const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles);
+    const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
     await db.novel.create({
         data: {
@@ -34,7 +34,7 @@ export async function createNovel(data: {
             alternativeTitles: data.alternativeTitles,
             searchIndex,
             genres: {
-                connect: data.genreIds?.map((id) => ({ id })),
+                connect: data.genreIds?.map((id) => ({ id: Number(id) })),
             },
         },
     });
@@ -58,10 +58,10 @@ export async function updateNovel(id: number, data: {
         throw new Error("Unauthorized");
     }
 
-    const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles);
+    const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
     await db.novel.update({
-        where: { id },
+        where: { id: Number(id) },
         data: {
             title: data.title,
             slug: data.slug,
@@ -73,7 +73,7 @@ export async function updateNovel(id: number, data: {
             searchIndex,
             genres: {
                 set: [], // Clear old genres
-                connect: data.genreIds?.map((id) => ({ id })),
+                connect: data.genreIds?.map((id) => ({ id: Number(id) })),
             },
         },
     });
@@ -105,4 +105,23 @@ export async function deleteNovel(id: number) {
 
     revalidatePath("/dashboard/novels");
     revalidatePath("/");
+}
+
+export async function reindexAllNovels() {
+    const session = await auth();
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
+        throw new Error("Unauthorized");
+    }
+
+    const novels = await db.novel.findMany();
+
+    for (const novel of novels) {
+        const searchIndex = generateSearchIndex(novel.title, novel.author, novel.alternativeTitles || "");
+        await db.novel.update({
+            where: { id: novel.id },
+            data: { searchIndex },
+        });
+    }
+
+    revalidatePath("/dashboard/novels");
 }

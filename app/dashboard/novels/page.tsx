@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus, Edit, Trash2, BookOpen, Eye } from "lucide-react";
 
+import ReindexButton from "@/components/novel/reindex-button";
+
 export const revalidate = 0; // Dynamic
 
 export default async function NovelsPage() {
@@ -29,13 +31,16 @@ export default async function NovelsPage() {
                     <h1 className="text-2xl font-bold text-gray-900">Quản lý Truyện</h1>
                     <p className="text-gray-500">Danh sách tất cả truyện trong hệ thống.</p>
                 </div>
-                <Link
-                    href="/dashboard/novels/create"
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-                >
-                    <Plus className="w-4 h-4" />
-                    Thêm truyện mới
-                </Link>
+                <div className="flex items-center gap-3">
+                    <ReindexButton />
+                    <Link
+                        href="/dashboard/novels/create"
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Thêm truyện mới
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -85,10 +90,10 @@ export default async function NovelsPage() {
                                             <td className="px-6 py-4">
                                                 <span
                                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${novel.status === "ONGOING"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : novel.status === "COMPLETED"
-                                                                ? "bg-blue-100 text-blue-800"
-                                                                : "bg-gray-100 text-gray-800"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : novel.status === "COMPLETED"
+                                                            ? "bg-blue-100 text-blue-800"
+                                                            : "bg-gray-100 text-gray-800"
                                                         }`}
                                                 >
                                                     {novel.status}
