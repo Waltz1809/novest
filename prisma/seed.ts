@@ -55,11 +55,23 @@ async function main() {
         });
     }
 
-    // 2. Tạo Truyện Test
+    // 2. Tạo User Admin
+    const admin = await db.user.upsert({
+        where: { email: "admin@novest.com" },
+        update: {},
+        create: {
+            email: "admin@novest.com",
+            name: "Admin User",
+            role: "ADMIN",
+        },
+    });
+
+    // 3. Tạo Truyện Test
     const novel = await db.novel.upsert({
         where: { slug: "truyen-test" },
         update: {
             searchIndex: "truyen test tac gia test ten khac",
+            uploaderId: admin.id,
         },
         create: {
             title: "Truyện Test",
@@ -68,13 +80,14 @@ async function main() {
             description: "Mô tả truyện test",
             status: "ONGOING",
             searchIndex: "truyen test tac gia test ten khac",
+            uploaderId: admin.id,
             genres: {
                 connect: [{ slug: "tien-hiep" }, { slug: "huyen-huyen" }],
             },
         },
     });
 
-    // 3. Tạo Volume
+    // 4. Tạo Volume
     const volume = await db.volume.create({
         data: {
             title: "Tập 1",
@@ -83,7 +96,7 @@ async function main() {
         },
     });
 
-    // 4. Tạo Chapter
+    // 5. Tạo Chapter
     await db.chapter.create({
         data: {
             title: "Chương 1: Mở đầu",

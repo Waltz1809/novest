@@ -15,8 +15,14 @@ const chapterSchema = z.object({
 });
 
 export async function getNovels() {
+    const session = await auth();
+    if (!session?.user) return [];
+
+    const where = session.user.role === "ADMIN" ? {} : { uploaderId: session.user.id };
+
     try {
         const novels = await db.novel.findMany({
+            where,
             select: {
                 id: true,
                 title: true,

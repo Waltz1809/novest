@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useTransition } from "react";
 import RichTextEditor from "@/components/editor/rich-text-editor";
-import { Save, BookOpen, DollarSign, Lock, Loader2, Hash, Link as LinkIcon, Type } from "lucide-react";
-import { getNovels, getVolumes, createChapter } from "@/actions/chapter";
+import { Save, BookOpen, DollarSign, Lock, Loader2, Hash, Link as LinkIcon, Type, Plus, X } from "lucide-react";
+import { getNovels, getVolumes, createChapter, createVolume } from "@/actions/chapter";
 import { useRouter } from "next/navigation";
 
 interface Novel {
@@ -34,6 +34,12 @@ export default function WriteChapterPage() {
     const [price, setPrice] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
 
+    // Quick Create Volume State
+    const [showCreateVolume, setShowCreateVolume] = useState(false);
+    const [newVolumeTitle, setNewVolumeTitle] = useState("");
+    const [newVolumeOrder, setNewVolumeOrder] = useState(1);
+    const [isCreatingVolume, startVolumeTransition] = useTransition();
+
     // Derived State
     const slug = (() => {
         if (!volumeId || !chapterNumber) return "";
@@ -50,12 +56,54 @@ export default function WriteChapterPage() {
     // Fetch Volumes when Novel changes
     useEffect(() => {
         if (novelId) {
-            getVolumes(parseInt(novelId)).then(setVolumes);
+            getVolumes(parseInt(novelId)).then((vols) => {
+                setVolumes(vols);
+                // Auto set next volume order
+                if (vols.length > 0) {
+                    const maxOrder = Math.max(...vols.map(v => v.order));
+                    setNewVolumeOrder(maxOrder + 1);
+                } else {
+                    setNewVolumeOrder(1);
+                }
+            });
             setVolumeId(""); // Reset volume
         } else {
             setVolumes([]);
         }
     }, [novelId]);
+
+    const handleCreateVolume = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newVolumeTitle || !newVolumeOrder || !novelId) return;
+
+        startVolumeTransition(async () => {
+            const res = await createVolume({
+                title: newVolumeTitle,
+                order: newVolumeOrder,
+                novelId: parseInt(novelId)
+            });
+
+            if (res.error) {
+                alert(res.error);
+            } else {
+                // Refresh volumes
+                const vols = await getVolumes(parseInt(novelId));
+                setVolumes(vols);
+
+                // Find the newly created volume (assuming it's the one with the order we just set)
+                // Or better, we could return the created volume from the action, but for now let's find it
+                const createdVol = vols.find(v => v.order === newVolumeOrder && v.title === newVolumeTitle);
+                if (createdVol) {
+                    setVolumeId(createdVol.id.toString());
+                }
+
+                // Reset form
+                setShowCreateVolume(false);
+                setNewVolumeTitle("");
+                setNewVolumeOrder(prev => prev + 1);
+            }
+        });
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -185,7 +233,56 @@ export default function WriteChapterPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-gray-500 uppercase">Chọn Tập (Volume)</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-500 uppercase">Chọn Tập (Volume)</label>
+                                {novelId && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCreateVolume(!showCreateVolume)}
+                                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                                    >
+                                        <Plus className="w-3 h-3" /> Thêm tập
+                                    </button>
+                                )}
+                            </div>
+
+                            {showCreateVolume && (
+                                <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100 space-y-3 mb-2 animate-in fade-in slide-in-from-top-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-indigo-900">Tạo tập mới</span>
+                                        <button onClick={() => setShowCreateVolume(false)} className="text-indigo-400 hover:text-indigo-600">
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="text"
+                                            value={newVolumeTitle}
+                                            onChange={(e) => setNewVolumeTitle(e.target.value)}
+                                            placeholder="Tên tập (VD: Tập 1)"
+                                            className="w-full px-2 py-1.5 text-sm border border-indigo-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                value={newVolumeOrder}
+                                                onChange={(e) => setNewVolumeOrder(parseInt(e.target.value))}
+                                                placeholder="Thứ tự"
+                                                className="w-20 px-2 py-1.5 text-sm border border-indigo-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleCreateVolume}
+                                                disabled={isCreatingVolume || !newVolumeTitle}
+                                                className="flex-1 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 disabled:opacity-50"
+                                            >
+                                                {isCreatingVolume ? "Đang tạo..." : "Tạo ngay"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <select
                                 value={volumeId}
                                 onChange={(e) => setVolumeId(e.target.value)}

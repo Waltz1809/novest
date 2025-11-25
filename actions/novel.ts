@@ -33,6 +33,7 @@ export async function createNovel(data: {
             coverImage: data.coverImage,
             alternativeTitles: data.alternativeTitles,
             searchIndex,
+            uploaderId: session.user.id,
             genres: {
                 connect: data.genreIds?.map((id) => ({ id: Number(id) })),
             },

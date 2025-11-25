@@ -55,6 +55,7 @@ model User {
   library        Library[]
   readingHistory ReadingHistory[]
   purchases      UserPurchase[]
+  novels         Novel[]
 
   createdAt DateTime @default(now())
 }
@@ -109,6 +110,9 @@ model Novel {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  uploaderId String
+  uploader   User   @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 }
 
 model Genre {

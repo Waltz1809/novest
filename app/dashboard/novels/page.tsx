@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Edit, Trash2, BookOpen, Eye } from "lucide-react";
@@ -8,7 +10,13 @@ import ReindexButton from "@/components/novel/reindex-button";
 export const revalidate = 0; // Dynamic
 
 export default async function NovelsPage() {
+    const session = await auth();
+    if (!session?.user) return redirect("/");
+
+    const where = session.user.role === "ADMIN" ? {} : { uploaderId: session.user.id };
+
     const novels = await db.novel.findMany({
+        where,
         orderBy: { createdAt: "desc" },
         include: {
             _count: {
