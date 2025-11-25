@@ -12,11 +12,11 @@ export default function ChapterContent({ content, className }: ChapterContentPro
     const [sanitizedContent, setSanitizedContent] = useState("");
 
     useEffect(() => {
-        setSanitizedContent(DOMPurify.sanitize(content));
+        setSanitizedContent(DOMPurify.sanitize(content, { FORBID_TAGS: ['a'] }));
     }, [content]);
 
     return (
-        <article className={`prose prose-lg prose-gray max-w-none leading-loose text-foreground dark:prose-invert ${className}`}>
+        <article className={`prose prose-lg prose-gray max-w-none leading-loose ${className} prose-headings:text-current prose-p:text-current prose-strong:text-current prose-a:text-current prose-li:text-current`}>
             <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         </article>
     );

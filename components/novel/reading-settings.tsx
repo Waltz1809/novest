@@ -70,18 +70,18 @@ export function ReadingSettings({
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-white p-4 shadow-xl ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10 z-50">
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl border border-gray-200 dark:border-gray-700 z-50">
                     {/* Theme */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-gray-500 uppercase">Màu nền</label>
-                        <div className="flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Màu nền</label>
+                        <div className="flex gap-2 rounded-lg bg-muted p-1">
                             <button
                                 onClick={() => updateConfig({ theme: "light" })}
                                 className={clsx(
                                     "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
                                     config.theme === "light"
-                                        ? "bg-white text-gray-900 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 <Sun className="h-4 w-4" /> Sáng
@@ -91,8 +91,8 @@ export function ReadingSettings({
                                 className={clsx(
                                     "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
                                     config.theme === "sepia"
-                                        ? "bg-[#f4ecd8] text-gray-900 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+                                        ? "bg-[#f4ecd8] text-[#5b4636] shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 <Coffee className="h-4 w-4" /> Vàng
@@ -102,8 +102,8 @@ export function ReadingSettings({
                                 className={clsx(
                                     "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
                                     config.theme === "dark"
-                                        ? "bg-gray-700 text-white shadow-sm"
-                                        : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+                                        ? "bg-gray-950 text-gray-200 shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 <Moon className="h-4 w-4" /> Tối
@@ -113,15 +113,15 @@ export function ReadingSettings({
 
                     {/* Font */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-gray-500 uppercase">Font chữ</label>
+                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Font chữ</label>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => updateConfig({ font: "sans" })}
                                 className={clsx(
                                     "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-sans",
                                     config.font === "sans"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border hover:border-primary/50 text-foreground"
                                 )}
                             >
                                 Sans
@@ -131,8 +131,8 @@ export function ReadingSettings({
                                 className={clsx(
                                     "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-serif",
                                     config.font === "serif"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border hover:border-primary/50 text-foreground"
                                 )}
                             >
                                 Serif
@@ -142,8 +142,8 @@ export function ReadingSettings({
                                 className={clsx(
                                     "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-mono",
                                     config.font === "mono"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border hover:border-primary/50 text-foreground"
                                 )}
                             >
                                 Mono
@@ -153,13 +153,13 @@ export function ReadingSettings({
 
                     {/* Size */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-gray-500 uppercase">
+                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">
                             Cỡ chữ: {config.fontSize}px
                         </label>
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => updateConfig({ fontSize: Math.max(14, config.fontSize - 1) })}
-                                className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                                className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
                             >
                                 <Type className="h-3 w-3" />
                             </button>
@@ -169,11 +169,11 @@ export function ReadingSettings({
                                 max="32"
                                 value={config.fontSize}
                                 onChange={(e) => updateConfig({ fontSize: parseInt(e.target.value) })}
-                                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
                             <button
                                 onClick={() => updateConfig({ fontSize: Math.min(32, config.fontSize + 1) })}
-                                className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                                className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
                             >
                                 <Type className="h-5 w-5" />
                             </button>
@@ -182,15 +182,15 @@ export function ReadingSettings({
 
                     {/* Align */}
                     <div>
-                        <label className="mb-2 block text-xs font-semibold text-gray-500 uppercase">Căn lề</label>
+                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Căn lề</label>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => updateConfig({ textAlign: "left" })}
                                 className={clsx(
-                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors",
+                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
                                     config.textAlign === "left"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border hover:border-primary/50"
                                 )}
                             >
                                 <AlignLeft className="h-4 w-4" /> Trái
@@ -198,10 +198,10 @@ export function ReadingSettings({
                             <button
                                 onClick={() => updateConfig({ textAlign: "justify" })}
                                 className={clsx(
-                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors",
+                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
                                     config.textAlign === "justify"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                        : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border hover:border-primary/50"
                                 )}
                             >
                                 <AlignJustify className="h-4 w-4" /> Đều

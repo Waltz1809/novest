@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import Typography from "@tiptap/extension-typography";
 import {
     Bold,
     Italic,
@@ -36,6 +37,7 @@ export default function RichTextEditor({
             Placeholder.configure({
                 placeholder,
             }),
+            Typography,
         ],
         content,
         editorProps: {

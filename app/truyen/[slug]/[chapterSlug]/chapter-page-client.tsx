@@ -39,8 +39,8 @@ export function ChapterPageClient({
             className={clsx(
                 "min-h-screen transition-colors duration-300",
                 config.theme === "light" && "bg-[#f9f7f1] text-gray-900",
-                config.theme === "sepia" && "bg-[#f4ecd8] text-gray-900",
-                config.theme === "dark" && "bg-[#1a1a1a] text-gray-300"
+                config.theme === "sepia" && "bg-[#f4ecd8] text-[#5b4636]",
+                config.theme === "dark" && "bg-gray-950 text-gray-200"
             )}
             style={{
                 fontFamily: config.font === "mono" ? "monospace" : config.font === "sans" ? "sans-serif" : "serif",
@@ -52,7 +52,7 @@ export function ChapterPageClient({
                     "fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-4 z-50 shadow-sm transition-all duration-300 backdrop-blur-sm border-b",
                     config.theme === "light" && "bg-[#f9f7f1]/95 border-gray-200/50",
                     config.theme === "sepia" && "bg-[#f4ecd8]/95 border-[#e6dac0]/50",
-                    config.theme === "dark" && "bg-[#1a1a1a]/95 border-gray-800/50"
+                    config.theme === "dark" && "bg-gray-950/95 border-gray-800/50"
                 )}
             >
                 <Link
