@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 
 interface ChapterContentProps {
     content: string;
+    className?: string;
 }
 
-export default function ChapterContent({ content }: ChapterContentProps) {
+export default function ChapterContent({ content, className }: ChapterContentProps) {
     const [sanitizedContent, setSanitizedContent] = useState("");
 
     useEffect(() => {
@@ -15,7 +16,7 @@ export default function ChapterContent({ content }: ChapterContentProps) {
     }, [content]);
 
     return (
-        <article className="prose prose-lg prose-gray max-w-none font-serif text-xl leading-loose text-gray-800">
+        <article className={`prose prose-lg prose-gray max-w-none leading-loose text-foreground dark:prose-invert ${className}`}>
             <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         </article>
     );

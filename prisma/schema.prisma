@@ -56,6 +56,8 @@ model User {
   readingHistory ReadingHistory[]
   purchases      UserPurchase[]
   novels         Novel[]
+  comments       Comment[]
+  ratings        Rating[]
 
   createdAt DateTime @default(now())
 }
@@ -112,7 +114,9 @@ model Novel {
   updatedAt DateTime @updatedAt
 
   uploaderId String
-  uploader   User   @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  uploader   User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  comments   Comment[]
+  ratings    Rating[]
 }
 
 model Genre {
@@ -147,6 +151,7 @@ model Chapter {
 
   purchases        UserPurchase[]
   readingHistories ReadingHistory[]
+  comments         Comment[]
 }
 
 model UserPurchase {
@@ -180,6 +185,40 @@ model ReadingHistory {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   novel   Novel   @relation(fields: [novelId], references: [id], onDelete: Cascade)
   chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@id([userId, novelId])
+}
+
+// ================= 4. MODEL TƯƠNG TÁC (COMMENTS & RATINGS) =================
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  novelId Int
+  novel   Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  chapterId Int?
+  chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  parentId Int?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children Comment[] @relation("CommentReplies")
+}
+
+model Rating {
+  userId    String
+  novelId   Int
+  score     Int // 1-5
+  content   String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@id([userId, novelId])
 }

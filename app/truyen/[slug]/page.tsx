@@ -6,6 +6,9 @@ import { Book, User, Calendar, Eye, Star, List, ChevronRight } from "lucide-reac
 import MainHeader from "@/components/layout/main-header";
 import { auth } from "@/auth";
 import LibraryButton from "@/components/novel/library-button";
+import { CommentSection } from "@/components/comment/comment-section";
+import { RatingButton } from "@/components/rating/rating-button";
+import { getUserRating } from "@/actions/interaction";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -55,6 +58,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
         isInLibrary = !!libraryEntry;
     }
 
+    const userRating = novel ? await getUserRating(novel.id) : null;
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
             {/* Header */}
@@ -97,8 +102,13 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                 {novel.author}
                             </p>
 
-                            <div className="flex justify-center mb-6">
+                            <div className="flex flex-col gap-3 justify-center mb-6 px-6">
                                 <LibraryButton novelId={novel.id} initialIsInLibrary={isInLibrary} />
+                                <RatingButton
+                                    novelId={novel.id}
+                                    initialRating={userRating?.score}
+                                    initialContent={userRating?.content || ""}
+                                />
                             </div>
 
                             <div className="flex flex-col gap-3">
@@ -187,6 +197,11 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                     Chưa có danh sách chương.
                                 </div>
                             )}
+                        </section>
+
+                        {/* Comments */}
+                        <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                            <CommentSection novelId={novel.id} />
                         </section>
                     </div>
                 </div>
