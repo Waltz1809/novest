@@ -70,145 +70,154 @@ export function ReadingSettings({
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl border border-gray-200 dark:border-gray-700 z-50">
-                    {/* Theme */}
-                    <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Màu nền</label>
-                        <div className="flex gap-2 rounded-lg bg-muted p-1">
-                            <button
-                                onClick={() => updateConfig({ theme: "light" })}
-                                className={clsx(
-                                    "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-                                    config.theme === "light"
-                                        ? "bg-background text-foreground shadow-sm"
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                <Sun className="h-4 w-4" /> Sáng
-                            </button>
-                            <button
-                                onClick={() => updateConfig({ theme: "sepia" })}
-                                className={clsx(
-                                    "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-                                    config.theme === "sepia"
-                                        ? "bg-[#f4ecd8] text-[#5b4636] shadow-sm"
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                <Coffee className="h-4 w-4" /> Vàng
-                            </button>
-                            <button
-                                onClick={() => updateConfig({ theme: "dark" })}
-                                className={clsx(
-                                    "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-                                    config.theme === "dark"
-                                        ? "bg-gray-950 text-gray-200 shadow-sm"
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                <Moon className="h-4 w-4" /> Tối
-                            </button>
-                        </div>
-                    </div>
+                <>
+                    {/* Backdrop overlay */}
+                    <div
+                        className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+                        onClick={() => setIsOpen(false)}
+                    />
 
-                    {/* Font */}
-                    <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Font chữ</label>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => updateConfig({ font: "sans" })}
-                                className={clsx(
-                                    "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-sans",
-                                    config.font === "sans"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border hover:border-primary/50 text-foreground"
-                                )}
-                            >
-                                Sans
-                            </button>
-                            <button
-                                onClick={() => updateConfig({ font: "serif" })}
-                                className={clsx(
-                                    "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-serif",
-                                    config.font === "serif"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border hover:border-primary/50 text-foreground"
-                                )}
-                            >
-                                Serif
-                            </button>
-                            <button
-                                onClick={() => updateConfig({ font: "mono" })}
-                                className={clsx(
-                                    "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-mono",
-                                    config.font === "mono"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border hover:border-primary/50 text-foreground"
-                                )}
-                            >
-                                Mono
-                            </button>
+                    {/* Settings menu */}
+                    <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                        {/* Theme */}
+                        <div className="mb-4">
+                            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Màu nền</label>
+                            <div className="flex gap-2 rounded-lg bg-muted p-1">
+                                <button
+                                    onClick={() => updateConfig({ theme: "light" })}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
+                                        config.theme === "light"
+                                            ? "bg-background text-foreground shadow-sm"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <Sun className="h-4 w-4" /> Sáng
+                                </button>
+                                <button
+                                    onClick={() => updateConfig({ theme: "sepia" })}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
+                                        config.theme === "sepia"
+                                            ? "bg-[#f4ecd8] text-[#5b4636] shadow-sm"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <Coffee className="h-4 w-4" /> Vàng
+                                </button>
+                                <button
+                                    onClick={() => updateConfig({ theme: "dark" })}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-sm font-medium transition-colors",
+                                        config.theme === "dark"
+                                            ? "bg-gray-950 text-gray-200 shadow-sm"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <Moon className="h-4 w-4" /> Tối
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Size */}
-                    <div className="mb-4">
-                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">
-                            Cỡ chữ: {config.fontSize}px
-                        </label>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => updateConfig({ fontSize: Math.max(14, config.fontSize - 1) })}
-                                className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
-                            >
-                                <Type className="h-3 w-3" />
-                            </button>
-                            <input
-                                type="range"
-                                min="14"
-                                max="32"
-                                value={config.fontSize}
-                                onChange={(e) => updateConfig({ fontSize: parseInt(e.target.value) })}
-                                className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                            />
-                            <button
-                                onClick={() => updateConfig({ fontSize: Math.min(32, config.fontSize + 1) })}
-                                className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
-                            >
-                                <Type className="h-5 w-5" />
-                            </button>
+                        {/* Font */}
+                        <div className="mb-4">
+                            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Font chữ</label>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => updateConfig({ font: "sans" })}
+                                    className={clsx(
+                                        "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-sans",
+                                        config.font === "sans"
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border hover:border-primary/50 text-foreground"
+                                    )}
+                                >
+                                    Sans
+                                </button>
+                                <button
+                                    onClick={() => updateConfig({ font: "serif" })}
+                                    className={clsx(
+                                        "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-serif",
+                                        config.font === "serif"
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border hover:border-primary/50 text-foreground"
+                                    )}
+                                >
+                                    Serif
+                                </button>
+                                <button
+                                    onClick={() => updateConfig({ font: "mono" })}
+                                    className={clsx(
+                                        "flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors font-mono",
+                                        config.font === "mono"
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border hover:border-primary/50 text-foreground"
+                                    )}
+                                >
+                                    Mono
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Align */}
-                    <div>
-                        <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Căn lề</label>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => updateConfig({ textAlign: "left" })}
-                                className={clsx(
-                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
-                                    config.textAlign === "left"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border hover:border-primary/50"
-                                )}
-                            >
-                                <AlignLeft className="h-4 w-4" /> Trái
-                            </button>
-                            <button
-                                onClick={() => updateConfig({ textAlign: "justify" })}
-                                className={clsx(
-                                    "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
-                                    config.textAlign === "justify"
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border hover:border-primary/50"
-                                )}
-                            >
-                                <AlignJustify className="h-4 w-4" /> Đều
-                            </button>
+                        {/* Size */}
+                        <div className="mb-4">
+                            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">
+                                Cỡ chữ: {config.fontSize}px
+                            </label>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => updateConfig({ fontSize: Math.max(14, config.fontSize - 1) })}
+                                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
+                                >
+                                    <Type className="h-3 w-3" />
+                                </button>
+                                <input
+                                    type="range"
+                                    min="14"
+                                    max="32"
+                                    value={config.fontSize}
+                                    onChange={(e) => updateConfig({ fontSize: parseInt(e.target.value) })}
+                                    className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
+                                <button
+                                    onClick={() => updateConfig({ fontSize: Math.min(32, config.fontSize + 1) })}
+                                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
+                                >
+                                    <Type className="h-5 w-5" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Align */}
+                        <div>
+                            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase">Căn lề</label>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => updateConfig({ textAlign: "left" })}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
+                                        config.textAlign === "left"
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border hover:border-primary/50"
+                                    )}
+                                >
+                                    <AlignLeft className="h-4 w-4" /> Trái
+                                </button>
+                                <button
+                                    onClick={() => updateConfig({ textAlign: "justify" })}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-sm transition-colors text-foreground",
+                                        config.textAlign === "justify"
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border hover:border-primary/50"
+                                    )}
+                                >
+                                    <AlignJustify className="h-4 w-4" /> Đều
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     )
