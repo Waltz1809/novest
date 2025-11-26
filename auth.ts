@@ -11,9 +11,15 @@ import { z } from "zod"
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(db) as any,
     providers: [
-        Google,
-        Discord,
-        GitHub,
+        Google({
+            allowDangerousEmailAccountLinking: true
+        }),
+        Discord({
+            allowDangerousEmailAccountLinking: true
+        }),
+        GitHub({
+            allowDangerousEmailAccountLinking: true
+        }),
         Credentials({
             name: "credentials",
             credentials: {
