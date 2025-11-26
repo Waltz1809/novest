@@ -9,7 +9,7 @@ const chapterSchema = z.object({
     title: z.string().min(1, "Tiêu đề không được để trống"),
     content: z.string().min(1, "Nội dung không được để trống"),
     volumeId: z.coerce.number().min(1, "Vui lòng chọn tập"),
-    order: z.coerce.number().min(1, "Vui lòng nhập số thứ tự"),
+    order: z.coerce.number().positive("Vui lòng nhập số thứ tự hợp lệ"), // Changed to support floats (e.g., 1.5)
     price: z.coerce.number().min(0).default(0),
     isLocked: z.boolean().default(false),
 });
@@ -84,7 +84,10 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
         }
 
         // New Slug Logic: vol-{volumeOrder}-chap-{order}
-        const slug = `vol-${volume.order}-chap-${order}`;
+        // For float orders (e.g., 1.5), replace dot with dash → chap-1-5
+        // For integer orders (e.g., 15), keep as is → chap-15
+        const chapterSlug = order.toString().replace('.', '-');
+        const slug = `vol-${volume.order}-chap-${chapterSlug}`;
 
         // Check for duplicate slug
         const existingSlug = await db.chapter.findFirst({
@@ -148,7 +151,8 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
         if (existingChapter.volumeId !== volumeId || existingChapter.order !== order) {
             const volume = await db.volume.findUnique({ where: { id: volumeId } });
             if (!volume) return { error: "Volume not found" };
-            slug = `vol-${volume.order}-chap-${order}`;
+            const chapterSlug = order.toString().replace('.', '-');
+            slug = `vol-${volume.order}-chap-${chapterSlug}`;
         }
 
         await db.chapter.update({
@@ -306,7 +310,8 @@ export async function reslugNovel(novelId: number) {
 
         for (const volume of novel.volumes) {
             for (const chapter of volume.chapters) {
-                const newSlug = `vol-${volume.order}-chap-${chapter.order}`;
+                const chapterSlug = chapter.order.toString().replace('.', '-');
+                const newSlug = `vol-${volume.order}-chap-${chapterSlug}`;
                 if (chapter.slug !== newSlug) {
                     await db.chapter.update({
                         where: { id: chapter.id },

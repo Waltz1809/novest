@@ -43,6 +43,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  password      String? // For credentials-based login
+  nickname      String? // Display name, fallback to name if not set
   role          String    @default("READER") // ADMIN, TRANSLATOR, READER
 
   accounts Account[]
@@ -142,7 +144,7 @@ model Chapter {
   title    String
   slug     String
   content  String
-  order    Int
+  order    Float // Changed to Float to support fractional chapters (e.g., 1.5)
   isLocked Boolean @default(false)
   price    Int     @default(0)
 

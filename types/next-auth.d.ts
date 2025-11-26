@@ -4,11 +4,13 @@ declare module "next-auth" {
     interface Session {
         user: {
             id: string
-            role: string // Thêm dòng này
+            role: string
+            nickname: string | null
         } & DefaultSession["user"]
     }
 
     interface User {
-        role: string // Thêm dòng này
+        role: string
+        nickname: string | null
     }
 }
