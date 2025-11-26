@@ -36,8 +36,8 @@ export default async function NovelsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Quản lý Truyện</h1>
-                    <p className="text-gray-500">Danh sách tất cả truyện trong hệ thống.</p>
+                    <h1 className="text-2xl font-bold text-foreground">Quản lý Truyện</h1>
+                    <p className="text-muted-foreground">Danh sách tất cả truyện trong hệ thống.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <ReindexButton />
@@ -51,28 +51,28 @@ export default async function NovelsPage() {
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-card rounded-xl shadow-md overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-200">
+                        <thead className="bg-muted">
                             <tr>
-                                <th className="px-6 py-4 font-semibold text-gray-700">Ảnh bìa</th>
-                                <th className="px-6 py-4 font-semibold text-gray-700">Tên truyện</th>
-                                <th className="px-6 py-4 font-semibold text-gray-700">Tác giả</th>
-                                <th className="px-6 py-4 font-semibold text-gray-700">Trạng thái</th>
-                                <th className="px-6 py-4 font-semibold text-gray-700 text-center">Số lượng</th>
-                                <th className="px-6 py-4 font-semibold text-gray-700 text-right">Hành động</th>
+                                <th className="px-6 py-4 font-semibold text-foreground">Ảnh bìa</th>
+                                <th className="px-6 py-4 font-semibold text-foreground">Tên truyện</th>
+                                <th className="px-6 py-4 font-semibold text-foreground">Tác giả</th>
+                                <th className="px-6 py-4 font-semibold text-foreground">Trạng thái</th>
+                                <th className="px-6 py-4 font-semibold text-foreground text-center">Số lượng</th>
+                                <th className="px-6 py-4 font-semibold text-foreground text-right">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-border">
                             {novels.length > 0 ? (
                                 novels.map((novel) => {
                                     const chapterCount = novel.volumes.reduce((acc, vol) => acc + vol._count.chapters, 0);
 
                                     return (
-                                        <tr key={novel.id} className="hover:bg-gray-50 transition-colors">
+                                        <tr key={novel.id} className="hover:bg-accent/50 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="w-10 h-14 relative bg-gray-100 rounded overflow-hidden border border-gray-200">
+                                                <div className="w-10 h-14 relative bg-muted rounded overflow-hidden">
                                                     {novel.coverImage ? (
                                                         <Image
                                                             src={novel.coverImage}
@@ -82,19 +82,19 @@ export default async function NovelsPage() {
                                                             sizes="40px"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                                                             <BookOpen className="w-4 h-4" />
                                                         </div>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-gray-900">{novel.title}</div>
-                                                <div className="text-xs text-gray-500 truncate max-w-[200px]">
+                                                <div className="font-medium text-foreground">{novel.title}</div>
+                                                <div className="text-xs text-muted-foreground truncate max-w-[200px]">
                                                     {novel.slug}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-600">{novel.author}</td>
+                                            <td className="px-6 py-4 text-muted-foreground">{novel.author}</td>
                                             <td className="px-6 py-4">
                                                 <span
                                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${novel.status === "ONGOING"
@@ -108,8 +108,8 @@ export default async function NovelsPage() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <div className="flex flex-col gap-1 text-xs text-gray-500">
-                                                    <span className="font-medium text-gray-700">{novel._count.volumes} Tập</span>
+                                                <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                                                    <span className="font-medium text-foreground">{novel._count.volumes} Tập</span>
                                                     <span>{chapterCount} Chương</span>
                                                 </div>
                                             </td>
@@ -117,13 +117,13 @@ export default async function NovelsPage() {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         href={`/dashboard/novels/edit/${novel.id}`}
-                                                        className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                        className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-accent rounded-lg transition-colors"
                                                         title="Sửa"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Link>
                                                     <button
-                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        className="p-2 text-muted-foreground hover:text-red-600 hover:bg-destructive/10 rounded-lg transition-colors"
                                                         title="Xóa"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -135,7 +135,7 @@ export default async function NovelsPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                                         Chưa có truyện nào. Hãy thêm truyện mới!
                                     </td>
                                 </tr>

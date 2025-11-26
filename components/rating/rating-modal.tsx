@@ -45,7 +45,7 @@ export function RatingModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-xl border border-border">
+            <div className="w-full max-w-md rounded-lg bg-card p-6 shadow-xl">
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-lg font-bold text-foreground">Đánh giá truyện</h3>
                     <button

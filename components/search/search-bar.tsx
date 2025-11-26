@@ -80,7 +80,7 @@ export default function SearchBar() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Tìm kiếm truyện, tác giả..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none text-sm"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800/50 border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-card transition-all outline-none text-sm text-foreground placeholder:text-muted-foreground"
                     onFocus={() => query && setIsOpen(true)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -90,7 +90,7 @@ export default function SearchBar() {
                         }
                     }}
                 />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-3 inset-y-0 flex items-center text-muted-foreground pointer-events-none">
                     {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
@@ -100,7 +100,7 @@ export default function SearchBar() {
             </div>
 
             {isOpen && results.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-lg  overflow-hidden z-50">
                     <div className="py-2">
                         {results.map((novel) => (
                             <div
@@ -132,7 +132,7 @@ export default function SearchBar() {
             )}
 
             {isOpen && query && results.length === 0 && !isLoading && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 text-center text-sm text-gray-500 z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-lg  p-4 text-center text-sm text-gray-500 z-50">
                     Không tìm thấy kết quả nào.
                 </div>
             )}

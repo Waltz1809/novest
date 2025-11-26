@@ -30,7 +30,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     <Link
                         key={novel.id}
                         href={`/truyen/${novel.slug}`}
-                        className="group bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-border flex flex-col h-full"
+                        className="group bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full"
                     >
                         {/* Cover Image Area */}
                         <div className="aspect-2/3 relative bg-muted overflow-hidden">

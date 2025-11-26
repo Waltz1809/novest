@@ -94,8 +94,8 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column: Cover Image */}
                 <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-card p-6 rounded-xl shadow-md ">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                             Ảnh bìa
                         </label>
                         <ImageUpload
@@ -108,15 +108,15 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
 
                 {/* Right Column: Info */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
+                    <div className="bg-card p-6 rounded-xl shadow-md  space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Tên truyện
                                 </label>
                                 <input
                                     {...register("title", { required: "Vui lòng nhập tên truyện" })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                     placeholder="Nhập tên truyện..."
                                 />
                                 {errors.title && (
@@ -125,19 +125,19 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Slug (URL)
                                 </label>
                                 <div className="flex gap-2">
                                     <input
                                         {...register("slug", { required: "Vui lòng nhập slug" })}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        className="flex-1 px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                         placeholder="ten-truyen-slug"
                                     />
                                     <button
                                         type="button"
                                         onClick={generateSlug}
-                                        className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                                        className="p-2 bg-muted text-muted-foreground rounded-lg hover:bg-accent transition-colors"
                                         title="Tự động tạo từ tên truyện"
                                     >
                                         <Wand2 className="w-4 h-4" />
@@ -149,12 +149,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Tác giả
                                 </label>
                                 <input
                                     {...register("author", { required: "Vui lòng nhập tác giả" })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                     placeholder="Tên tác giả..."
                                 />
                                 {errors.author && (
@@ -163,12 +163,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Trạng thái
                                 </label>
                                 <select
                                     {...register("status")}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
                                 >
                                     <option value="ONGOING">Đang ra (ONGOING)</option>
                                     <option value="COMPLETED">Hoàn thành (COMPLETED)</option>
@@ -177,28 +177,28 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="col-span-2 space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Tên khác (Alternative Titles)
                                 </label>
                                 <input
                                     {...register("alternativeTitles")}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                     placeholder="Tên gọi khác, ngăn cách bởi dấu phẩy..."
                                 />
                             </div>
 
                             <div className="col-span-2 space-y-2">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-foreground">
                                     Thể loại
                                 </label>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 border border-gray-200 rounded-lg">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2  rounded-lg">
                                     {genres.map((genre) => (
                                         <label key={genre.id} className="flex items-center gap-2 text-sm cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 value={genre.id}
                                                 {...register("genreIds")}
-                                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                className="rounded border-border text-indigo-600 focus:ring-indigo-500"
                                             />
                                             {genre.name}
                                         </label>
@@ -208,13 +208,13 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
+                            <label className="text-sm font-medium text-foreground">
                                 Mô tả
                             </label>
                             <textarea
                                 {...register("description")}
                                 rows={6}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                                className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
                                 placeholder="Mô tả nội dung truyện..."
                             />
                         </div>

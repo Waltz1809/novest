@@ -16,17 +16,17 @@ export default async function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       {/* Header */}
       <MainHeader />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Truyện mới nhất
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Cập nhật những bộ truyện hot nhất vừa ra mắt
           </p>
         </div>
@@ -43,8 +43,8 @@ export default async function Home() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
               <Book className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Chưa có truyện nào</h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Hãy thêm truyện mới vào cơ sở dữ liệu.</p>
+            <h3 className="text-lg font-medium text-foreground">Chưa có truyện nào</h3>
+            <p className="text-muted-foreground mt-1">Hãy thêm truyện mới vào cơ sở dữ liệu.</p>
           </div>
         )}
       </main>

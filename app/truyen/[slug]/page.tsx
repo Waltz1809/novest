@@ -76,7 +76,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Cover & Info */}
                     <div className="lg:col-span-1">
-                        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border sticky top-24">
+                        <div className="bg-card rounded-2xl p-6 shadow-md sticky top-24">
                             <div className="aspect-2/3 relative rounded-xl overflow-hidden mb-6 bg-muted shadow-inner">
                                 {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
                                     <Image
@@ -125,17 +125,17 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                     </span>
                                 </div>
                                 {/* Placeholder stats */}
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <span className="text-sm text-gray-500 flex items-center gap-2">
+                                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                    <span className="text-sm text-muted-foreground flex items-center gap-2">
                                         <Eye className="w-4 h-4" /> Lượt xem
                                     </span>
-                                    <span className="text-sm font-bold text-gray-900">--</span>
+                                    <span className="text-sm font-bold text-foreground">--</span>
                                 </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <span className="text-sm text-gray-500 flex items-center gap-2">
+                                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                    <span className="text-sm text-muted-foreground flex items-center gap-2">
                                         <Calendar className="w-4 h-4" /> Cập nhật
                                     </span>
-                                    <span className="text-sm font-bold text-gray-900">
+                                    <span className="text-sm font-bold text-foreground">
                                         {new Date(novel.updatedAt).toLocaleDateString('vi-VN')}
                                     </span>
                                 </div>
@@ -146,7 +146,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                     {/* Right Column: Description & Chapters */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Description */}
-                        <section className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+                        <section className="bg-card rounded-2xl p-6 shadow-md">
                             <h2 className="text-lg font-bold text-card-foreground mb-4 flex items-center gap-2">
                                 <List className="w-5 h-5 text-indigo-600" />
                                 Giới thiệu
@@ -157,7 +157,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                         </section>
 
                         {/* Chapter List */}
-                        <section className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+                        <section className="bg-card rounded-2xl p-6 shadow-md">
                             <h2 className="text-lg font-bold text-card-foreground mb-6 flex items-center gap-2">
                                 <List className="w-5 h-5 text-indigo-600" />
                                 Danh sách chương
@@ -175,7 +175,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                     <Link
                                                         key={chapter.id}
                                                         href={`/truyen/${novel.slug}/${chapter.slug}`}
-                                                        className="flex items-center justify-between p-3 rounded-lg hover:bg-indigo-50 transition-colors group border border-transparent hover:border-indigo-100"
+                                                        className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors group"
                                                     >
                                                         <span className="text-sm text-muted-foreground group-hover:text-indigo-700 font-medium truncate">
                                                             {chapter.title}
@@ -200,7 +200,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                         </section>
 
                         {/* Comments */}
-                        <section className="bg-card rounded-2xl p-6 shadow-sm border border-border">
+                        <section className="bg-card rounded-2xl p-6 shadow-md">
                             <CommentSection novelId={novel.id} />
                         </section>
                     </div>

@@ -51,8 +51,8 @@ export default async function EditNovelPage({ params }: PageProps) {
     return (
         <div className="max-w-5xl mx-auto py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Quản lý truyện</h1>
-                <p className="text-gray-500 mt-2">Chỉnh sửa thông tin và quản lý các tập, chương của truyện.</p>
+                <h1 className="text-3xl font-bold text-foreground">Quản lý truyện</h1>
+                <p className="text-muted-foreground mt-2">Chỉnh sửa thông tin và quản lý các tập, chương của truyện.</p>
             </div>
 
             <Tabs defaultValue="info" className="space-y-6">

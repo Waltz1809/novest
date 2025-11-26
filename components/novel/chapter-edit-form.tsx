@@ -90,20 +90,20 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
             <div className="flex items-center justify-between">
                 <Link
                     href={`/dashboard/novels/edit/${novelId}`}
-                    className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Quay lại
                 </Link>
-                <h1 className="text-2xl font-bold text-gray-900">Chỉnh sửa chương</h1>
+                <h1 className="text-2xl font-bold text-foreground">Chỉnh sửa chương</h1>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
+            <div className="bg-card p-6 rounded-xl shadow-md  space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Tiêu đề chương</label>
+                        <label className="text-sm font-medium text-foreground">Tiêu đề chương</label>
                         <input
                             {...register("title", { required: "Vui lòng nhập tiêu đề" })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            className="w-full px-3 py-2  bg-background text-foreground rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                         />
                         {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
                     </div>
@@ -112,7 +112,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                         <label className="text-sm font-medium text-gray-700">Thuộc tập (Volume)</label>
                         <select
                             {...register("volumeId", { required: "Vui lòng chọn tập" })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                            className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
                         >
                             {volumes.map((vol) => (
                                 <option key={vol.id} value={vol.id}>
@@ -128,7 +128,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                         <input
                             type="number"
                             {...register("order", { required: "Vui lòng nhập số thứ tự" })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                         />
                         {errors.order && <p className="text-xs text-red-500">{errors.order.message}</p>}
                     </div>
@@ -138,7 +138,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                         <input
                             type="number"
                             {...register("price", { min: 0 })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                         />
                     </div>
                 </div>
@@ -148,7 +148,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                         type="checkbox"
                         id="isLocked"
                         {...register("isLocked")}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="rounded  text-indigo-600 focus:ring-indigo-500"
                     />
                     <label htmlFor="isLocked" className="text-sm font-medium text-gray-700 cursor-pointer">
                         Khóa chương (VIP)

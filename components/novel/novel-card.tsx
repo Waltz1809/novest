@@ -19,7 +19,7 @@ export function NovelCard({ novel }: NovelCardProps) {
     return (
         <Link
             href={`/truyen/${novel.slug}`}
-            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md"
+            className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card shadow-md transition-all duration-300 hover:shadow-lg"
         >
             {/* Cover Image Area */}
             <div className="relative aspect-[2/3] overflow-hidden bg-muted">
@@ -49,7 +49,7 @@ export function NovelCard({ novel }: NovelCardProps) {
                                 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                 : novel.status === "COMPLETED"
                                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                                    : "bg-muted text-muted-foreground"
                         )}
                     >
                         {novel.status}
@@ -66,7 +66,7 @@ export function NovelCard({ novel }: NovelCardProps) {
                     {novel.author}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
+                <div className="mt-auto flex items-center justify-between pt-3 text-xs text-muted-foreground">
                     <span>{new Date(novel.createdAt).toLocaleDateString("vi-VN")}</span>
                 </div>
             </div>

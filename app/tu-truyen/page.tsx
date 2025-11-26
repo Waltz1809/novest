@@ -16,18 +16,18 @@ export default async function LibraryPage() {
     const history = await getHistory();
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+        <div className="min-h-screen bg-background font-sans text-foreground">
             <MainHeader />
 
             <main className="container mx-auto px-4 py-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-8">Tủ truyện của tôi</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-8">Tủ truyện của tôi</h1>
 
                 <div className="space-y-12">
                     {/* Library Section */}
                     <section>
                         <div className="flex items-center gap-2 mb-6">
                             <Heart className="w-6 h-6 text-pink-500" />
-                            <h2 className="text-xl font-bold text-gray-800">Truyện yêu thích</h2>
+                            <h2 className="text-xl font-bold text-foreground">Truyện yêu thích</h2>
                         </div>
 
                         {library.length > 0 ? (
@@ -36,9 +36,9 @@ export default async function LibraryPage() {
                                     <Link
                                         key={item.novelId}
                                         href={`/truyen/${item.novel.slug}`}
-                                        className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 flex flex-col"
+                                        className="group bg-card rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all flex flex-col"
                                     >
-                                        <div className="aspect-2/3 relative bg-gray-100">
+                                        <div className="aspect-2/3 relative bg-muted">
                                             {item.novel.coverImage ? (
                                                 <Image
                                                     src={item.novel.coverImage}
@@ -47,23 +47,23 @@ export default async function LibraryPage() {
                                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                                                     <Book className="w-12 h-12" />
                                                 </div>
                                             )}
                                         </div>
                                         <div className="p-4">
-                                            <h3 className="font-bold text-gray-900 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                            <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-indigo-600 transition-colors">
                                                 {item.novel.title}
                                             </h3>
-                                            <p className="text-sm text-gray-500 mt-1">{item.novel.author}</p>
+                                            <p className="text-sm text-muted-foreground mt-1">{item.novel.author}</p>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-10 bg-white rounded-xl border border-gray-100">
-                                <p className="text-gray-500">Bạn chưa lưu truyện nào.</p>
+                            <div className="text-center py-10 bg-card rounded-xl shadow-md">
+                                <p className="text-muted-foreground">Bạn chưa lưu truyện nào.</p>
                             </div>
                         )}
                     </section>
@@ -72,7 +72,7 @@ export default async function LibraryPage() {
                     <section>
                         <div className="flex items-center gap-2 mb-6">
                             <Clock className="w-6 h-6 text-indigo-500" />
-                            <h2 className="text-xl font-bold text-gray-800">Lịch sử đọc</h2>
+                            <h2 className="text-xl font-bold text-foreground">Lịch sử đọc</h2>
                         </div>
 
                         {history.length > 0 ? (
@@ -80,9 +80,9 @@ export default async function LibraryPage() {
                                 {history.map((item) => (
                                     <div
                                         key={item.novelId}
-                                        className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow"
+                                        className="bg-card rounded-xl p-4 shadow-md flex items-center gap-4 hover:shadow-lg transition-shadow"
                                     >
-                                        <Link href={`/truyen/${item.novel.slug}`} className="shrink-0 w-16 h-24 relative bg-gray-100 rounded-lg overflow-hidden">
+                                        <Link href={`/truyen/${item.novel.slug}`} className="shrink-0 w-16 h-24 relative bg-muted rounded-lg overflow-hidden">
                                             {item.novel.coverImage ? (
                                                 <Image
                                                     src={item.novel.coverImage}
@@ -91,23 +91,23 @@ export default async function LibraryPage() {
                                                     className="object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                                                     <Book className="w-6 h-6" />
                                                 </div>
                                             )}
                                         </Link>
 
                                         <div className="flex-1 min-w-0">
-                                            <Link href={`/truyen/${item.novel.slug}`} className="font-bold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-1">
+                                            <Link href={`/truyen/${item.novel.slug}`} className="font-bold text-foreground hover:text-indigo-600 transition-colors line-clamp-1">
                                                 {item.novel.title}
                                             </Link>
-                                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                                            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                                                 <span>Đọc đến:</span>
                                                 <Link href={`/truyen/${item.novel.slug}/${item.chapter.slug}`} className="text-indigo-600 font-medium hover:underline truncate">
                                                     {item.chapter.title}
                                                 </Link>
                                             </div>
-                                            <p className="text-xs text-gray-400 mt-2">
+                                            <p className="text-xs text-muted-foreground mt-2">
                                                 {new Date(item.updatedAt).toLocaleDateString("vi-VN")} {new Date(item.updatedAt).toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
@@ -122,8 +122,8 @@ export default async function LibraryPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-10 bg-white rounded-xl border border-gray-100">
-                                <p className="text-gray-500">Bạn chưa đọc truyện nào.</p>
+                            <div className="text-center py-10 bg-card rounded-xl shadow-md">
+                                <p className="text-muted-foreground">Bạn chưa đọc truyện nào.</p>
                             </div>
                         )}
                     </section>

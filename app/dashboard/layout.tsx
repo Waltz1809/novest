@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, BookOpen, PenTool, LogOut } from "lucide-react";
 import UserButton from "@/components/auth/user-button";
+import MainHeader from "@/components/layout/main-header";
 
 export default async function DashboardLayout({
     children,
@@ -17,15 +18,19 @@ export default async function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full">
-                <div className="p-6 border-b border-gray-100">
+        <div className="min-h-screen bg-background flex flex-col">
+            {/* Header */}
+            <MainHeader />
+            
+            <div className="flex flex-1">
+                {/* Sidebar */}
+                <aside className="w-64 bg-card shadow-lg flex flex-col fixed h-full top-16">
+                <div className="p-6">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="bg-indigo-600 p-1.5 rounded-lg">
                             <BookOpen className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-xl font-bold text-indigo-900 tracking-tight">
+                        <span className="text-xl font-bold text-foreground tracking-tight">
                             Novest Admin
                         </span>
                     </Link>
@@ -34,38 +39,39 @@ export default async function DashboardLayout({
                 <nav className="flex-1 p-4 space-y-1">
                     <Link
                         href="/dashboard"
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-accent hover:text-indigo-600 rounded-lg transition-colors font-medium"
                     >
                         <LayoutDashboard className="w-5 h-5" />
                         Thống kê
                     </Link>
                     <Link
                         href="/dashboard/novels"
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-accent hover:text-indigo-600 rounded-lg transition-colors font-medium"
                     >
                         <BookOpen className="w-5 h-5" />
                         Quản lý Truyện
                     </Link>
                     <Link
                         href="/dashboard/write"
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors font-medium"
+                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:bg-accent hover:text-indigo-600 rounded-lg transition-colors font-medium"
                     >
                         <PenTool className="w-5 h-5" />
                         Viết chương mới
                     </Link>
                 </nav>
 
-                <div className="p-4 border-t border-gray-100">
+                <div className="p-4">
                     <div className="flex items-center gap-3 px-4 py-3">
                         <UserButton />
                     </div>
                 </div>
-            </aside>
+                </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 ml-64 p-8">
-                {children}
-            </main>
+                {/* Main Content */}
+                <main className="flex-1 ml-64 p-8 mt-16">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }

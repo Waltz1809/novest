@@ -167,7 +167,7 @@ export function ReadingSettings({
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => updateConfig({ fontSize: Math.max(14, config.fontSize - 1) })}
-                                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
+                                    className="flex h-8 w-8 items-center justify-center rounded-md  hover:bg-muted text-foreground"
                                 >
                                     <Type className="h-3 w-3" />
                                 </button>
@@ -181,7 +181,7 @@ export function ReadingSettings({
                                 />
                                 <button
                                     onClick={() => updateConfig({ fontSize: Math.min(32, config.fontSize + 1) })}
-                                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-muted text-foreground"
+                                    className="flex h-8 w-8 items-center justify-center rounded-md  hover:bg-muted text-foreground"
                                 >
                                     <Type className="h-5 w-5" />
                                 </button>

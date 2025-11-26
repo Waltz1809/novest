@@ -166,7 +166,7 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
             </div>
 
             {isCreatingVolume && (
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-in fade-in slide-in-from-top-2">
+                <div className="bg-muted/50 p-4 rounded-lg  animate-in fade-in slide-in-from-top-2">
                     <h4 className="text-sm font-medium text-gray-900 mb-3">Tạo tập mới</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="md:col-span-2">
@@ -175,7 +175,7 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                 placeholder="Tên tập (Ví dụ: Tập 1 - Khởi đầu)"
                                 value={newVolumeTitle}
                                 onChange={(e) => setNewVolumeTitle(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full px-3 py-2 text-sm  rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
                         <div>
@@ -184,7 +184,7 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                 placeholder="Số thứ tự"
                                 value={newVolumeOrder}
                                 onChange={(e) => setNewVolumeOrder(e.target.value)}
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full px-3 py-2 text-sm  rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
                     </div>
@@ -208,13 +208,13 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
 
             <div className="space-y-4">
                 {volumes.map((volume) => (
-                    <div key={volume.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                    <div key={volume.id} className=" rounded-xl overflow-hidden bg-card shadow-md">
                         {/* Volume Header */}
-                        <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-100">
+                        <div className="flex items-center justify-between p-4 bg-muted ">
                             <div className="flex items-center gap-3 flex-1">
                                 <button
                                     onClick={() => toggleVolume(volume.id)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    className="text-muted-foreground hover:text-foreground"
                                 >
                                     {expandedVolumes.includes(volume.id) ? (
                                         <ChevronDown className="w-5 h-5" />
@@ -228,28 +228,28 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                         <input
                                             value={editingVolume.title}
                                             onChange={(e) => setEditingVolume({ ...editingVolume, title: e.target.value })}
-                                            className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
+                                            className="flex-1 px-2 py-1 text-sm  rounded bg-background text-foreground"
                                         />
                                         <input
                                             type="number"
                                             value={editingVolume.order}
                                             onChange={(e) => setEditingVolume({ ...editingVolume, order: parseInt(e.target.value) })}
-                                            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded"
+                                            className="w-20 px-2 py-1 text-sm  rounded bg-background text-foreground"
                                         />
                                         <button onClick={handleUpdateVolume} className="text-green-600 hover:text-green-700">
                                             <SaveIcon className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => setEditingVolume(null)} className="text-gray-500 hover:text-gray-700">
+                                        <button onClick={() => setEditingVolume(null)} className="text-muted-foreground hover:text-foreground">
                                             <XIcon className="w-4 h-4" />
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium text-gray-900">{volume.title}</span>
-                                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                                        <span className="font-medium text-foreground">{volume.title}</span>
+                                        <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
                                             Vol {volume.order}
                                         </span>
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs text-muted-foreground">
                                             ({volume.chapters.length} chương)
                                         </span>
                                     </div>
@@ -259,14 +259,14 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setEditingVolume({ id: volume.id, title: volume.title, order: volume.order })}
-                                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                    className="p-1.5 text-muted-foreground hover:text-indigo-600 hover:bg-accent rounded transition-colors"
                                     title="Chỉnh sửa tập"
                                 >
                                     <Edit className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => handleDeleteVolume(volume.id)}
-                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                    className="p-1.5 text-muted-foreground hover:text-red-600 hover:bg-destructive/10 rounded transition-colors"
                                     title="Xóa tập"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -276,28 +276,28 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
 
                         {/* Chapters List */}
                         {expandedVolumes.includes(volume.id) && (
-                            <div className="divide-y divide-gray-100">
+                            <div className="divide-y divide-border">
                                 {volume.chapters.length === 0 ? (
-                                    <div className="p-8 text-center text-gray-500 text-sm">
+                                    <div className="p-8 text-center text-muted-foreground text-sm">
                                         Chưa có chương nào trong tập này.
                                     </div>
                                 ) : (
                                     volume.chapters.map((chapter) => (
-                                        <div key={chapter.id} className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors group">
+                                        <div key={chapter.id} className="flex items-center justify-between p-3 hover:bg-accent/50 transition-colors group">
                                             <div className="flex items-center gap-3">
-                                                <FileText className="w-4 h-4 text-gray-400" />
+                                                <FileText className="w-4 h-4 text-muted-foreground" />
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium text-gray-900">
+                                                        <span className="text-sm font-medium text-foreground">
                                                             Chương {chapter.order}: {chapter.title}
                                                         </span>
                                                         {chapter.isLocked && (
-                                                            <span className="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200">
+                                                            <span className="text-[10px] font-bold text-yellow-600 bg-yellow-50 dark:bg-yellow-950/50 dark:text-yellow-400 px-1.5 py-0.5 rounded border border-yellow-200 dark:border-yellow-900">
                                                                 VIP
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 flex items-center gap-2">
+                                                    <div className="text-xs text-muted-foreground flex items-center gap-2">
                                                         {chapter.createdAt && (
                                                             <>
                                                                 <span>{new Date(chapter.createdAt).toLocaleDateString("vi-VN")}</span>
@@ -312,14 +312,14 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
                                                     href={`/dashboard/novels/${novelId}/chapters/${chapter.id}/edit`}
-                                                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                                    className="p-1.5 text-muted-foreground hover:text-indigo-600 hover:bg-accent rounded transition-colors"
                                                     title="Chỉnh sửa chương"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </Link>
                                                 <button
                                                     onClick={() => handleDeleteChapter(chapter.id)}
-                                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                    className="p-1.5 text-muted-foreground hover:text-red-600 hover:bg-destructive/10 rounded transition-colors"
                                                     title="Xóa chương"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

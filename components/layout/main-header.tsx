@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function MainHeader() {
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+        <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md shadow-md">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-indigo-600 hover:opacity-80 transition-opacity">
