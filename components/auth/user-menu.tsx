@@ -3,13 +3,14 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { User, LogOut, Book, ChevronDown } from "lucide-react";
+import { User, LogOut, Book, ChevronDown, LayoutDashboard, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 interface UserMenuProps {
     user: {
         name?: string | null;
         image?: string | null;
+        role: string;
     };
 }
 
@@ -26,6 +27,8 @@ export default function UserMenu({ user }: UserMenuProps) {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const isAdminOrTranslator = user.role === "ADMIN" || user.role === "TRANSLATOR";
 
     return (
         <div className="relative" ref={menuRef}>
@@ -58,6 +61,29 @@ export default function UserMenu({ user }: UserMenuProps) {
                         <p className="text-sm font-medium text-gray-900">Tài khoản của tôi</p>
                     </div>
 
+                    {/* Dashboard Link - Only for ADMIN and TRANSLATOR */}
+                    {isAdminOrTranslator && (
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>Dashboard</span>
+                        </Link>
+                    )}
+
+                    {/* Settings Link - For all users */}
+                    <Link
+                        href="/settings"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <Settings className="w-4 h-4" />
+                        <span>Cài đặt tài khoản</span>
+                    </Link>
+
+                    {/* Library Link */}
                     <Link
                         href="/tu-truyen"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
@@ -67,6 +93,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                         <span>Tủ truyện</span>
                     </Link>
 
+                    {/* Sign Out */}
                     <button
                         onClick={() => signOut()}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors mt-2 border-t border-gray-100 pt-2"

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 interface CommentUser {
     id: string
     name: string | null
+    nickname: string | null
     image: string | null
 }
 
@@ -195,7 +196,7 @@ function CommentItem({
             <div className="flex-1 space-y-2">
                 <div className="rounded-lg bg-muted/50 p-4">
                     <div className="mb-1 flex items-center justify-between">
-                        <span className="font-semibold text-foreground">{comment.user.name || "Người dùng ẩn danh"}</span>
+                        <span className="font-semibold text-foreground">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
                         <span className="text-xs text-muted-foreground">
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>

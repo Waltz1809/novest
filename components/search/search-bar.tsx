@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -73,8 +73,8 @@ export default function SearchBar() {
     };
 
     return (
-        <div ref={containerRef} className="relative w-full max-w-md">
-            <div className="relative">
+        <div ref={containerRef} className="relative w-full max-w-md flex items-center gap-2">
+            <div className="relative flex-1">
                 <input
                     type="text"
                     value={query}
@@ -98,6 +98,15 @@ export default function SearchBar() {
                     )}
                 </div>
             </div>
+
+            {/* Advanced Filter Button */}
+            <Link
+                href="/tim-kiem"
+                className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-800/50 hover:bg-indigo-100 hover:text-indigo-600 rounded-full transition-colors"
+                title="Bộ lọc nâng cao"
+            >
+                <SlidersHorizontal className="w-4 h-4" />
+            </Link>
 
             {isOpen && results.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-lg  overflow-hidden z-50">

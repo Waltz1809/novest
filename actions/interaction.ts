@@ -63,6 +63,7 @@ export async function getComments(novelId: number, chapterId?: number, page: num
                     select: {
                         id: true,
                         name: true,
+                        nickname: true,
                         image: true,
                     },
                 },

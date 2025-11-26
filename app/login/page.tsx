@@ -257,7 +257,7 @@ export default function LoginPage() {
                                     placeholder="Tên hiển thị"
                                     required
                                     disabled={isLoading}
-                                    className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                                 />
                             </div>
 
@@ -269,7 +269,7 @@ export default function LoginPage() {
                                     placeholder="Email"
                                     required
                                     disabled={isLoading}
-                                    className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                                 />
                             </div>
 

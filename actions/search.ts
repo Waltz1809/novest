@@ -35,3 +35,90 @@ export async function getGenres() {
     });
     return genres;
 }
+
+interface AdvancedSearchParams {
+    query?: string;
+    genreSlugs?: string[];
+    status?: string;
+    sort?: string;
+    page?: number;
+}
+
+export async function getAdvancedSearchResults({
+    query = "",
+    genreSlugs = [],
+    status,
+    sort = "latest",
+    page = 1,
+}: AdvancedSearchParams) {
+    const pageSize = 24;
+    const skip = (page - 1) * pageSize;
+
+    // Build where clause
+    const where: any = {};
+
+    // Text search
+    if (query) {
+        const normalizedQuery = toSlug(query).replace(/-/g, " ");
+        where.searchIndex = {
+            contains: normalizedQuery,
+        };
+    }
+
+    // Genre filtering - novels must have ALL selected genres
+    if (genreSlugs.length > 0) {
+        where.AND = genreSlugs.map(slug => ({
+            genres: {
+                some: {
+                    slug: slug,
+                },
+            },
+        }));
+    }
+
+    // Status filtering
+    if (status && (status === "ONGOING" || status === "COMPLETED")) {
+        where.status = status;
+    }
+
+    // Determine sort order
+    let orderBy: any = {};
+    switch (sort) {
+        case "updated":
+            orderBy = { updatedAt: "desc" };
+            break;
+        case "az":
+            orderBy = { title: "asc" };
+            break;
+        case "latest":
+        default:
+            orderBy = { createdAt: "desc" };
+            break;
+    }
+
+    // Fetch novels with pagination
+    const [novels, totalCount] = await Promise.all([
+        db.novel.findMany({
+            where,
+            include: {
+                genres: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    },
+                },
+            },
+            orderBy,
+            skip,
+            take: pageSize,
+        }),
+        db.novel.count({ where }),
+    ]);
+
+    return {
+        novels,
+        totalCount,
+        pageSize,
+    };
+}
