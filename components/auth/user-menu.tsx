@@ -56,7 +56,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg  py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-4 py-2 border-b border-gray-100 mb-2">
                         <p className="text-sm font-medium text-gray-900">Tài khoản của tôi</p>
                     </div>

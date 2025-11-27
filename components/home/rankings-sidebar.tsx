@@ -36,7 +36,7 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
             case 3:
                 return "bg-gradient-to-r from-amber-600 to-amber-800 text-amber-100";
             default:
-                return "bg-muted text-muted-foreground";
+                return "bg-white/20 text-white";
         }
     };
 
@@ -50,13 +50,23 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
     };
 
     return (
-        <div className="bg-card border border-border rounded-lg p-4 sticky top-4">
-            <h2 className="text-xl font-bold text-foreground mb-4">Bảng Xếp Hạng</h2>
+        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white shadow-lg rounded-2xl p-4 sticky top-4">
+            <h2 className="text-xl font-bold text-white mb-4">Bảng Xếp Hạng</h2>
 
             <Tabs defaultValue="views" className="w-full">
-                <TabsList className="w-full grid grid-cols-2 bg-muted">
-                    <TabsTrigger value="views">Top View</TabsTrigger>
-                    <TabsTrigger value="rating">Top Đánh Giá</TabsTrigger>
+                <TabsList className="w-full grid grid-cols-2 bg-white/10 p-1 rounded-lg">
+                    <TabsTrigger
+                        value="views"
+                        className="data-[state=active]:bg-white data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm text-indigo-100 hover:bg-white/5"
+                    >
+                        Top View
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="rating"
+                        className="data-[state=active]:bg-white data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm text-indigo-100 hover:bg-white/5"
+                    >
+                        Top Đánh Giá
+                    </TabsTrigger>
                 </TabsList>
 
                 {/* Top View Tab */}
@@ -66,7 +76,7 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
                             <Link
                                 key={novel.id}
                                 href={`/truyen/${novel.slug}`}
-                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors group"
                             >
                                 {/* Rank Badge */}
                                 <div
@@ -79,13 +89,13 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
 
                                 {/* Novel Info */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-sm text-foreground line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                    <h3 className="font-semibold text-sm text-white line-clamp-1 group-hover:text-indigo-200 transition-colors">
                                         {novel.title}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                    <p className="text-xs text-indigo-100 line-clamp-1">
                                         {novel.author}
                                     </p>
-                                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-1 mt-1 text-xs text-indigo-200">
                                         <Eye className="w-3 h-3" />
                                         <span>{formatViews(novel.viewCount)}</span>
                                     </div>
@@ -102,7 +112,7 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
                             <Link
                                 key={novel.id}
                                 href={`/truyen/${novel.slug}`}
-                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors group"
                             >
                                 {/* Rank Badge */}
                                 <div
@@ -115,10 +125,10 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
 
                                 {/* Novel Info */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-sm text-foreground line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                    <h3 className="font-semibold text-sm text-white line-clamp-1 group-hover:text-indigo-200 transition-colors">
                                         {novel.title}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                    <p className="text-xs text-indigo-100 line-clamp-1">
                                         {novel.author}
                                     </p>
                                     <div className="flex items-center gap-1 mt-1">
@@ -128,12 +138,12 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
                                                     key={star}
                                                     className={`w-3 h-3 ${star <= Math.round(novel.averageRating)
                                                         ? "fill-yellow-400 text-yellow-400"
-                                                        : "fill-gray-300 text-gray-300"
+                                                        : "fill-gray-400 text-gray-400"
                                                         }`}
                                                 />
                                             ))}
                                         </div>
-                                        <span className="text-xs text-muted-foreground ml-1">
+                                        <span className="text-xs text-indigo-200 ml-1">
                                             {novel.averageRating.toFixed(1)} ({novel.ratingCount})
                                         </span>
                                     </div>

@@ -40,11 +40,13 @@ export function ChapterPageClient({
                 "min-h-screen transition-colors duration-300",
                 config.theme === "light" && "bg-[#f9f7f1] text-gray-900",
                 config.theme === "sepia" && "bg-[#f4ecd8] text-[#5b4636]",
-                config.theme === "dark" && "bg-gray-950 text-gray-200"
+                config.theme === "dark" && "bg-gray-950 text-white"
             )}
             style={{
                 fontFamily: config.font === "mono" ? "monospace" : config.font === "sans" ? "sans-serif" : "serif",
-            }}
+                "--background": config.theme === "dark" ? "#030712" : config.theme === "sepia" ? "#f4ecd8" : "#ffffff",
+                "--foreground": config.theme === "dark" ? "#ffffff" : config.theme === "sepia" ? "#5b4636" : "#09090b",
+            } as React.CSSProperties}
         >
             {/* Sticky Header */}
             <header
@@ -98,7 +100,7 @@ export function ChapterPageClient({
                             <ChevronLeft className="w-4 h-4" /> Chương trước
                         </Link>
                     ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800">
+                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800 rounded-full">
                             <ChevronLeft className="w-4 h-4" /> Chương trước
                         </button>
                     )}
@@ -166,7 +168,8 @@ export function ChapterPageClient({
                             className={clsx(
                                 config.font === "mono" && "!font-mono",
                                 config.font === "sans" && "!font-sans",
-                                config.font === "serif" && "!font-serif"
+                                config.font === "serif" && "!font-serif",
+                                config.theme === "dark" && "prose-invert text-white"
                             )}
                         />
                     )}
@@ -187,7 +190,7 @@ export function ChapterPageClient({
                             <ChevronLeft className="w-4 h-4" /> Chương trước
                         </Link>
                     ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800">
+                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800 rounded-full">
                             <ChevronLeft className="w-4 h-4" /> Chương trước
                         </button>
                     )}

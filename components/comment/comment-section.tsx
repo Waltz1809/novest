@@ -102,7 +102,7 @@ export function CommentSection({ novelId, chapterId }: CommentSectionProps) {
     const commentTree = useMemo(() => buildCommentTree(flatComments), [flatComments])
 
     return (
-        <div className="mt-8 space-y-6">
+        <div className="space-y-6">
             <div className="flex items-center gap-2 text-xl font-bold text-foreground">
                 <MessageSquare className="h-6 w-6" />
                 <h3>Bình luận ({total})</h3>

@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 interface LibraryButtonProps {
     novelId: number;
     initialIsInLibrary: boolean;
+    className?: string;
 }
 
-export default function LibraryButton({ novelId, initialIsInLibrary }: LibraryButtonProps) {
+export default function LibraryButton({ novelId, initialIsInLibrary, className }: LibraryButtonProps) {
     const [isInLibrary, setIsInLibrary] = useState(initialIsInLibrary);
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -37,9 +38,9 @@ export default function LibraryButton({ novelId, initialIsInLibrary }: LibraryBu
             onClick={handleToggle}
             disabled={isPending}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isInLibrary
-                    ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                } ${className || ""}`}
         >
             <Heart className={`w-5 h-5 ${isInLibrary ? "fill-current" : ""}`} />
             {isInLibrary ? "Đã lưu" : "Yêu thích"}

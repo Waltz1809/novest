@@ -3,11 +3,11 @@ import { BookOpen } from "lucide-react";
 import UserButton from "@/components/auth/user-button";
 import AddCoinBtn from "@/components/test/add-coin-btn";
 import SearchBar from "@/components/search/search-bar";
-import { ThemeToggle } from "@/components/theme-toggle";
+
 
 export default function MainHeader() {
     return (
-        <header className="sticky top-0 z-50 w-full shadow-sm bg-white dark:!bg-black dark:text-white transition-colors duration-300 border-b border-border">
+        <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl text-indigo-600 hover:opacity-80 transition-opacity">
@@ -24,7 +24,6 @@ export default function MainHeader() {
 
                 {/* User Nav */}
                 <div className="flex items-center gap-2">
-                    <ThemeToggle />
                     <AddCoinBtn />
                     <UserButton />
                 </div>

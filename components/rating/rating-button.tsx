@@ -8,16 +8,17 @@ interface RatingButtonProps {
     novelId: number
     initialRating?: number
     initialContent?: string
+    className?: string
 }
 
-export function RatingButton({ novelId, initialRating, initialContent }: RatingButtonProps) {
+export function RatingButton({ novelId, initialRating, initialContent, className }: RatingButtonProps) {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 font-medium text-white transition-colors hover:bg-yellow-600"
+                className={`flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 font-medium text-white transition-colors hover:bg-yellow-600 ${className || ""}`}
             >
                 <Star className="h-4 w-4 fill-current" />
                 Đánh giá truyện

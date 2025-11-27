@@ -44,7 +44,7 @@ export function ContinueReading({ history }: ContinueReadingProps) {
                         <Link
                             key={item.novel.id}
                             href={`/truyen/${item.novel.slug}/${item.chapter.slug}`}
-                            className="flex-shrink-0 w-64 bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-all group"
+                            className="flex-shrink-0 w-64 bg-white shadow-sm hover:shadow-md rounded-xl overflow-hidden transition-all group"
                         >
                             <div className="flex gap-3 p-3">
                                 {/* Cover Image */}
