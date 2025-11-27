@@ -65,7 +65,7 @@ export default function AdvancedFilterModal({
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
             onClick={handleOverlayClick}
         >
-            <div className="relative w-full max-w-3xl mx-4 bg-background border border-border rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="relative w-full max-w-3xl mx-4 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <h2 className="text-xl font-semibold text-foreground">
@@ -90,7 +90,11 @@ export default function AdvancedFilterModal({
                         <select
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
-                            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800/50 border border-border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-foreground"
+                            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            style={{
+                                backgroundColor: 'hsl(var(--card))',
+                                color: 'hsl(var(--card-foreground))'
+                            }}
                         >
                             <option value="all">Tất cả</option>
                             <option value="ONGOING">Đang ra</option>

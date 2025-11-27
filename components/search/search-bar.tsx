@@ -102,7 +102,7 @@ export default function SearchBar() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Tìm kiếm truyện, tác giả..."
-                    className="w-full pl-10 pr-4 py-2 bg-[#F3F4F6] dark:bg-[#1E293B] border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-[#0F172A] transition-all outline-none text-sm text-foreground placeholder:text-muted-foreground"
+                    className="w-full pl-10 pr-4 py-2 bg-muted border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-background transition-all outline-none text-sm text-foreground placeholder:text-muted-foreground"
                     onFocus={() => query && setIsOpen(true)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -124,7 +124,7 @@ export default function SearchBar() {
             {/* Advanced Filter Button */}
             <button
                 onClick={() => setIsFilterOpen(true)}
-                className="flex items-center justify-center w-10 h-10 bg-[#F3F4F6] dark:bg-[#1E293B] hover:bg-indigo-100 hover:text-indigo-600 rounded-full transition-colors"
+                className="flex items-center justify-center w-10 h-10 bg-muted hover:bg-indigo-100 hover:text-indigo-600 rounded-full transition-colors"
                 title="Bộ lọc nâng cao"
             >
                 <SlidersHorizontal className="w-4 h-4" />
