@@ -5,8 +5,9 @@ import { Search, Loader2, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { searchNovels } from "@/actions/search";
+import { searchNovels, getGenres } from "@/actions/search";
 import { useDebounce } from "@/hooks/use-debounce"; // Assuming this hook exists or I'll create it
+import AdvancedFilterModal from "./advanced-filter-modal";
 
 interface SearchResult {
     id: number;
@@ -16,13 +17,34 @@ interface SearchResult {
     coverImage: string | null;
 }
 
+interface Genre {
+    id: number;
+    name: string;
+    slug: string;
+}
+
 export default function SearchBar() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [genres, setGenres] = useState<Genre[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+
+    // Fetch genres on mount
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const data = await getGenres();
+                setGenres(data);
+            } catch (error) {
+                console.error("Error fetching genres:", error);
+            }
+        };
+        fetchGenres();
+    }, []);
 
     // Debounce query
     const [debouncedQuery, setDebouncedQuery] = useState(query);
@@ -80,7 +102,7 @@ export default function SearchBar() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Tìm kiếm truyện, tác giả..."
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800/50 border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-card transition-all outline-none text-sm text-foreground placeholder:text-muted-foreground"
+                    className="w-full pl-10 pr-4 py-2 bg-[#F3F4F6] dark:bg-[#1E293B] border-none rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-[#0F172A] transition-all outline-none text-sm text-foreground placeholder:text-muted-foreground"
                     onFocus={() => query && setIsOpen(true)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -100,13 +122,20 @@ export default function SearchBar() {
             </div>
 
             {/* Advanced Filter Button */}
-            <Link
-                href="/tim-kiem"
-                className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-800/50 hover:bg-indigo-100 hover:text-indigo-600 rounded-full transition-colors"
+            <button
+                onClick={() => setIsFilterOpen(true)}
+                className="flex items-center justify-center w-10 h-10 bg-[#F3F4F6] dark:bg-[#1E293B] hover:bg-indigo-100 hover:text-indigo-600 rounded-full transition-colors"
                 title="Bộ lọc nâng cao"
             >
                 <SlidersHorizontal className="w-4 h-4" />
-            </Link>
+            </button>
+
+            {/* Advanced Filter Modal */}
+            <AdvancedFilterModal
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                genres={genres}
+            />
 
             {isOpen && results.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-lg  overflow-hidden z-50">
