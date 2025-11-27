@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: 210 40% 96.1%; /* Slate-100 */
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%; /* White */
+    --background: 0 0% 98.4%; 
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -26,8 +26,8 @@
     --radius: 0.5rem;
   }
   .dark {
-    --background: 222.2 84% 4.9%; /* #020817 (Nền chìm - Xanh đen đậm) */
-    --foreground: 210 40% 98%;
+    --background: 0 0% 5.5%;
+    --foreground: 0 0% 98%;
     --card: 222.2 47.4% 11.2%; /* #1e293b (Nền nổi - Xanh đen sáng hơn) */
     --card-foreground: 210 40% 98%;
     --popover: 222.2 47.4% 11.2%;
