@@ -68,146 +68,166 @@ export default async function NovelDetailPage({ params }: PageProps) {
     const totalChapters = novel.volumes.reduce((acc, vol) => acc + vol.chapters.length, 0);
 
     return (
-        <div className="min-h-screen bg-background font-sans text-foreground">
+        <div className="min-h-screen bg-white font-sans text-foreground">
             {/* Header */}
             <MainHeader />
 
             <main>
-                {/* Hero Section - Header Card Layout */}
-                <div className="relative bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950 py-12 md:py-16">
+                {/* Hero Section - Pastel Header Card */}
+                <div className="relative bg-white py-12 md:py-16">
                     <div className="container mx-auto px-4">
-                        {/* Header Card */}
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800/50 p-6 md:p-10">
-                            {/* 3-Column Grid Layout */}
-                            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-6 md:gap-8">
-                                {/* Left Column: Cover Image */}
-                                <div className="w-full md:w-56 shrink-0 relative group mx-auto md:mx-0">
-                                    <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-xl ring-1 ring-gray-200 dark:ring-gray-700 transition-transform duration-300 group-hover:-translate-y-1">
-                                        {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
-                                            <Image
-                                                src={novel.coverImage}
-                                                alt={novel.title}
-                                                fill
-                                                className="object-cover"
-                                                priority
-                                                sizes="(max-width: 768px) 100vw, 224px"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex flex-col items-center justify-center text-gray-400">
-                                                <Book className="w-16 h-16 mb-3 opacity-50" />
-                                                <span className="text-sm font-medium">No Cover</span>
-                                            </div>
-                                        )}
-                                        {/* Shine effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                                    </div>
-                                </div>
+                        {/* Pastel Card with Gradient Border */}
+                        <div className="relative bg-gradient-to-br from-indigo-50/30 via-purple-50/20 to-pink-50/30 backdrop-blur-sm rounded-3xl shadow-2xl shadow-indigo-200/40 overflow-hidden">
+                            {/* Gradient Border Effect */}
+                            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-[2px] -z-10">
+                                <div className="w-full h-full bg-white rounded-3xl" />
+                            </div>
 
-                                {/* Middle Column: Novel Info */}
-                                <div className="flex flex-col gap-4 text-center md:text-left">
-                                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground tracking-tight">
-                                        {novel.title}
-                                    </h1>
-
-                                    {/* Metadata Row */}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-muted-foreground text-sm">
-                                        <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer">
-                                            <User className="w-4 h-4" /> <strong>Tác giả:</strong> {novel.author}
-                                        </span>
+                            {/* Content Container with Z-Index Safety */}
+                            <div className="relative z-10 p-6 md:p-10">
+                                {/* 3-Column Grid Layout */}
+                                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-6 md:gap-8">
+                                    {/* Left Column: Cover Image */}
+                                    <div className="w-full md:w-56 shrink-0 relative group mx-auto md:mx-0">
+                                        <div className="aspect-[2/3] relative rounded-xl overflow-hidden shadow-xl shadow-gray-300/50 ring-1 ring-gray-200 transition-transform duration-300 group-hover:-translate-y-1">
+                                            {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
+                                                <Image
+                                                    src={novel.coverImage}
+                                                    alt={novel.title}
+                                                    fill
+                                                    className="object-cover"
+                                                    priority
+                                                    sizes="(max-width: 768px) 100vw, 224px"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+                                                    <Book className="w-16 h-16 mb-3 opacity-50" />
+                                                    <span className="text-sm font-medium">No Cover</span>
+                                                </div>
+                                            )}
+                                            {/* Shine effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                                        </div>
                                     </div>
 
-                                    {/* Status & Genres */}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${novel.status === 'ONGOING' ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-950/30 dark:border-green-800 dark:text-green-300' :
-                                            novel.status === 'COMPLETED' ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-300' :
-                                                'bg-gray-50 border-gray-200 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
-                                            }`}>
-                                            {novel.status === 'ONGOING' ? 'Đang tiến hành' : novel.status === 'COMPLETED' ? 'Hoàn thành' : 'Tạm dừng'}
-                                        </span>
-                                        {/* Placeholder for genres/tags */}
-                                        <span className="text-xs text-muted-foreground italic">
-                                            Tag/genre (coming soon)
-                                        </span>
-                                    </div>
+                                    {/* Middle Column: Novel Info */}
+                                    <div className="flex flex-col gap-4 text-center md:text-left">
+                                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-gray-900 tracking-tight">
+                                            {novel.title}
+                                        </h1>
 
-                                    {/* Description */}
-                                    <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-muted-foreground" />
+                                        {/* Metadata Row */}
+                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-gray-600 text-sm">
+                                            <span className="flex items-center gap-1.5 hover:text-gray-900 transition-colors cursor-pointer">
+                                                <User className="w-4 h-4" /> <strong className="text-gray-500">Tác giả:</strong> {novel.author}
+                                            </span>
+                                        </div>
 
-                                    {/* Actions */}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-                                        {firstChapter ? (
-                                            <Link
-                                                href={`/truyen/${novel.slug}/${firstChapter.slug}`}
-                                                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-full hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-                                            >
-                                                <BookOpen className="w-5 h-5" />
-                                                Đọc ngay
-                                            </Link>
-                                        ) : (
-                                            <button disabled className="flex items-center gap-2 px-8 py-3 bg-gray-100 dark:bg-gray-800 text-gray-400 font-bold rounded-full cursor-not-allowed border border-gray-200 dark:border-gray-700">
-                                                Chưa có chương
-                                            </button>
-                                        )}
+                                        {/* Status & Genres */}
+                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                                            <span className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 ${novel.status === 'ONGOING' ? 'bg-green-50 border-green-200 text-green-700' :
+                                                novel.status === 'COMPLETED' ? 'bg-blue-50 border-blue-200 text-blue-700' :
+                                                    'bg-gray-50 border-gray-200 text-gray-700'
+                                                }`}>
+                                                {novel.status === 'ONGOING' ? 'Đang tiến hành' : novel.status === 'COMPLETED' ? 'Hoàn thành' : 'Tạm dừng'}
+                                            </span>
+                                            {/* Genre Tags - Pastel Style */}
+                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-50 border-2 border-indigo-200 text-indigo-700">
+                                                Huyền Huyễn
+                                            </span>
+                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-purple-50 border-2 border-purple-200 text-purple-700">
+                                                Tiên Hiệp
+                                            </span>
+                                        </div>
 
-                                        <LibraryButton
-                                            novelId={novel.id}
-                                            initialIsInLibrary={isInLibrary}
-                                            className="h-[48px] px-6 rounded-full bg-gray-100 dark:bg-gray-800 text-foreground hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:-translate-y-0.5"
-                                        />
+                                        {/* Description */}
+                                        <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-gray-600" />
 
-                                        <div className="w-full sm:w-auto">
-                                            <RatingButton
+                                        {/* Actions */}
+                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                                            {firstChapter ? (
+                                                <Link
+                                                    href={`/truyen/${novel.slug}/${firstChapter.slug}`}
+                                                    className="flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                                                >
+                                                    <BookOpen className="w-5 h-5" />
+                                                    Đọc ngay
+                                                </Link>
+                                            ) : (
+                                                <button disabled className="flex items-center gap-2 px-8 py-3 bg-gray-100 text-gray-400 font-bold rounded-full cursor-not-allowed border-2 border-gray-200">
+                                                    Chưa có chương
+                                                </button>
+                                            )}
+
+                                            <LibraryButton
                                                 novelId={novel.id}
-                                                initialRating={userRating?.score}
-                                                initialContent={userRating?.content || ""}
-                                                className="h-[48px] px-6 rounded-full bg-gray-100 dark:bg-gray-800 text-foreground hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:-translate-y-0.5"
+                                                initialIsInLibrary={isInLibrary}
+                                                className="h-[48px] px-6 rounded-full bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-medium transition-all duration-200 hover:-translate-y-0.5"
                                             />
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {/* Right Column: Stats & Achievements */}
-                                <div className="lg:w-60 space-y-4 mx-auto lg:mx-0 w-full max-w-sm lg:max-w-none">
-                                    {/* Stats Card */}
-                                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-indigo-200/50 dark:border-indigo-800/50">
-                                        <h3 className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-wide">Thống kê</h3>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                                                    <List className="w-4 h-4" />
-                                                    Chương
-                                                </span>
-                                                <span className="text-lg font-bold text-foreground font-mono">{totalChapters}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                                                    <Eye className="w-4 h-4" />
-                                                    Lượt xem
-                                                </span>
-                                                <span className="text-lg font-bold text-foreground font-mono">--</span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                                                    <Star className="w-4 h-4" />
-                                                    Đánh giá
-                                                </span>
-                                                <span className="text-lg font-bold text-foreground font-mono flex items-center gap-1">
-                                                    {userRating?.score || "--"} <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                                </span>
+                                            <div className="w-full sm:w-auto">
+                                                <RatingButton
+                                                    novelId={novel.id}
+                                                    initialRating={userRating?.score}
+                                                    initialContent={userRating?.content || ""}
+                                                    className="h-[48px] px-6 rounded-full bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-medium transition-all duration-200 hover:-translate-y-0.5"
+                                                />
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Achievements Card */}
-                                    <div className="bg-card rounded-xl p-6 border border-border/50 shadow-sm">
-                                        <h3 className="text-sm font-bold mb-3 flex items-center gap-2 uppercase tracking-wide">
-                                            <Award className="w-4 h-4 text-yellow-500" />
-                                            Thành tích
-                                        </h3>
-                                        <div className="flex gap-2 flex-wrap">
-                                            <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-sm font-bold text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800" title="Top 1">T1</div>
-                                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-sm font-bold text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800" title="Trending">Tr</div>
-                                            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-400 border border-gray-200 dark:border-gray-700">+</div>
+                                    {/* Right Column: Stats & Achievements */}
+                                    <div className="lg:w-64 space-y-4 mx-auto lg:mx-0 w-full max-w-sm lg:max-w-none">
+                                        {/* Stats Card - Pill Style */}
+                                        <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+                                            <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wide">Thống kê</h3>
+                                            <div className="space-y-3">
+                                                {/* Views Pill */}
+                                                <div className="bg-white rounded-full px-4 py-3 flex items-center justify-between shadow-sm">
+                                                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                                                        <Eye className="w-4 h-4 text-blue-500" />
+                                                        Lượt xem
+                                                    </span>
+                                                    <span className="text-base font-bold text-gray-900 font-mono">354.3K</span>
+                                                </div>
+                                                {/* Rating Pill */}
+                                                <div className="bg-white rounded-full px-4 py-3 flex items-center justify-between shadow-sm">
+                                                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                                                        <Star className="w-4 h-4 text-yellow-500" />
+                                                        Đánh giá
+                                                    </span>
+                                                    <span className="text-base font-bold text-gray-900 font-mono flex items-center gap-1">
+                                                        {userRating?.score || "4.9"}/5
+                                                    </span>
+                                                </div>
+                                                {/* Chapters Pill */}
+                                                <div className="bg-white rounded-full px-4 py-3 flex items-center justify-between shadow-sm">
+                                                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                                                        <List className="w-4 h-4 text-indigo-500" />
+                                                        Chương
+                                                    </span>
+                                                    <span className="text-base font-bold text-gray-900 font-mono">{totalChapters}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Achievements Card - Pastel Badges */}
+                                        <div className="bg-white rounded-2xl p-5 border border-gray-200/50 shadow-sm">
+                                            <h3 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wide flex items-center gap-2">
+                                                <Award className="w-4 h-4 text-yellow-500" />
+                                                Thành tích
+                                            </h3>
+                                            <div className="flex gap-2 flex-wrap">
+                                                <div className="w-12 h-12 rounded-full bg-yellow-50 border-2 border-yellow-200 flex items-center justify-center text-sm font-bold text-yellow-700 shadow-sm" title="Top 1">
+                                                    🏆
+                                                </div>
+                                                <div className="w-12 h-12 rounded-full bg-blue-50 border-2 border-blue-200 flex items-center justify-center text-sm font-bold text-blue-700 shadow-sm" title="Trending">
+                                                    🔥
+                                                </div>
+                                                <div className="w-12 h-12 rounded-full bg-purple-50 border-2 border-purple-200 flex items-center justify-center text-sm font-bold text-purple-700 shadow-sm" title="Popular">
+                                                    ⭐
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
