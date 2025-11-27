@@ -177,6 +177,9 @@ async function main() {
         const uploader = randomChoice(allUsers);
         const novelGenres = randomChoices(genres, randomInt(1, 3));
 
+        // Generate realistic viewCount (1,000 to 1,000,000)
+        const viewCount = randomInt(1000, 1000000);
+
         const novel = await db.novel.create({
             data: {
                 title,
@@ -185,6 +188,7 @@ async function main() {
                 description,
                 status,
                 searchIndex,
+                viewCount,
                 uploaderId: uploader.id,
                 genres: {
                     connect: novelGenres.map(g => ({ id: g.id })),
@@ -192,7 +196,7 @@ async function main() {
             },
         });
 
-        console.log(`  ✓ [${i}/50] Created: "${title}" by ${author} (${status})`);
+        console.log(`  ✓ [${i}/50] Created: "${title}" by ${author} (${status}, ${viewCount.toLocaleString()} views)`);
 
         // ============ 5. CREATE VOLUME & CHAPTERS ============
         const volume = await db.volume.create({
@@ -229,7 +233,8 @@ async function main() {
         const raters = randomChoices(readers, ratingCount);
 
         for (const rater of raters) {
-            const score = randomInt(3, 5);
+            // More varied ratings: 1-5, but weighted towards higher scores
+            const score = Math.random() < 0.15 ? randomInt(1, 2) : randomInt(3, 5);
             await db.rating.upsert({
                 where: {
                     userId_novelId: {
@@ -251,8 +256,8 @@ async function main() {
         }
 
         // ============ 7. CREATE READING HISTORY (UPSERT) ============
-        const viewCount = randomInt(5, 15);
-        for (let v = 0; v < viewCount; v++) {
+        const historyCount = randomInt(5, 15);
+        for (let v = 0; v < historyCount; v++) {
             const randomReader = randomChoice(allUsers);
             const randomChapter = randomChoice(chapters);
 
@@ -281,9 +286,9 @@ async function main() {
     console.log("\n📊 Summary:");
     console.log(`   - Genres: ${genres.length}`);
     console.log(`   - Users: ${allUsers.length} (1 admin + 5 readers)`);
-    console.log(`   - Novels: 50`);
+    console.log(`   - Novels: 50 (with viewCount 1K-1M)`);
     console.log(`   - Chapters: ~700 (10-20 per novel)`);
-    console.log(`   - Ratings: ~150-250`);
+    console.log(`   - Ratings: ~150-250 (now with varied scores 1-5)`);
     console.log(`   - Reading History: ~500-750 records`);
 }
 

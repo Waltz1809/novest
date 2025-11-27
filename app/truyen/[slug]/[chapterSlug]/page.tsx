@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react";
 import UnlockButton from "@/components/novel/unlock-button";
 import ChapterContent from "@/components/novel/chapter-content";
 import { updateReadingHistory } from "@/actions/library";
+import { incrementView } from "@/actions/ranking";
 import { ChapterPageClient } from "./chapter-page-client";
 import { CommentSection } from "@/components/comment/comment-section";
 
@@ -77,6 +78,9 @@ export default async function ChapterReadingPage({ params }: PageProps) {
     if (session?.user) {
         updateReadingHistory(novel.id, chapter.id);
     }
+
+    // Increment view count (fire and forget)
+    incrementView(novel.id).catch(() => { });
 
     // Flatten chapters to a simple list for easy prev/next finding
     const allChapters = novel.volumes.flatMap((vol) => vol.chapters);

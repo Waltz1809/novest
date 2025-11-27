@@ -102,6 +102,7 @@ model Novel {
   description String?
   status      String  @default("ONGOING")
   coverImage  String?
+  viewCount   Int     @default(0)
 
   // Search & SEO
   alternativeTitles String? // Tên khác
