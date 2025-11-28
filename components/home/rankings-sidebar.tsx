@@ -30,13 +30,13 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
     const getBadgeColor = (rank: number) => {
         switch (rank) {
             case 1:
-                return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900";
+                return "bg-[#F59E0B] text-[#0B0C10] glow-amber";
             case 2:
-                return "bg-gradient-to-r from-gray-300 to-gray-500 text-gray-900";
+                return "bg-[#FBBF24] text-[#0B0C10]";
             case 3:
-                return "bg-gradient-to-r from-amber-600 to-amber-800 text-amber-100";
+                return "bg-[#FCD34D] text-[#0B0C10]";
             default:
-                return "bg-white/20 text-white";
+                return "bg-[#1E293B] text-white border border-[#34D399]/20";
         }
     };
 
@@ -50,20 +50,23 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
     };
 
     return (
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white shadow-lg rounded-2xl p-4 sticky top-4">
-            <h2 className="text-xl font-bold text-white mb-4">Bảng Xếp Hạng</h2>
+        <div className="bg-[#020617] text-white shadow-lg rounded-lg p-4 sticky top-4 border border-[#34D399]/20">
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-[#F59E0B]">—</span>
+                Bảng Xếp Hạng
+            </h2>
 
             <Tabs defaultValue="views" className="w-full">
-                <TabsList className="w-full grid grid-cols-2 bg-white/10 p-1 rounded-lg">
+                <TabsList className="w-full grid grid-cols-2 bg-[#1E293B] p-1 rounded-lg border border-[#34D399]/20">
                     <TabsTrigger
                         value="views"
-                        className="data-[state=active]:bg-white data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm text-indigo-100 hover:bg-white/5"
+                        className="data-[state=active]:bg-[#F59E0B] data-[state=active]:text-[#0B0C10] data-[state=active]:shadow-sm text-[#9CA3AF] hover:bg-[#1E293B]/50"
                     >
                         Top View
                     </TabsTrigger>
                     <TabsTrigger
                         value="rating"
-                        className="data-[state=active]:bg-white data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm text-indigo-100 hover:bg-white/5"
+                        className="data-[state=active]:bg-[#F59E0B] data-[state=active]:text-[#0B0C10] data-[state=active]:shadow-sm text-[#9CA3AF] hover:bg-[#1E293B]/50"
                     >
                         Top Đánh Giá
                     </TabsTrigger>
@@ -76,7 +79,7 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
                             <Link
                                 key={novel.id}
                                 href={`/truyen/${novel.slug}`}
-                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors group"
+                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-[#1E293B] transition-colors group border border-transparent hover:border-[#34D399]/30"
                             >
                                 {/* Rank Badge */}
                                 <div
@@ -89,13 +92,13 @@ export function RankingsSidebar({ topViewed, topRated }: RankingsSidebarProps) {
 
                                 {/* Novel Info */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-sm text-white line-clamp-1 group-hover:text-indigo-200 transition-colors">
+                                    <h3 className="font-semibold text-sm text-white line-clamp-1 group-hover:text-[#FBBF24] transition-colors">
                                         {novel.title}
                                     </h3>
-                                    <p className="text-xs text-indigo-100 line-clamp-1">
+                                    <p className="text-xs text-[#9CA3AF] line-clamp-1">
                                         {novel.author}
                                     </p>
-                                    <div className="flex items-center gap-1 mt-1 text-xs text-indigo-200">
+                                    <div className="flex items-center gap-1 mt-1 text-xs text-[#34D399]">
                                         <Eye className="w-3 h-3" />
                                         <span>{formatViews(novel.viewCount)}</span>
                                     </div>

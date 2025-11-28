@@ -31,20 +31,20 @@ export function ContinueReading({ history }: ContinueReadingProps) {
     return (
         <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                    <BookOpen className="w-6 h-6" />
+                <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <BookOpen className="w-7 h-7 text-[#F59E0B]" />
                     Tiếp tục đọc
                 </h2>
             </div>
 
             {/* Horizontal Scrollable Container */}
             <div className="relative">
-                <div className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                <div className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-thin scrollbar-thumb-[#34D399]/30 scrollbar-track-transparent">
                     {history.slice(0, 10).map((item) => (
                         <Link
                             key={item.novel.id}
                             href={`/truyen/${item.novel.slug}/${item.chapter.slug}`}
-                            className="flex-shrink-0 w-64 bg-white shadow-sm hover:shadow-md rounded-xl overflow-hidden transition-all group"
+                            className="flex-shrink-0 w-64 bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/60 shadow-sm hover:shadow-lg rounded-lg overflow-hidden transition-all group glow-jade-on-hover"
                         >
                             <div className="flex gap-3 p-3">
                                 {/* Cover Image */}
@@ -57,21 +57,21 @@ export function ContinueReading({ history }: ContinueReadingProps) {
                                             className="object-cover"
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                            <BookOpen className="w-8 h-8 text-white" />
+                                        <div className="w-full h-full bg-gradient-to-br from-[#F59E0B] to-[#FBBF24] flex items-center justify-center">
+                                            <BookOpen className="w-8 h-8 text-[#0B0C10]" />
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Novel Info */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-indigo-600 transition-colors mb-1">
+                                    <h3 className="font-semibold text-sm text-white line-clamp-2 group-hover:text-[#FBBF24] transition-colors mb-1">
                                         {item.novel.title}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground mb-2">
+                                    <p className="text-xs text-[#9CA3AF] mb-2">
                                         Đọc tiếp: {item.chapter.title}
                                     </p>
-                                    <div className="flex items-center text-xs text-indigo-600 font-medium">
+                                    <div className="flex items-center text-xs text-[#F59E0B] font-medium">
                                         <span>Đọc tiếp</span>
                                         <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
                                     </div>
