@@ -139,15 +139,18 @@ export default function WriteChapterPage() {
 
     return (
         <div className="max-w-[1600px] mx-auto">
+            {/* Textured Background Overlay */}
+            <div className="fixed inset-0 pointer-events-none opacity-[0.02] bg-noise" style={{ zIndex: -1 }} />
+
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Viết chương mới</h1>
-                    <p className="text-muted-foreground text-sm">Soạn thảo và đăng tải chương mới cho truyện.</p>
+                    <h1 className="text-3xl font-bold text-white">Viết chương mới</h1>
+                    <p className="text-[#9CA3AF] text-sm">Soạn thảo và đăng tải chương mới cho truyện.</p>
                 </div>
                 <button
                     onClick={handleSubmit}
                     disabled={isPending}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all shadow-lg glow-amber hover:glow-amber-strong disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Đăng chương
@@ -168,7 +171,7 @@ export default function WriteChapterPage() {
                                 value={chapterNumber}
                                 onChange={(e) => setChapterNumber(e.target.value)}
                                 placeholder="1"
-                                className="w-full px-3 py-2 font-bold  bg-card text-foreground rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-md"
+                                className="w-full px-3 py-2 font-bold bg-[#1E293B] text-white rounded-lg focus:ring-2 focus:ring-[#F59E0B] border border-[#34D399]/20 focus:border-[#F59E0B] outline-none transition-all shadow-md"
                                 required
                             />
                         </div>
@@ -191,8 +194,8 @@ export default function WriteChapterPage() {
                                 type="text"
                                 value={chapterName}
                                 onChange={(e) => setChapterName(e.target.value)}
-                                placeholder="Ví dụ: Thiên thạch rơi xuống"
-                                className="w-full px-3 py-2 font-bold  bg-card text-foreground rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-md"
+                                placeholder=""
+                                className="w-full px-3 py-2 font-bold bg-[#1E293B] text-white rounded-lg focus:ring-2 focus:ring-[#F59E0B] border border-[#34D399]/20 focus:border-[#F59E0B] outline-none transition-all shadow-md"
                                 required
                             />
                         </div>
@@ -209,9 +212,9 @@ export default function WriteChapterPage() {
 
                 {/* Right Column: Sidebar Settings */}
                 <div className="lg:col-span-1 space-y-6 overflow-y-auto pr-1">
-                    <div className="bg-card p-5 rounded-xl shadow-md  space-y-4">
-                        <h3 className="font-bold text-foreground flex items-center gap-2 text-sm uppercase tracking-wide">
-                            <BookOpen className="w-4 h-4 text-indigo-600" />
+                    <div className="bg-[#1E293B] p-5 rounded-xl shadow-lg border border-[#34D399]/20 space-y-4">
+                        <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <BookOpen className="w-4 h-4 text-[#F59E0B]" />
                             Thiết lập truyện
                         </h3>
 
@@ -220,12 +223,12 @@ export default function WriteChapterPage() {
                             <select
                                 value={novelId}
                                 onChange={(e) => setNovelId(e.target.value)}
-                                className="w-full px-3 py-2 text-sm  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-muted text-foreground"
+                                className="w-full px-3 py-2 text-sm rounded-lg focus:ring-2 focus:ring-[#F59E0B] focus:border-[#F59E0B] outline-none transition-all bg-[#1E293B] text-white border border-[#34D399]/20 hover:border-[#34D399]/40"
                                 required
                             >
-                                <option value="">-- Chọn truyện --</option>
+                                <option value="" className="bg-[#1E293B] text-white">-- Chọn truyện --</option>
                                 {novels.map((novel) => (
-                                    <option key={novel.id} value={novel.id}>
+                                    <option key={novel.id} value={novel.id} className="bg-[#1E293B] text-white">
                                         {novel.title}
                                     </option>
                                 ))}
@@ -260,7 +263,7 @@ export default function WriteChapterPage() {
                                             value={newVolumeTitle}
                                             onChange={(e) => setNewVolumeTitle(e.target.value)}
                                             placeholder="Tên tập (VD: Tập 1)"
-                                            className="w-full px-2 py-1.5 text-sm  rounded focus:ring-1 focus:ring-indigo-500 outline-none bg-card text-foreground"
+                                            className="w-full px-2 py-1.5 text-sm rounded focus:ring-1 focus:ring-[#F59E0B] outline-none bg-[#1E293B] text-white border border-[#34D399]/20"
                                         />
                                         <div className="flex gap-2">
                                             <input
@@ -268,7 +271,7 @@ export default function WriteChapterPage() {
                                                 value={newVolumeOrder}
                                                 onChange={(e) => setNewVolumeOrder(parseInt(e.target.value))}
                                                 placeholder="Thứ tự"
-                                                className="w-20 px-2 py-1.5 text-sm  rounded focus:ring-1 focus:ring-indigo-500 outline-none bg-card text-foreground"
+                                                className="w-20 px-2 py-1.5 text-sm rounded focus:ring-1 focus:ring-[#F59E0B] outline-none bg-[#1E293B] text-white border border-[#34D399]/20"
                                             />
                                             <button
                                                 type="button"
@@ -286,13 +289,13 @@ export default function WriteChapterPage() {
                             <select
                                 value={volumeId}
                                 onChange={(e) => setVolumeId(e.target.value)}
-                                className="w-full px-3 py-2 text-sm  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-muted text-foreground"
+                                className="w-full px-3 py-2 text-sm rounded-lg focus:ring-2 focus:ring-[#F59E0B] focus:border-[#F59E0B] outline-none transition-all bg-[#1E293B] text-white border border-[#34D399]/20 hover:border-[#34D399]/40 disabled:opacity-50 disabled:cursor-not-allowed"
                                 required
                                 disabled={!novelId}
                             >
-                                <option value="">-- Chọn tập --</option>
+                                <option value="" className="bg-[#1E293B] text-white">-- Chọn tập --</option>
                                 {volumes.map((vol) => (
-                                    <option key={vol.id} value={vol.id}>
+                                    <option key={vol.id} value={vol.id} className="bg-[#1E293B] text-white">
                                         {vol.title}
                                     </option>
                                 ))}
@@ -300,13 +303,13 @@ export default function WriteChapterPage() {
                         </div>
                     </div>
 
-                    <div className="bg-card p-5 rounded-xl shadow-md  space-y-4">
-                        <h3 className="font-bold text-foreground flex items-center gap-2 text-sm uppercase tracking-wide">
-                            <DollarSign className="w-4 h-4 text-green-600" />
+                    <div className="bg-[#1E293B] p-5 rounded-xl shadow-lg border border-[#34D399]/20 space-y-4">
+                        <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wide">
+                            <DollarSign className="w-4 h-4 text-[#34D399]" />
                             Thiết lập VIP
                         </h3>
 
-                        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg ">
+                        <div className="flex items-center gap-3 p-3 bg-[#0B0C10]/50 rounded-lg border border-[#34D399]/10">
                             <input
                                 type="checkbox"
                                 id="isLocked"
@@ -314,8 +317,8 @@ export default function WriteChapterPage() {
                                 onChange={(e) => setIsLocked(e.target.checked)}
                                 className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                             />
-                            <label htmlFor="isLocked" className="text-sm font-medium text-foreground select-none cursor-pointer flex items-center gap-1.5">
-                                <Lock className="w-3.5 h-3.5 text-muted-foreground" /> Khóa chương (VIP)
+                            <label htmlFor="isLocked" className="text-sm font-medium text-white select-none cursor-pointer flex items-center gap-1.5">
+                                <Lock className="w-3.5 h-3.5 text-[#9CA3AF]" /> Khóa chương (VIP)
                             </label>
                         </div>
 
@@ -328,7 +331,7 @@ export default function WriteChapterPage() {
                                         min="0"
                                         value={price}
                                         onChange={(e) => setPrice(parseInt(e.target.value) || 0)}
-                                        className="w-full pl-8 pr-3 py-2 text-sm  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-card text-foreground"
+                                        className="w-full pl-8 pr-3 py-2 text-sm rounded-lg focus:ring-2 focus:ring-[#F59E0B] border border-[#34D399]/20 focus:border-[#F59E0B] outline-none transition-all bg-[#1E293B] text-white"
                                     />
                                     <DollarSign className="w-4 h-4 text-muted-foreground absolute left-2.5 top-2.5" />
                                 </div>

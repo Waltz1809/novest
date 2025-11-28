@@ -21,16 +21,28 @@ interface HeroCarouselProps {
 export function HeroCarousel({ novels }: HeroCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [progress, setProgress] = useState(0);
 
-    // Auto-rotate carousel every 5 seconds
+    // Auto-rotate carousel every 8 seconds with progress bar
     useEffect(() => {
         if (isPaused || novels.length === 0) return;
 
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % novels.length);
-        }, 5000);
+        let startTime = Date.now();
+        const duration = 8000;
 
-        return () => clearInterval(interval);
+        const progressInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const newProgress = Math.min((elapsed / duration) * 100, 100);
+            setProgress(newProgress);
+
+            if (newProgress >= 100) {
+                setCurrentIndex((prev) => (prev + 1) % novels.length);
+                startTime = Date.now();
+                setProgress(0);
+            }
+        }, 50);
+
+        return () => clearInterval(progressInterval);
     }, [currentIndex, isPaused, novels.length]);
 
     if (novels.length === 0) {
@@ -39,68 +51,117 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
 
     const currentNovel = novels[currentIndex];
 
-
-
     return (
+        // FULL WIDTH - Breaking out of container
         <div
-            className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden group"
+            className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[70vh] md:h-[85vh] overflow-hidden"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
-            {/* Background Image with Gradient Overlay */}
-            <div className="absolute inset-0">
+            {/* LAYER 1: Atmospheric Background - Huge Blurred Cover */}
+            <div className="absolute inset-0 -z-10">
                 {currentNovel.coverImage ? (
-                    <Image
-                        src={currentNovel.coverImage}
-                        alt={currentNovel.title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+                    <div className="relative w-full h-full">
+                        <Image
+                            src={currentNovel.coverImage}
+                            alt=""
+                            fill
+                            className="object-cover blur-xl opacity-30 scale-110"
+                            priority
+                        />
+                    </div>
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600" />
+                    <div className="w-full h-full bg-gradient-to-br from-[#1E293B]/30 to-[#0B0C10]" />
                 )}
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
             </div>
 
-            {/* Content */}
+            {/* LAYER 2: CSS Gradient Mask - Seamless Fade */}
+            <div
+                className="absolute inset-0 -z-5"
+                style={{
+                    background: 'linear-gradient(to bottom, rgba(11, 12, 16, 0.3) 0%, rgba(11, 12, 16, 0.7) 50%, rgba(11, 12, 16, 0.95) 100%)'
+                }}
+            />
+
+            {/* LAYER 3: Content - Overlapping the Image */}
             <div className="relative h-full flex items-center">
-                <div className="container mx-auto px-4 md:px-8 max-w-2xl">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                        {currentNovel.title}
-                    </h2>
-                    <p className="text-lg md:text-xl text-gray-200 mb-2">
-                        Tác giả: {currentNovel.author}
-                    </p>
-                    {currentNovel.description && (
-                        <p className="text-sm md:text-base text-gray-300 mb-6 line-clamp-3">
-                            {currentNovel.description}
-                        </p>
-                    )}
-                    <Link
-                        href={`/truyen/${currentNovel.slug}`}
-                        className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg"
-                    >
-                        Đọc ngay
-                    </Link>
+                <div className="container mx-auto px-6 md:px-16 max-w-7xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        {/* Left: Massive Typography */}
+                        <div className="lg:col-span-7 z-10">
+                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 leading-[0.9] tracking-tighter drop-shadow-2xl">
+                                {currentNovel.title}
+                            </h1>
+
+                            <p className="text-xl md:text-2xl text-[#FBBF24] mb-6 font-semibold tracking-wide">
+                                {currentNovel.author}
+                            </p>
+
+                            {currentNovel.description && (
+                                <p className="text-base md:text-lg text-gray-300 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
+                                    {currentNovel.description}
+                                </p>
+                            )}
+
+                            <Link
+                                href={`/truyen/${currentNovel.slug}`}
+                                className="inline-block bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 hover:scale-105 glow-amber-strong uppercase tracking-wider shadow-2xl"
+                            >
+                                Đọc Ngay →
+                            </Link>
+                        </div>
+
+                        {/* Right: Sharp Cover Image (Overlapping) */}
+                        {currentNovel.coverImage && (
+                            <div className="lg:col-span-5 hidden lg:block">
+                                <div className="relative w-full aspect-[2/3] max-w-md ml-auto">
+                                    <Image
+                                        src={currentNovel.coverImage}
+                                        alt={currentNovel.title}
+                                        fill
+                                        className="object-cover rounded-lg shadow-2xl ring-2 ring-[#34D399]/30 glow-jade"
+                                        priority
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
+            {/* Progress Bar (Bottom) - Replacing Pagination Dots */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                <div
+                    className="h-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] transition-all duration-100 ease-linear glow-amber"
+                    style={{ width: `${progress}%` }}
+                />
+            </div>
 
-
-            {/* Pagination Indicators */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                {novels.map((_, index) => (
+            {/* Thumbnail Strip (Bottom Right) */}
+            <div className="absolute bottom-8 right-8 flex gap-2">
+                {novels.map((novel, index) => (
                     <button
-                        key={index}
-                        onClick={() => setCurrentIndex(index)}
-                        className={`h-2 rounded-full transition-all cursor-pointer ${index === currentIndex
-                                ? "bg-white w-8"
-                                : "bg-white/50 hover:bg-white/75 w-2"
+                        key={novel.id}
+                        onClick={() => {
+                            setCurrentIndex(index);
+                            setProgress(0);
+                        }}
+                        className={`relative w-12 h-16 rounded overflow-hidden transition-all ${index === currentIndex
+                                ? "ring-2 ring-[#F59E0B] scale-110 glow-amber"
+                                : "opacity-50 hover:opacity-100 hover:scale-105"
                             }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                    />
+                    >
+                        {novel.coverImage ? (
+                            <Image
+                                src={novel.coverImage}
+                                alt={novel.title}
+                                fill
+                                className="object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-[#1E293B]" />
+                        )}
+                    </button>
                 ))}
             </div>
         </div>

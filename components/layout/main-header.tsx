@@ -7,11 +7,11 @@ import SearchBar from "@/components/search/search-bar";
 
 export default function MainHeader() {
     return (
-        <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
+        <header className="sticky top-0 z-50 w-full bg-[#0B0C10]/95 backdrop-blur-md border-b border-[#34D399]/20 shadow-lg">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 font-bold text-xl text-indigo-600 hover:opacity-80 transition-opacity">
-                    <div className="p-1.5 bg-indigo-600 rounded-lg text-white">
+                <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white hover:text-[#FBBF24] transition-colors">
+                    <div className="p-1.5 bg-[#F59E0B] rounded-lg text-[#0B0C10] glow-amber">
                         <BookOpen className="w-5 h-5" />
                     </div>
                     <span>Novest</span>
