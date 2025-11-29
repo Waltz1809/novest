@@ -1,10 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import NovelForm from "@/components/novel/novel-form";
-import { getGenres } from "@/actions/search";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import VolumeManager from "@/components/dashboard/volume-manager";
+import EditNovelPageClient from "./edit-novel-client";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -13,6 +10,7 @@ interface PageProps {
 export default async function EditNovelPage({ params }: PageProps) {
     const { id } = await params;
     const session = await auth();
+
     if (!session?.user) {
         redirect("/login");
     }
@@ -46,29 +44,5 @@ export default async function EditNovelPage({ params }: PageProps) {
         redirect("/dashboard/novels");
     }
 
-    const genres = await getGenres();
-
-    return (
-        <div className="max-w-5xl mx-auto py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground">Quản lý truyện</h1>
-                <p className="text-muted-foreground mt-2">Chỉnh sửa thông tin và quản lý các tập, chương của truyện.</p>
-            </div>
-
-            <Tabs defaultValue="info" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-                    <TabsTrigger value="info">Thông tin chung</TabsTrigger>
-                    <TabsTrigger value="chapters">Danh sách chương</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="info">
-                    <NovelForm initialData={novel} genres={genres} />
-                </TabsContent>
-
-                <TabsContent value="chapters">
-                    <VolumeManager novelId={novel.id} volumes={novel.volumes} />
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
+    return <EditNovelPageClient novel={novel} />;
 }

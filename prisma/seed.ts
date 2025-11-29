@@ -217,7 +217,7 @@ async function main() {
             const chapter = await db.chapter.create({
                 data: {
                     title: `Chương ${chNum}`,
-                    slug: `c${chNum}`,
+                    slug: `volume-${volume.order}-chapter-${chNum}`,
                     content: `<p>Nội dung chương ${chNum} đang được cập nhật...</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
                     order: chNum,
                     isLocked,

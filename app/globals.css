@@ -1,5 +1,7 @@
 /* Import Be Vietnam Pro for Vietnamese text support */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+/* Import Merriweather for premium serif title */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap');
 @import "@uploadthing/react/styles.css";
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";

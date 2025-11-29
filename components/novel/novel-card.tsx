@@ -73,7 +73,7 @@ export function NovelCard({ novel }: NovelCardProps) {
                                     : "bg-muted/90 text-muted-foreground"
                         )}
                     >
-                        {novel.status}
+                        {novel.status === "ONGOING" ? "Đang tiến hành" : novel.status === "COMPLETED" ? "Hoàn thành" : "Tạm dừng"}
                     </span>
                 </div>
             </div>

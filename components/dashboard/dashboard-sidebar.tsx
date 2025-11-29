@@ -2,14 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, BookOpen, PenTool, Menu, X } from "lucide-react";
-import UserButton from "@/components/auth/user-button";
+import { LayoutDashboard, BookOpen, Menu, X } from "lucide-react";
+import UserMenu from "@/components/auth/user-menu";
 
 interface DashboardSidebarProps {
     userRole: string;
+    user: {
+        name: string;
+        email: string;
+        image: string | null;
+        role: string;
+    };
 }
 
-export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
+export default function DashboardSidebar({ userRole, user }: DashboardSidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Load collapsed state from localStorage
@@ -75,21 +81,12 @@ export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
                     <BookOpen className="w-5 h-5 flex-shrink-0" />
                     {!isCollapsed && <span>Quản lý Truyện</span>}
                 </Link>
-                <Link
-                    href="/dashboard/write"
-                    className={`flex items-center ${isCollapsed ? "justify-center px-2" : "gap-3 px-4"
-                        } py-3 text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group`}
-                    title={isCollapsed ? "Viết chương mới" : ""}
-                >
-                    <PenTool className="w-5 h-5 flex-shrink-0" />
-                    {!isCollapsed && <span>Viết chương mới</span>}
-                </Link>
             </nav>
 
-            {/* User Button */}
+            {/* User Menu */}
             <div className={`p-4 ${isCollapsed ? "flex justify-center" : ""}`}>
                 <div className={`flex items-center ${isCollapsed ? "" : "gap-3 px-4"} py-3`}>
-                    <UserButton />
+                    <UserMenu user={user} />
                 </div>
             </div>
         </aside>

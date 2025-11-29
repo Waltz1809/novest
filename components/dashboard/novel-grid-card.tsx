@@ -35,6 +35,13 @@ export default function NovelGridCard({
         HIATUS: "bg-[#9CA3AF] text-[#0B0C10]",
     };
 
+    // Vietnamese status labels
+    const statusLabels = {
+        ONGOING: "Đang tiến hành",
+        COMPLETED: "Hoàn thành",
+        HIATUS: "Tạm dừng",
+    };
+
     return (
         <div className="group relative aspect-[2/3] rounded-xl overflow-hidden bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 cursor-pointer">
             {/* Cover Image or Gradient Fallback */}
@@ -59,7 +66,7 @@ export default function NovelGridCard({
                 <span
                     className={`px-3 py-1 text-xs font-bold rounded-full uppercase ${statusStyles[status]}`}
                 >
-                    {status}
+                    {statusLabels[status]}
                 </span>
             </div>
 
