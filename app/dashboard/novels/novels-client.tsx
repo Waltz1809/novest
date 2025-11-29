@@ -68,7 +68,7 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                         className="flex items-center gap-2 px-6 py-2.5 border-2 border-[#F59E0B] text-[#F59E0B] font-bold rounded-lg hover:bg-[#F59E0B] hover:text-[#0B0C10] transition-all duration-300"
                     >
                         <Plus className="w-4 h-4" />
-                        Create New Novel
+                        Tạo Truyện Mới
                     </Link>
                 </div>
             </div>
@@ -113,7 +113,7 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                             href="/dashboard/novels/create"
                             className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-colors glow-amber"
                         >
-                            Create New Novel
+                            Tạo Truyện Mới
                         </Link>
                     )}
                 </div>

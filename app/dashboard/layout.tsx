@@ -25,7 +25,15 @@ export default async function DashboardLayout({
 
             <div className="flex flex-1 relative z-10">
                 {/* Collapsible Sidebar */}
-                <DashboardSidebar userRole={session.user.role} />
+                <DashboardSidebar
+                    userRole={session.user.role}
+                    user={{
+                        name: session.user.name || "",
+                        email: session.user.email || "",
+                        image: session.user.image || null,
+                        role: session.user.role,
+                    }}
+                />
 
                 {/* Main Content - Fixed margin for sidebar */}
                 <main className="flex-1 ml-64 p-8 mt-16 transition-all duration-300">
