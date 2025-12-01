@@ -67,13 +67,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             // Persist user data in JWT token
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
                 token.nickname = user.nickname;
+                token.picture = user.image;
             }
+
+            if (trigger === "update" && session) {
+                token.nickname = session.user.nickname;
+                token.picture = session.user.image;
+            }
+
             return token;
         },
         async session({ session, token }) {
