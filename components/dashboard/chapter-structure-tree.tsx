@@ -24,6 +24,7 @@ interface ChapterStructureTreeProps {
     onSelectChapter: (chapterId: number) => void;
     onCreateNewChapter: (volumeId: number) => void;
     onCreateNewVolume: () => void;
+    onRenameVolume: (volumeId: number, newTitle: string) => void;
 }
 
 export default function ChapterStructureTree({
@@ -34,6 +35,7 @@ export default function ChapterStructureTree({
     onSelectChapter,
     onCreateNewChapter,
     onCreateNewVolume,
+    onRenameVolume,
 }: ChapterStructureTreeProps) {
     const [collapsedVolumes, setCollapsedVolumes] = useState<Set<number>>(new Set());
 
@@ -86,10 +88,10 @@ export default function ChapterStructureTree({
                         return (
                             <div key={volume.id}>
                                 {/* Volume Header */}
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 group/volume">
                                     <button
                                         onClick={() => toggleVolume(volume.id)}
-                                        className="flex-1 flex items-center gap-2 p-2 text-[#9CA3AF] hover:text-white transition-colors"
+                                        className="flex-1 flex items-center gap-2 p-2 text-[#9CA3AF] hover:text-white transition-colors overflow-hidden"
                                     >
                                         {isCollapsed ? (
                                             <ChevronRight className="w-4 h-4 shrink-0" />
@@ -97,15 +99,31 @@ export default function ChapterStructureTree({
                                             <ChevronDown className="w-4 h-4 shrink-0" />
                                         )}
                                         <span className="text-sm font-medium truncate">
-                                            Tập {volume.order}: {volume.title}
+                                            {volume.title}
                                         </span>
                                     </button>
+
+                                    {/* Rename Volume Button */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const newTitle = window.prompt("Đổi tên tập:", volume.title);
+                                            if (newTitle && newTitle !== volume.title) {
+                                                onRenameVolume(volume.id, newTitle);
+                                            }
+                                        }}
+                                        className="p-1 text-[#9CA3AF] hover:text-[#F59E0B] opacity-0 group-hover/volume:opacity-100 transition-opacity"
+                                        title="Đổi tên tập"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                    </button>
+
                                     <button
                                         onClick={() => onCreateNewChapter(volume.id)}
-                                        className="px-2 py-1 text-xs text-[#F59E0B] hover:text-[#FBBF24] transition-colors font-bold"
+                                        className="px-2 py-1 text-xs text-[#F59E0B] hover:text-[#FBBF24] transition-colors font-bold shrink-0"
                                         title="Thêm chương"
                                     >
-                                        +Thêm chương
+                                        +
                                     </button>
                                 </div>
 
@@ -133,7 +151,7 @@ export default function ChapterStructureTree({
                                                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F59E0B] glow-amber rounded-l-lg" />
                                                     )}
                                                     <div className="ml-2 truncate">
-                                                        Chương {chapter.order}: {chapter.title}
+                                                        {chapter.title}
                                                     </div>
                                                 </button>
                                             );

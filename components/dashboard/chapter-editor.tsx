@@ -109,9 +109,7 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                                 {chapterId === "new" ? "Chương mới" : "Chỉnh sửa chương"}
                             </h2>
                             <div className="flex items-center gap-3 text-xs text-[#9CA3AF]">
-                                <span>Tập {currentVolume?.order}: {currentVolume?.title}</span>
-                                <span>•</span>
-                                <span className="font-mono text-[#34D399]">{slug}</span>
+                                <span>{currentVolume?.title}</span>
                             </div>
                         </div>
                         {showSaved && (
@@ -136,8 +134,8 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                         onClick={handleSave}
                         disabled={isSaving || !title.trim()}
                         className={`px-6 py-2 font-bold rounded-lg transition-all flex items-center gap-2 ${isSaving || !title.trim()
-                                ? "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"
-                                : "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber cursor-pointer"
+                            ? "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"
+                            : "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber cursor-pointer"
                             }`}
                     >
                         {isSaving ? (

@@ -4,7 +4,7 @@ import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
-import MainFooter from "@/components/layout/main-footer";
+import FooterWrapper from "@/components/layout/footer-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +48,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            <MainFooter />
+            <FooterWrapper />
           </ThemeProvider>
         </Providers>
       </body>

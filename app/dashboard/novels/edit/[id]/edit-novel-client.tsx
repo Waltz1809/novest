@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import ChapterStructureTree from "@/components/dashboard/chapter-structure-tree";
 import NovelInfoEditor from "@/components/dashboard/novel-info-editor";
-import ChapterEditorWrapper from "@/components/dashboard/chapter-editor";
+import VolumeAccordion from "@/components/dashboard/volume-accordion";
 
 interface Volume {
     id: number;
@@ -13,6 +12,7 @@ interface Volume {
         id: number;
         title: string;
         order: number;
+        updatedAt: Date;
     }[];
 }
 
@@ -33,32 +33,26 @@ interface Novel {
     volumes: Volume[];
 }
 
-interface EditNovelPageClientProps {
+interface EditNovelPageProps {
     novel: Novel;
 }
 
-export default function EditNovelPageClient({ novel }: EditNovelPageClientProps) {
-    // "novel" = show info form, "new" = new chapter, number = show chapter editor for that chapter ID
-    const [activeView, setActiveView] = useState<"novel" | "new" | number>("novel");
-    const [selectedVolumeId, setSelectedVolumeId] = useState<number | null>(null);
-
-    const handleCreateNewChapter = (volumeId: number) => {
-        setSelectedVolumeId(volumeId);
-        setActiveView("new");
-    };
-
+export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
     const handleCreateNewVolume = async () => {
-        // Create new volume via API
+        const title = window.prompt("Nhập tên tập mới:", `Tập ${novel.volumes.length + 1}`);
+        if (!title) return;
+
         try {
             const response = await fetch("/api/volumes", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ novelId: novel.id }),
+                body: JSON.stringify({
+                    novelId: novel.id,
+                    title: title
+                }),
             });
 
             if (!response.ok) throw new Error("Failed to create volume");
-
-            // Reload page to show new volume
             window.location.reload();
         } catch (error) {
             console.error("Failed to create volume:", error);
@@ -66,34 +60,48 @@ export default function EditNovelPageClient({ novel }: EditNovelPageClientProps)
         }
     };
 
-    return (
-        <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden lg:overflow-visible">
-            {/* Sidebar - 25% */}
-            <aside className="w-full lg:w-1/4 border-b lg:border-b-0 lg:border-r border-[#34D399]/20 bg-[#1E293B] lg:bg-transparent">
-                <ChapterStructureTree
-                    novelTitle={novel.title}
-                    volumes={novel.volumes}
-                    activeView={activeView}
-                    onSelectNovel={() => setActiveView("novel")}
-                    onSelectChapter={(chapterId) => setActiveView(chapterId)}
-                    onCreateNewChapter={handleCreateNewChapter}
-                    onCreateNewVolume={handleCreateNewVolume}
-                />
-            </aside>
+    const handleRenameVolume = async (volumeId: number, newTitle: string) => {
+        try {
+            const response = await fetch(`/api/volumes/${volumeId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: newTitle }),
+            });
 
-            {/* Main Workspace - 75% */}
-            <main className="flex-1 w-full lg:w-3/4 overflow-y-auto h-[calc(100vh-200px)] lg:h-auto">
-                {activeView === "novel" ? (
+            if (!response.ok) throw new Error("Failed to rename volume");
+            window.location.reload();
+        } catch (error) {
+            console.error("Failed to rename volume:", error);
+            alert("Lỗi khi đổi tên tập");
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#0B0C10] pb-20">
+            <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+                {/* 1. Novel Info Section */}
+                <section>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="w-1 h-6 bg-[#F59E0B] rounded-full glow-amber"></span>
+                        Thông tin truyện
+                    </h2>
                     <NovelInfoEditor novel={novel} />
-                ) : (
-                    <ChapterEditorWrapper
-                        chapterId={activeView === "new" ? "new" : activeView}
+                </section>
+
+                {/* 2. Volumes & Chapters Section */}
+                <section>
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="w-1 h-6 bg-[#34D399] rounded-full glow-jade"></span>
+                        Danh sách tập & Chương
+                    </h2>
+                    <VolumeAccordion
                         novelId={novel.id}
-                        volumeId={selectedVolumeId || novel.volumes[0]?.id}
                         volumes={novel.volumes}
+                        onRenameVolume={handleRenameVolume}
+                        onCreateVolume={handleCreateNewVolume}
                     />
-                )}
-            </main>
+                </section>
+            </div>
         </div>
     );
 }

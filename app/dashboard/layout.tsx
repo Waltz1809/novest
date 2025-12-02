@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import MainHeader from "@/components/layout/main-header";
-import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
+import DashboardLayoutClient from "@/components/dashboard/dashboard-layout-client";
 
 import { db } from "@/lib/db";
 
@@ -31,24 +31,18 @@ export default async function DashboardLayout({
             {/* Header */}
             <MainHeader />
 
-            <div className="flex flex-1 relative z-10">
-                {/* Collapsible Sidebar */}
-                <DashboardSidebar
-                    userRole={session.user.role}
-                    user={{
-                        name: session.user.name || "",
-                        email: session.user.email || "",
-                        image: session.user.image || null,
-                        role: session.user.role,
-                    }}
-                    balance={wallet?.balance || 0}
-                />
-
-                {/* Main Content - Fixed margin for sidebar */}
-                <main className="flex-1 lg:ml-64 p-4 lg:p-8 mt-16 transition-all duration-300 w-full">
-                    {children}
-                </main>
-            </div>
+            <DashboardLayoutClient
+                userRole={session.user.role}
+                user={{
+                    name: session.user.name || "",
+                    email: session.user.email || "",
+                    image: session.user.image || null,
+                    role: session.user.role,
+                }}
+                balance={wallet?.balance || 0}
+            >
+                {children}
+            </DashboardLayoutClient>
         </div>
     );
 }

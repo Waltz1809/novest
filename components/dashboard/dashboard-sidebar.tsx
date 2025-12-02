@@ -14,73 +14,54 @@ interface DashboardSidebarProps {
         role: string;
     };
     balance: number;
+    isCollapsed: boolean;
+    isMobile: boolean;
+    isMobileOpen: boolean;
+    onToggle: () => void;
+    onMobileClose: () => void;
 }
 
-export default function DashboardSidebar({ userRole, user, balance }: DashboardSidebarProps) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-
-    // Mobile state
-    const [isMobile, setIsMobile] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-
-    // Handle resize
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024);
-            if (window.innerWidth >= 1024) {
-                setIsOpen(true); // Always open on desktop by default (or respect collapsed)
-            } else {
-                setIsOpen(false); // Closed by default on mobile
-            }
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    // Save collapsed state to localStorage (Desktop only)
-    const toggleSidebar = () => {
-        if (isMobile) {
-            setIsOpen(!isOpen);
-        } else {
-            const newState = !isCollapsed;
-            setIsCollapsed(newState);
-            localStorage.setItem("sidebar-collapsed", JSON.stringify(newState));
-        }
-    };
-
+export default function DashboardSidebar({
+    userRole,
+    user,
+    balance,
+    isCollapsed,
+    isMobile,
+    isMobileOpen,
+    onToggle,
+    onMobileClose,
+}: DashboardSidebarProps) {
     return (
         <>
             {/* Mobile Toggle Button (Fixed) */}
             <button
-                onClick={() => setIsOpen(true)}
-                className={`lg:hidden fixed left-4 top-20 z-30 p-2 bg-[#1E293B] text-[#F59E0B] rounded-lg border border-[#34D399]/20 shadow-lg ${isOpen ? 'hidden' : 'block'}`}
+                onClick={onToggle}
+                className={`lg:hidden fixed left-4 top-20 z-30 p-2 bg-[#1E293B] text-[#F59E0B] rounded-lg border border-[#34D399]/20 shadow-lg ${isMobileOpen ? 'hidden' : 'block'}`}
             >
                 <Menu className="w-6 h-6" />
             </button>
 
             {/* Mobile Backdrop */}
-            {isMobile && isOpen && (
+            {isMobile && isMobileOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-                    onClick={() => setIsOpen(false)}
+                    onClick={onMobileClose}
                 />
             )}
 
             <aside
                 className={`
                     bg-[#1E293B] border-r border-[#34D399]/20 flex flex-col 
-                    fixed h-full top-0 lg:top-16 transition-all duration-300 z-50
+                    transition-all duration-300 z-40
                     ${isMobile
-                        ? (isOpen ? "translate-x-0 w-64" : "-translate-x-full w-64")
-                        : (isCollapsed ? "w-20 translate-x-0" : "w-64 translate-x-0")
+                        ? `fixed h-full top-0 ${isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"}`
+                        : `fixed top-16 bottom-0 left-0 ${isCollapsed ? "w-20" : "w-64"}`
                     }
                 `}
             >
                 {/* Toggle Button (Desktop & Mobile Close) */}
                 <button
-                    onClick={toggleSidebar}
+                    onClick={onToggle}
                     className={`
                         absolute -right-3 top-6 w-6 h-6 bg-[#F59E0B] rounded-full flex items-center justify-center text-[#0B0C10] hover:bg-[#FBBF24] transition-colors shadow-lg glow-amber z-50
                         ${isMobile ? "right-4 top-4" : ""}
@@ -105,13 +86,13 @@ export default function DashboardSidebar({ userRole, user, balance }: DashboardS
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
                     <Link
                         href="/dashboard"
                         className={`flex items-center ${isCollapsed && !isMobile ? "justify-center px-2" : "gap-3 px-4"
                             } py-3 text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group`}
                         title={isCollapsed ? "Thống kê" : ""}
-                        onClick={() => isMobile && setIsOpen(false)}
+                        onClick={() => isMobile && onMobileClose()}
                     >
                         <LayoutDashboard className="w-5 h-5 shrink-0" />
                         {(!isCollapsed || isMobile) && <span>Thống kê</span>}
@@ -121,19 +102,12 @@ export default function DashboardSidebar({ userRole, user, balance }: DashboardS
                         className={`flex items-center ${isCollapsed && !isMobile ? "justify-center px-2" : "gap-3 px-4"
                             } py-3 text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group`}
                         title={isCollapsed ? "Quản lý Truyện" : ""}
-                        onClick={() => isMobile && setIsOpen(false)}
+                        onClick={() => isMobile && onMobileClose()}
                     >
                         <BookOpen className="w-5 h-5 shrink-0" />
                         {(!isCollapsed || isMobile) && <span>Quản lý Truyện</span>}
                     </Link>
                 </nav>
-
-                {/* User Menu */}
-                <div className={`p-4 ${isCollapsed && !isMobile ? "flex justify-center" : ""}`}>
-                    <div className={`flex items-center ${isCollapsed && !isMobile ? "" : "gap-3 px-4"} py-3`}>
-                        <UserMenu user={user} balance={balance} />
-                    </div>
-                </div>
             </aside>
         </>
     );
