@@ -170,9 +170,6 @@ async function main() {
         const author = generateAuthorName();
         const description = generateDescription();
         const status = Math.random() < 0.7 ? "ONGOING" : "COMPLETED";
-
-        const baseSlug = toSlug(title);
-        const slug = `${baseSlug}-${randomInt(1000, 9999)}`;
         const searchIndex = toSlug(`${title} ${author}`);
         const uploader = randomChoice(allUsers);
         const novelGenres = randomChoices(genres, randomInt(1, 3));
@@ -180,20 +177,36 @@ async function main() {
         // Generate realistic viewCount (1,000 to 1,000,000)
         const viewCount = randomInt(1000, 1000000);
 
-        const novel = await db.novel.create({
-            data: {
-                title,
-                slug,
-                author,
-                description,
-                status,
-                searchIndex,
-                viewCount,
-                uploaderId: uploader.id,
-                genres: {
-                    connect: novelGenres.map(g => ({ id: g.id })),
+        // ============ TRANSACTION-WRAPPED TWO-STEP CREATION ============
+        // Step 1: Create Novel + Step 2: Update with ID-based slug (Atomic)
+        const novel = await db.$transaction(async (tx) => {
+            // Create novel with temporary slug
+            const tempNovel = await tx.novel.create({
+                data: {
+                    title,
+                    slug: `temp-${Date.now()}-${randomInt(1000, 9999)}`, // Temporary unique slug
+                    author,
+                    description,
+                    status,
+                    searchIndex,
+                    viewCount,
+                    uploaderId: uploader.id,
+                    genres: {
+                        connect: novelGenres.map(g => ({ id: g.id })),
+                    },
                 },
-            },
+            });
+
+            // Generate final ID-based slug
+            const finalSlug = `${toSlug(title)}-${tempNovel.id}`;
+
+            // Update with final slug
+            const updatedNovel = await tx.novel.update({
+                where: { id: tempNovel.id },
+                data: { slug: finalSlug },
+            });
+
+            return updatedNovel;
         });
 
         console.log(`  ✓ [${i}/50] Created: "${title}" by ${author} (${status}, ${viewCount.toLocaleString()} views)`);
@@ -213,18 +226,35 @@ async function main() {
         for (let chNum = 1; chNum <= chapterCount; chNum++) {
             const isLocked = Math.random() < 0.1;
             const price = isLocked ? 100 : 0;
+            const chapterTitle = `Chương ${chNum}`;
 
-            const chapter = await db.chapter.create({
-                data: {
-                    title: `Chương ${chNum}`,
-                    slug: `volume-${volume.order}-chapter-${chNum}`,
-                    content: `<p>Nội dung chương ${chNum} đang được cập nhật...</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-                    order: chNum,
-                    isLocked,
-                    price,
-                    volumeId: volume.id,
-                },
+            // ============ TRANSACTION-WRAPPED CHAPTER CREATION ============
+            const chapter = await db.$transaction(async (tx) => {
+                // Create chapter with temporary slug
+                const tempChapter = await tx.chapter.create({
+                    data: {
+                        title: chapterTitle,
+                        slug: `temp-ch-${Date.now()}-${randomInt(1000, 9999)}`, // Temporary unique slug
+                        content: `<p>Nội dung chương ${chNum} đang được cập nhật...</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
+                        order: chNum,
+                        isLocked,
+                        price,
+                        volumeId: volume.id,
+                    },
+                });
+
+                // Generate final ID-based slug
+                const finalSlug = `${toSlug(chapterTitle)}-${tempChapter.id}`;
+
+                // Update with final slug
+                const updatedChapter = await tx.chapter.update({
+                    where: { id: tempChapter.id },
+                    data: { slug: finalSlug },
+                });
+
+                return updatedChapter;
             });
+
             chapters.push(chapter);
         }
 

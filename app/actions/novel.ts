@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { toSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 export async function updateNovel(
@@ -33,11 +34,15 @@ export async function updateNovel(
         throw new Error("Unauthorized");
     }
 
-    // Update the novel
+    // Generate new slug based on new title and existing ID
+    const newSlug = `${toSlug(data.title)}-${novelId}`;
+
+    // Update the novel with new data and regenerated slug
     await db.novel.update({
         where: { id: novelId },
         data: {
             title: data.title,
+            slug: newSlug, // Always regenerate slug when title changes
             author: data.author,
             description: data.description,
             status: data.status,

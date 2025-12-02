@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { toSlug } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -42,15 +43,30 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Volume not found" }, { status: 404 });
         }
 
-        // Create chapter
-        const chapter = await db.chapter.create({
-            data: {
-                title,
-                content,
-                volumeId,
-                order: newOrder,
-                slug: `volume-${volume.order}-chapter-${newOrder}`,
-            },
+        // ============ TRANSACTION-WRAPPED CHAPTER CREATION ============
+        // Step 1: Create Chapter + Step 2: Update with ID-based slug (Atomic)
+        const chapter = await db.$transaction(async (tx) => {
+            // Create chapter with temporary slug
+            const tempChapter = await tx.chapter.create({
+                data: {
+                    title,
+                    content,
+                    volumeId,
+                    order: newOrder,
+                    slug: `temp-ch-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}`, // Temporary unique slug
+                },
+            });
+
+            // Generate final ID-based slug
+            const finalSlug = `${toSlug(title)}-${tempChapter.id}`;
+
+            // Update with final slug
+            const updatedChapter = await tx.chapter.update({
+                where: { id: tempChapter.id },
+                data: { slug: finalSlug },
+            });
+
+            return updatedChapter;
         });
 
         return NextResponse.json(chapter);

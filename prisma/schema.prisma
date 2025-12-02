@@ -143,7 +143,7 @@ model Volume {
 model Chapter {
   id       Int     @id @default(autoincrement())
   title    String
-  slug     String
+  slug     String  @unique
   content  String
   order    Float // Changed to Float to support fractional chapters (e.g., 1.5)
   isLocked Boolean @default(false)
