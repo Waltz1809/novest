@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import UserButton from "@/components/auth/user-button";
-import AddCoinBtn from "@/components/test/add-coin-btn";
 import SearchBar from "@/components/search/search-bar";
 import { NotificationBell } from "@/components/notification/notification-bell";
-
 
 export default function MainHeader() {
     return (
@@ -25,7 +23,6 @@ export default function MainHeader() {
 
                 {/* User Nav */}
                 <div className="flex items-center gap-2">
-                    <AddCoinBtn />
                     <NotificationBell />
                     <UserButton />
                 </div>

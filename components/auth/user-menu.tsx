@@ -3,8 +3,9 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { User, LogOut, Book, ChevronDown, LayoutDashboard, Settings } from "lucide-react";
+import { User, LogOut, Book, ChevronDown, LayoutDashboard, Settings, Coins, PlusCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { addMockBalance } from "@/actions/wallet";
 
 interface UserMenuProps {
     user: {
@@ -14,7 +15,7 @@ interface UserMenuProps {
     };
 }
 
-export default function UserMenu({ user }: UserMenuProps) {
+export default function UserMenu({ user, balance }: UserMenuProps & { balance: number }) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -42,30 +43,51 @@ export default function UserMenu({ user }: UserMenuProps) {
                         alt={user.name || "User Avatar"}
                         width={32}
                         height={32}
-                        className="rounded-full "
+                        className="rounded-full border border-[#34D399]/30"
                     />
                 ) : (
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <div className="w-8 h-8 rounded-full bg-[#1F2937] flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/30">
                         <User className="w-4 h-4" />
                     </div>
                 )}
-                <span className="text-sm font-medium text-gray-700 hidden sm:inline-block">
+                <span className="text-sm font-medium text-gray-200 hidden sm:inline-block">
                     {user.name}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="px-4 py-2 border-b border-gray-100 mb-2">
-                        <p className="text-sm font-medium text-gray-900">Tài khoản của tôi</p>
+                <div className="absolute right-0 mt-2 w-64 bg-[#0B0C10] rounded-xl shadow-2xl border border-[#1F2937] py-2 z-50 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-white/5">
+                    <div className="px-4 py-3 border-b border-[#1F2937] mb-2">
+                        <p className="text-sm font-medium text-gray-200">Tài khoản của tôi</p>
+
+                        {/* Wallet Section */}
+                        <div className="mt-3 flex items-center justify-between bg-[#1F2937]/50 p-2 rounded-lg border border-[#F59E0B]/20">
+                            <div className="flex items-center gap-2 text-[#F59E0B]">
+                                <Coins className="w-4 h-4" />
+                                <span className="font-bold text-sm">{balance.toLocaleString()} Xu</span>
+                            </div>
+                            <form
+                                action={async () => {
+                                    await addMockBalance();
+                                }}
+                            >
+                                <button
+                                    type="submit"
+                                    className="flex items-center gap-1 text-xs font-bold text-[#34D399] hover:text-[#10B981] hover:underline transition-colors"
+                                >
+                                    <PlusCircle className="w-3 h-3" />
+                                    +1000
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     {/* Dashboard Link - Only for ADMIN and TRANSLATOR */}
                     {isAdminOrTranslator && (
                         <Link
                             href="/dashboard"
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
                             <LayoutDashboard className="w-4 h-4" />
@@ -76,7 +98,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Settings Link - For all users */}
                     <Link
                         href="/settings"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
                         <Settings className="w-4 h-4" />
@@ -86,7 +108,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Library Link */}
                     <Link
                         href="/tu-truyen"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
                         <Book className="w-4 h-4" />
@@ -96,7 +118,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Sign Out */}
                     <button
                         onClick={() => signOut()}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors mt-2 border-t border-gray-100 pt-2"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/20 transition-colors mt-2 border-t border-[#1F2937] pt-2"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Đăng xuất</span>

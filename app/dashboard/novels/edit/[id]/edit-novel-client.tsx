@@ -67,9 +67,9 @@ export default function EditNovelPageClient({ novel }: EditNovelPageClientProps)
     };
 
     return (
-        <div className="h-screen flex overflow-hidden">
+        <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden lg:overflow-visible">
             {/* Sidebar - 25% */}
-            <aside className="w-1/4">
+            <aside className="w-full lg:w-1/4 border-b lg:border-b-0 lg:border-r border-[#34D399]/20 bg-[#1E293B] lg:bg-transparent">
                 <ChapterStructureTree
                     novelTitle={novel.title}
                     volumes={novel.volumes}
@@ -82,7 +82,7 @@ export default function EditNovelPageClient({ novel }: EditNovelPageClientProps)
             </aside>
 
             {/* Main Workspace - 75% */}
-            <main className="flex-1">
+            <main className="flex-1 w-full lg:w-3/4 overflow-y-auto h-[calc(100vh-200px)] lg:h-auto">
                 {activeView === "novel" ? (
                     <NovelInfoEditor novel={novel} />
                 ) : (

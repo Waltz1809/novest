@@ -103,8 +103,8 @@ export function CommentSection({ novelId, chapterId }: CommentSectionProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-2 text-xl font-bold text-foreground">
-                <MessageSquare className="h-6 w-6" />
+            <div className="flex items-center gap-2 text-xl font-bold text-gray-200">
+                <MessageSquare className="h-6 w-6 text-[#F59E0B]" />
                 <h3>Bình luận ({total})</h3>
             </div>
 
@@ -115,13 +115,13 @@ export function CommentSection({ novelId, chapterId }: CommentSectionProps) {
                     onSuccess={handleCommentAdded}
                 />
             ) : (
-                <div className="rounded-lg bg-muted p-4 text-center">
-                    <p className="mb-2 text-muted-foreground">
+                <div className="rounded-lg bg-[#0B0C10]/50 p-4 text-center border border-gray-800">
+                    <p className="mb-2 text-gray-400">
                         Bạn cần đăng nhập để bình luận.
                     </p>
                     <button
                         onClick={() => router.push("/login")}
-                        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                        className="rounded-md bg-[#F59E0B] px-4 py-2 text-sm font-medium text-[#0B0C10] hover:bg-[#D97706]"
                     >
                         Đăng nhập ngay
                     </button>
@@ -150,7 +150,7 @@ export function CommentSection({ novelId, chapterId }: CommentSectionProps) {
                 <div className="flex justify-center">
                     <button
                         onClick={handleLoadMore}
-                        className="text-sm font-medium text-primary hover:underline"
+                        className="text-sm font-medium text-[#F59E0B] hover:underline"
                     >
                         Xem thêm bình luận
                     </button>
@@ -178,7 +178,7 @@ function CommentItem({
 
     return (
         <div className="flex gap-4">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 {comment.user.image ? (
                     <Image
                         src={comment.user.image}
@@ -188,27 +188,27 @@ function CommentItem({
                         className="rounded-full object-cover"
                     />
                 ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                        <User className="h-6 w-6 text-muted-foreground" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0B0C10] border border-gray-800">
+                        <User className="h-6 w-6 text-gray-500" />
                     </div>
                 )}
             </div>
             <div className="flex-1 space-y-2">
-                <div className="rounded-lg bg-muted/50 p-4">
+                <div className="rounded-lg bg-[#0B0C10] p-4 border border-gray-800">
                     <div className="mb-1 flex items-center justify-between">
-                        <span className="font-semibold text-foreground">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="font-semibold text-gray-200">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
+                        <span className="text-xs text-gray-500">
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                     </div>
-                    <p className="text-foreground whitespace-pre-wrap">{comment.content}</p>
+                    <p className="text-gray-300 whitespace-pre-wrap">{comment.content}</p>
                 </div>
 
                 <div className="flex items-center gap-4 pl-2">
                     {session && (
                         <button
                             onClick={() => setIsReplying(!isReplying)}
-                            className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary"
+                            className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-[#F59E0B]"
                         >
                             <Reply className="h-3 w-3" />
                             Trả lời
@@ -289,7 +289,7 @@ function CommentForm({
             <textarea
                 {...register("content", { required: true })}
                 placeholder={parentId ? "Viết câu trả lời..." : "Viết bình luận của bạn..."}
-                className="w-full rounded-md border border-input bg-background p-3 text-sm text-foreground focus:border-primary focus:outline-none"
+                className="w-full rounded-md border border-gray-700 bg-[#0B0C10] p-3 text-sm text-gray-200 focus:border-[#F59E0B] focus:outline-none placeholder:text-gray-600"
                 rows={3}
                 autoFocus={autoFocus}
             />
@@ -297,7 +297,7 @@ function CommentForm({
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-md bg-[#F59E0B] px-4 py-2 text-sm font-medium text-[#0B0C10] hover:bg-[#D97706] disabled:opacity-50"
                 >
                     {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     {parentId ? "Trả lời" : "Gửi bình luận"}

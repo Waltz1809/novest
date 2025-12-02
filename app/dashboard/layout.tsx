@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import MainHeader from "@/components/layout/main-header";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 
+import { db } from "@/lib/db";
+
 export default async function DashboardLayout({
     children,
 }: {
@@ -14,6 +16,12 @@ export default async function DashboardLayout({
     if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
         redirect("/");
     }
+
+    // Fetch wallet balance
+    const wallet = await db.wallet.findUnique({
+        where: { userId: session.user.id },
+        select: { balance: true },
+    });
 
     return (
         <div className="min-h-screen bg-[#0B0C10] flex flex-col relative">
@@ -33,10 +41,11 @@ export default async function DashboardLayout({
                         image: session.user.image || null,
                         role: session.user.role,
                     }}
+                    balance={wallet?.balance || 0}
                 />
 
                 {/* Main Content - Fixed margin for sidebar */}
-                <main className="flex-1 ml-64 p-8 mt-16 transition-all duration-300">
+                <main className="flex-1 lg:ml-64 p-4 lg:p-8 mt-16 transition-all duration-300 w-full">
                     {children}
                 </main>
             </div>

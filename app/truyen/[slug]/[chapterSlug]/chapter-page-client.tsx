@@ -37,8 +37,12 @@ export function ChapterPageClient({
     const [showHeader, setShowHeader] = useState(true)
     const lastScrollY = useRef(0)
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
+    const isRestoring = useRef(true)
 
     useEffect(() => {
+        // Reset lock on chapter change
+        isRestoring.current = true
+
         // 1. Restore scroll position
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
@@ -62,6 +66,8 @@ export function ChapterPageClient({
                     if (docHeight - winHeight >= pos || attempts >= maxAttempts) {
                         const targetPos = Math.min(pos, docHeight - winHeight)
                         window.scrollTo({ top: targetPos, behavior: "instant" })
+                        // Unlock after restoration
+                        setTimeout(() => { isRestoring.current = false }, 50)
                         return true // Done
                     }
                     return false // Keep waiting
@@ -76,11 +82,20 @@ export function ChapterPageClient({
                         }
                     }, 100)
                 }
+            } else {
+                // Invalid pos, unlock
+                setTimeout(() => { isRestoring.current = false }, 100)
             }
+        } else {
+            // No saved pos (new chapter), unlock after delay to allow initial render/scroll-to-top
+            setTimeout(() => { isRestoring.current = false }, 100)
         }
 
         // 2. Scroll handler
         const handleScroll = () => {
+            // Safety Lock: Don't save while restoring
+            if (isRestoring.current) return
+
             const currentScrollY = window.scrollY
             const docHeight = document.documentElement.scrollHeight
             const winHeight = window.innerHeight
@@ -112,10 +127,6 @@ export function ChapterPageClient({
         return () => {
             window.removeEventListener("scroll", handleScroll)
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
-
-            // 3. Save on Exit (Unmount)
-            const currentY = window.scrollY
-            localStorage.setItem(key, currentY.toString())
         }
     }, [chapter.id])
 
@@ -144,7 +155,7 @@ export function ChapterPageClient({
         >
             {/* Reading Progress Bar */}
             <div
-                className="fixed top-0 left-0 h-1 bg-[#F59E0B] z-60 transition-all duration-150 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                className="fixed top-0 left-0 h-1 bg-[#F59E0B] z-50 transition-all duration-150 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]"
                 style={{ width: `${progress}%` }}
             />
 

@@ -285,8 +285,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
                             {/* Left Column: Chapter Catalog (75%) */}
                             <div className="lg:col-span-3 space-y-8">
                                 <div className="flex items-center justify-between border-b border-border/50 pb-4">
-                                    <h2 className="text-xl font-bold flex items-center gap-2">
-                                        <List className="w-6 h-6 text-indigo-600" />
+                                    <h2 className="text-xl font-bold flex items-center gap-2 text-[#F59E0B]">
+                                        <List className="w-6 h-6" />
                                         Mục lục / Danh sách chương
                                     </h2>
                                     <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
@@ -299,8 +299,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                         {novel.volumes.map((volume) => (
                                             <div key={volume.id}>
                                                 <div className="flex items-center gap-3 mb-4">
-                                                    <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
-                                                    <h3 className="font-bold text-lg text-foreground/90">
+                                                    <span className="w-1 h-5 bg-[#F59E0B] rounded-full"></span>
+                                                    <h3 className="font-bold text-lg text-gray-200">
                                                         {volume.title}
                                                     </h3>
                                                 </div>
@@ -310,13 +310,13 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <Link
                                                             key={chapter.id}
                                                             href={`/truyen/${novel.slug}/${chapter.slug}`}
-                                                            className="group flex items-center gap-2 py-2.5 border-b border-dashed border-border/40 hover:bg-gray-50 dark:hover:bg-white/5 px-2 rounded transition-colors"
+                                                            className="group flex items-center gap-2 py-2.5 border-b border-dashed border-[#34D399]/20 hover:bg-[#34D399]/10 px-2 rounded transition-colors"
                                                             title={chapter.title}
                                                         >
-                                                            <span className="text-xs font-mono text-muted-foreground group-hover:text-indigo-500 transition-colors w-16 shrink-0">
+                                                            <span className="text-xs font-mono text-gray-500 group-hover:text-[#F59E0B] transition-colors w-16 shrink-0">
                                                                 Chương {chapter.order}
                                                             </span>
-                                                            <span className="text-sm text-foreground/80 group-hover:text-indigo-600 transition-colors truncate">
+                                                            <span className="text-sm text-gray-300 group-hover:text-[#F59E0B] transition-colors truncate">
                                                                 {chapter.title}
                                                             </span>
                                                         </Link>
@@ -339,25 +339,25 @@ export default async function NovelDetailPage({ params }: PageProps) {
                             {/* Right Column: Sidebar (25%) */}
                             <div className="lg:col-span-1 space-y-8">
                                 {/* Translator Profile */}
-                                <div className="bg-card rounded-xl shadow-sm border border-border/50 p-5">
+                                <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-300">
+                                        <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399]">
                                             <User className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm">Nhóm dịch</h3>
-                                            <p className="text-xs text-muted-foreground">Novest Official</p>
+                                            <h3 className="font-bold text-sm text-gray-200">Nhóm dịch</h3>
+                                            <p className="text-xs text-gray-400">Novest Official</p>
                                         </div>
                                     </div>
-                                    <button className="w-full py-2 bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm rounded-lg hover:shadow-md hover:opacity-90 transition-all">
+                                    <button className="w-full py-2 bg-[#F59E0B] text-[#0B0C10] font-bold text-sm rounded-lg hover:bg-[#D97706] hover:shadow-md transition-all">
                                         🎁 Ủng hộ nhóm dịch
                                     </button>
                                 </div>
 
-                                {/* Related Novels or Other Widget - Placeholder */}
-                                <div className="bg-card rounded-xl shadow-sm border border-border/50 p-5">
-                                    <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-                                        <Book className="w-4 h-4 text-indigo-500" />
+                                {/* Related Novels */}
+                                <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
+                                    <h3 className="font-bold text-sm mb-3 flex items-center gap-2 text-[#F59E0B]">
+                                        <Book className="w-4 h-4" />
                                         Truyện liên quan
                                     </h3>
                                     <div className="space-y-3">
@@ -365,9 +365,9 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                             <Link
                                                 key={related.id}
                                                 href={`/truyen/${related.slug}`}
-                                                className="flex gap-3 group hover:bg-muted/50 p-2 rounded-lg transition-colors"
+                                                className="flex gap-3 group hover:bg-[#0B0C10]/50 p-2 rounded-lg transition-colors"
                                             >
-                                                <div className="relative w-12 h-16 shrink-0 rounded overflow-hidden shadow-sm">
+                                                <div className="relative w-12 h-16 shrink-0 rounded overflow-hidden shadow-sm border border-[#34D399]/20">
                                                     {related.coverImage ? (
                                                         <Image
                                                             src={related.coverImage}
@@ -377,17 +377,17 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                             sizes="48px"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full bg-muted" />
+                                                        <div className="w-full h-full bg-[#0B0C10]" />
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col justify-center min-w-0">
-                                                    <h4 className="text-sm font-medium truncate group-hover:text-indigo-600 transition-colors">
+                                                    <h4 className="text-sm font-medium truncate text-gray-300 group-hover:text-[#F59E0B] transition-colors">
                                                         {related.title}
                                                     </h4>
-                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500">
                                                         <span>{related.author}</span>
                                                         {related.genres[0] && (
-                                                            <span className="px-1.5 py-0.5 rounded-full bg-muted text-[10px]">
+                                                            <span className="px-1.5 py-0.5 rounded-full bg-[#0B0C10] text-[10px] text-[#34D399]">
                                                                 {related.genres[0].name}
                                                             </span>
                                                         )}
@@ -396,13 +396,13 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                             </Link>
                                         ))}
                                         {relatedNovels.length === 0 && (
-                                            <p className="text-xs text-muted-foreground italic">Chưa có truyện liên quan.</p>
+                                            <p className="text-xs text-gray-500 italic">Chưa có truyện liên quan.</p>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Comments Section (Styled) */}
-                                <div className="bg-white dark:bg-card shadow-lg rounded-xl overflow-hidden border-t-4 border-indigo-500">
+                                <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-t-4 border-[#F59E0B]">
                                     <div className="p-5">
                                         <CommentSection novelId={novel.id} />
                                     </div>
