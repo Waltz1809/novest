@@ -7,6 +7,12 @@ import ChapterEditor from "@/components/editor/chapter-editor";
 interface InlineChapterFormProps {
     novelId: number;
     volumeId: number;
+    initialData?: {
+        id: number;
+        title: string;
+        content: string;
+        price: number;
+    };
     onCancel: () => void;
     onSuccess: () => void;
 }
@@ -14,12 +20,13 @@ interface InlineChapterFormProps {
 export default function InlineChapterForm({
     novelId,
     volumeId,
+    initialData,
     onCancel,
     onSuccess,
 }: InlineChapterFormProps) {
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [coins, setCoins] = useState(0);
+    const [title, setTitle] = useState(initialData?.title || "");
+    const [content, setContent] = useState(initialData?.content || "");
+    const [price, setPrice] = useState(initialData?.price || 0);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSave = async () => {
@@ -27,24 +34,30 @@ export default function InlineChapterForm({
 
         setIsSaving(true);
         try {
-            const response = await fetch("/api/chapters", {
-                method: "POST",
+            const url = initialData
+                ? `/api/chapters/${initialData.id}`
+                : "/api/chapters";
+
+            const method = initialData ? "PATCH" : "POST";
+
+            const response = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     title,
                     content,
                     novelId,
                     volumeId,
-                    coins,
+                    price,
                 }),
             });
 
-            if (!response.ok) throw new Error("Failed to create chapter");
+            if (!response.ok) throw new Error("Failed to save chapter");
 
             onSuccess();
         } catch (error) {
-            console.error("Failed to create chapter:", error);
-            alert("Lỗi khi tạo chương");
+            console.error("Failed to save chapter:", error);
+            alert("Lỗi khi lưu chương");
         } finally {
             setIsSaving(false);
         }
@@ -53,7 +66,9 @@ export default function InlineChapterForm({
     return (
         <div className="bg-[#0B0C10] border border-[#34D399]/20 rounded-lg p-4 mt-4 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold">Thêm chương mới</h3>
+                <h3 className="text-white font-bold">
+                    {initialData ? "Chỉnh sửa chương" : "Thêm chương mới"}
+                </h3>
                 <button
                     onClick={onCancel}
                     className="text-[#9CA3AF] hover:text-white transition-colors"
@@ -80,8 +95,8 @@ export default function InlineChapterForm({
                         <label className="block text-xs text-[#9CA3AF] mb-1">Giá (Xu)</label>
                         <input
                             type="number"
-                            value={coins}
-                            onChange={(e) => setCoins(parseInt(e.target.value) || 0)}
+                            value={price}
+                            onChange={(e) => setPrice(parseInt(e.target.value) || 0)}
                             min="0"
                             className="w-full bg-[#1E293B] border border-[#34D399]/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#F59E0B]"
                         />
@@ -101,36 +116,33 @@ export default function InlineChapterForm({
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end gap-3 pt-2">
+                <div className="flex justify-end gap-2 pt-2">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-[#9CA3AF] hover:text-white transition-colors font-medium"
+                        className="p-2 text-[#9CA3AF] hover:text-white hover:bg-white/10 rounded-lg transition-all"
                         disabled={isSaving}
+                        title="Hủy bỏ"
                     >
-                        Hủy bỏ
+                        <X className="w-5 h-5" />
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={isSaving || !title.trim()}
                         className={`
-                            px-6 py-2 rounded-lg font-bold flex items-center gap-2
+                            px-4 py-2 rounded-lg font-bold flex items-center gap-2 text-sm
                             ${isSaving || !title.trim()
                                 ? "bg-[#34D399]/20 text-[#34D399]/50 cursor-not-allowed"
                                 : "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber"
                             }
                         `}
+                        title={initialData ? "Cập nhật" : "Lưu chương"}
                     >
                         {isSaving ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Đang lưu...
-                            </>
+                            <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                            <>
-                                <Save className="w-4 h-4" />
-                                Lưu chương
-                            </>
+                            <Save className="w-4 h-4" />
                         )}
+                        <span className="hidden md:inline">{initialData ? "Cập nhật" : "Lưu"}</span>
                     </button>
                 </div>
             </div>

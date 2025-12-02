@@ -18,10 +18,11 @@ export function RatingButton({ novelId, initialRating, initialContent, className
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className={`flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 font-medium text-white transition-colors hover:bg-yellow-600 ${className || ""}`}
+                className={className}
+                title="Đánh giá truyện"
             >
-                <Star className="h-4 w-4 fill-current" />
-                Đánh giá truyện
+                <Star className="h-5 w-5 text-[#FBBF24]" />
+                <span className="hidden md:inline">Đánh giá truyện</span>
             </button>
 
             <RatingModal

@@ -45,13 +45,11 @@ export default function LibraryButton({ novelId, initialIsInLibrary, className }
         <button
             onClick={handleToggle}
             disabled={isPending}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isInLibrary
-                ? "bg-pink-100 text-pink-600 hover:bg-pink-200"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                } ${className || ""}`}
+            className={className}
+            title={isInLibrary ? "Đã lưu" : "Yêu thích"}
         >
-            <Heart className={`w-5 h-5 ${isInLibrary ? "fill-current" : ""}`} />
-            {isInLibrary ? "Đã lưu" : "Yêu thích"}
+            <Heart className={`w-5 h-5 ${isInLibrary ? "fill-current text-pink-500" : ""}`} />
+            <span className="hidden md:inline">{isInLibrary ? "Đã lưu" : "Yêu thích"}</span>
         </button>
     );
 }

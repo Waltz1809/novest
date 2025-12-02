@@ -195,9 +195,9 @@ function CommentItem({
             </div>
             <div className="flex-1 space-y-2">
                 <div className="rounded-lg bg-[#0B0C10] p-4 border border-gray-800">
-                    <div className="mb-1 flex items-center justify-between">
-                        <span className="font-semibold text-gray-200">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
-                        <span className="text-xs text-gray-500">
+                    <div className="mb-1 flex flex-col sm:flex-row sm:justify-between gap-1">
+                        <span className="font-semibold text-gray-200 text-sm sm:text-base wrap-break-word">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
+                        <span className="text-xs text-gray-500 shrink-0">
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                     </div>

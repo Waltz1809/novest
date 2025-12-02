@@ -88,7 +88,7 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
     };
 
     return (
-        <div className="h-full overflow-y-auto bg-[#020617] p-8">
+        <div className="h-full overflow-y-auto bg-[#020617] p-4 md:p-8">
             <div className="max-w-5xl mx-auto">
                 <div className="text-sm text-[#9CA3AF] mb-4">
                     Dashboard &gt; {novel.title}
@@ -106,14 +106,14 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                     )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="col-span-2 space-y-6">
                         <div>
                             <input
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full text-5xl font-serif font-bold text-[#F59E0B] bg-transparent border-none outline-none placeholder:text-[#F59E0B]/30 leading-tight"
+                                className="w-full text-3xl md:text-5xl font-serif font-bold text-[#F59E0B] bg-transparent border-none outline-none placeholder:text-[#F59E0B]/30 leading-tight"
                                 style={{ fontFamily: "'Merriweather', serif", lineHeight: "1.2" }}
                                 placeholder="TÊN TRUYỆN"
                             />
@@ -170,7 +170,7 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
 
                     <div className="col-span-1">
                         <div className="sticky top-8">
-                            <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#0f172a] border border-white/10 group">
+                            <div className="relative aspect-2/3 rounded-lg overflow-hidden bg-[#0f172a] border border-white/10 group">
                                 {coverPreview ? (
                                     <>
                                         <Image src={coverPreview} alt={novel.title} fill className="object-cover" sizes="300px" />

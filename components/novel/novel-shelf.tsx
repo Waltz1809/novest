@@ -67,7 +67,7 @@ export function NovelShelf({ title, novels, link }: NovelShelfProps) {
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="flex gap-4 overflow-x-auto scroll-smooth px-4 pb-8 md:px-12 scrollbar-hide snap-x"
+                    className="flex gap-4 overflow-x-auto scroll-smooth px-4 pb-8 md:px-12 scrollbar-hide snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                     {novels.map((novel) => (
                         <div key={novel.id} className="snap-start">

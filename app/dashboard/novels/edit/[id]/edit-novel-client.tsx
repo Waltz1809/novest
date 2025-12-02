@@ -12,7 +12,9 @@ interface Volume {
         id: number;
         title: string;
         order: number;
-        updatedAt: Date;
+        createdAt: Date;
+        content: string;
+        price: number;
     }[];
 }
 
@@ -38,6 +40,8 @@ interface EditNovelPageProps {
 }
 
 export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
+    const [activeTab, setActiveTab] = useState<"info" | "chapters">("info");
+
     const handleCreateNewVolume = async () => {
         const title = window.prompt("Nhập tên tập mới:", `Tập ${novel.volumes.length + 1}`);
         if (!title) return;
@@ -78,29 +82,56 @@ export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
 
     return (
         <div className="min-h-screen bg-[#0B0C10] pb-20">
-            <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-                {/* 1. Novel Info Section */}
-                <section>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-[#F59E0B] rounded-full glow-amber"></span>
-                        Thông tin truyện
-                    </h2>
-                    <NovelInfoEditor novel={novel} />
-                </section>
-
-                {/* 2. Volumes & Chapters Section */}
-                <section>
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-[#34D399] rounded-full glow-jade"></span>
+            <div className="w-full px-4 py-2 space-y-4">
+                {/* Tabs */}
+                <div className="flex items-center gap-4 border-b border-[#34D399]/20 mb-6">
+                    <button
+                        onClick={() => setActiveTab("info")}
+                        className={`
+                            py-3 px-4 font-bold text-sm transition-all relative
+                            ${activeTab === "info"
+                                ? "text-[#F59E0B]"
+                                : "text-[#9CA3AF] hover:text-white"
+                            }
+                        `}
+                    >
+                        Thông tin
+                        {activeTab === "info" && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#F59E0B] glow-amber"></span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("chapters")}
+                        className={`
+                            py-3 px-4 font-bold text-sm transition-all relative
+                            ${activeTab === "chapters"
+                                ? "text-[#34D399]"
+                                : "text-[#9CA3AF] hover:text-white"
+                            }
+                        `}
+                    >
                         Danh sách tập & Chương
-                    </h2>
-                    <VolumeAccordion
-                        novelId={novel.id}
-                        volumes={novel.volumes}
-                        onRenameVolume={handleRenameVolume}
-                        onCreateVolume={handleCreateNewVolume}
-                    />
-                </section>
+                        {activeTab === "chapters" && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#34D399] glow-jade"></span>
+                        )}
+                    </button>
+                </div>
+
+                {/* Content */}
+                {activeTab === "info" ? (
+                    <section className="animate-in fade-in slide-in-from-left-4 duration-300">
+                        <NovelInfoEditor novel={novel} />
+                    </section>
+                ) : (
+                    <section className="animate-in fade-in slide-in-from-right-4 duration-300">
+                        <VolumeAccordion
+                            novelId={novel.id}
+                            volumes={novel.volumes}
+                            onRenameVolume={handleRenameVolume}
+                            onCreateVolume={handleCreateNewVolume}
+                        />
+                    </section>
+                )}
             </div>
         </div>
     );

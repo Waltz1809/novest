@@ -8,7 +8,9 @@ interface Chapter {
     id: number;
     title: string;
     order: number;
-    updatedAt: Date;
+    createdAt: Date;
+    content: string;
+    price: number;
 }
 
 interface Volume {
@@ -33,6 +35,7 @@ export default function VolumeAccordion({
 }: VolumeAccordionProps) {
     const [expandedVolumes, setExpandedVolumes] = useState<Set<number>>(new Set());
     const [addingChapterToVolume, setAddingChapterToVolume] = useState<number | null>(null);
+    const [editingChapterId, setEditingChapterId] = useState<number | null>(null);
 
     const toggleVolume = (volumeId: number) => {
         const newExpanded = new Set(expandedVolumes);
@@ -72,11 +75,6 @@ export default function VolumeAccordion({
                             `}
                         >
                             <div className="flex items-center gap-3">
-                                {isExpanded ? (
-                                    <ChevronDown className="w-5 h-5 text-[#F59E0B]" />
-                                ) : (
-                                    <ChevronRight className="w-5 h-5 text-[#9CA3AF]" />
-                                )}
                                 <div>
                                     <h3 className="font-bold text-white text-lg flex items-center gap-2">
                                         {volume.title}
@@ -93,6 +91,11 @@ export default function VolumeAccordion({
                                     </p>
                                 </div>
                             </div>
+                            {isExpanded ? (
+                                <ChevronDown className="w-5 h-5 text-[#F59E0B]" />
+                            ) : (
+                                <ChevronRight className="w-5 h-5 text-[#9CA3AF]" />
+                            )}
                         </div>
 
                         {/* Volume Content (Chapters) */}
@@ -105,31 +108,58 @@ export default function VolumeAccordion({
                                             Chưa có chương nào. Hãy thêm chương mới!
                                         </div>
                                     ) : (
-                                        volume.chapters.map((chapter) => (
-                                            <div
-                                                key={chapter.id}
-                                                className="flex items-center justify-between p-3 bg-[#1E293B] rounded-lg border border-[#34D399]/10 hover:border-[#34D399]/30 transition-colors group"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-[#0B0C10] rounded-md text-[#34D399]">
-                                                        <FileText className="w-4 h-4" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-white group-hover:text-[#F59E0B] transition-colors">
-                                                            {chapter.title}
-                                                        </div>
-                                                        <div className="text-xs text-[#9CA3AF]">
-                                                            Cập nhật: {new Date(chapter.updatedAt).toLocaleDateString("vi-VN")}
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                        volume.chapters.map((chapter) => {
+                                            if (editingChapterId === chapter.id) {
+                                                return (
+                                                    <InlineChapterForm
+                                                        key={chapter.id}
+                                                        novelId={novelId}
+                                                        volumeId={volume.id}
+                                                        initialData={chapter}
+                                                        onCancel={() => setEditingChapterId(null)}
+                                                        onSuccess={() => {
+                                                            setEditingChapterId(null);
+                                                            window.location.reload();
+                                                        }}
+                                                    />
+                                                );
+                                            }
 
-                                                {/* Actions (Placeholder for now, maybe edit/delete later) */}
-                                                <button className="p-2 text-[#9CA3AF] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        ))
+                                            return (
+                                                <div
+                                                    key={chapter.id}
+                                                    className="flex items-center justify-between p-3 bg-[#1E293B] rounded-lg border border-[#34D399]/10 hover:border-[#34D399]/30 transition-colors group"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-[#0B0C10] rounded-md text-[#34D399]">
+                                                            <FileText className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium text-white group-hover:text-[#F59E0B] transition-colors">
+                                                                {chapter.title}
+                                                            </div>
+                                                            <div className="text-xs text-[#9CA3AF] flex items-center gap-2">
+                                                                <span>Cập nhật: {new Date(chapter.createdAt).toLocaleDateString("vi-VN")}</span>
+                                                                {chapter.price > 0 && (
+                                                                    <span className="text-[#F59E0B] font-bold">
+                                                                        • {chapter.price} Xu
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions */}
+                                                    <button
+                                                        onClick={() => setEditingChapterId(chapter.id)}
+                                                        className="p-2 text-[#9CA3AF] hover:text-[#F59E0B] transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="Chỉnh sửa chương"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            );
+                                        })
                                     )}
                                 </div>
 

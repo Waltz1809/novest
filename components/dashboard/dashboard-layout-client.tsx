@@ -74,8 +74,7 @@ export default function DashboardLayoutClient({
             <main
                 className={`
                     flex-1 p-4 lg:p-8 mt-16 transition-all duration-300 w-full
-                    ${isMobile ? "ml-0" : ""} 
-                    /* Flexbox handles the width automatically, no need for ml-64/ml-20 */
+                    ${isMobile ? "ml-16" : (isCollapsed ? "lg:ml-16" : "lg:ml-64")}
                 `}
             >
                 {children}

@@ -43,7 +43,7 @@ export default function NovelGridCard({
     };
 
     return (
-        <div className="group relative aspect-[2/3] rounded-xl overflow-hidden bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 cursor-pointer">
+        <div className="group relative aspect-2/3 rounded-xl overflow-hidden bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 cursor-pointer">
             {/* Cover Image or Gradient Fallback */}
             {coverImage ? (
                 <Image
@@ -54,7 +54,7 @@ export default function NovelGridCard({
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 />
             ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1E293B] via-[#0B0C10] to-[#1E293B] flex items-center justify-center p-6 group-hover:opacity-30 transition-opacity duration-300">
+                <div className="absolute inset-0 bg-linear-to-br from-[#1E293B] via-[#0B0C10] to-[#1E293B] flex items-center justify-center p-6 group-hover:opacity-30 transition-opacity duration-300">
                     <h3 className="text-white text-center font-bold text-lg line-clamp-3">
                         {title}
                     </h3>
@@ -62,9 +62,9 @@ export default function NovelGridCard({
             )}
 
             {/* Status Badge (Top-Right) */}
-            <div className="absolute top-3 right-3 z-10">
+            <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
                 <span
-                    className={`px-3 py-1 text-xs font-bold rounded-full uppercase ${statusStyles[status]}`}
+                    className={`px-2 py-0.5 text-[10px] md:px-3 md:py-1 md:text-xs font-bold rounded-full uppercase ${statusStyles[status]}`}
                 >
                     {statusLabels[status]}
                 </span>
