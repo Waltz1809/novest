@@ -5,6 +5,16 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createNotification } from "@/actions/notification";
+import { JSDOM } from "jsdom";
+
+function stripHtml(html: string) {
+    const dom = new JSDOM(html);
+    return dom.window.document.body.textContent || "";
+}
+
+function countWords(text: string) {
+    return text.trim().split(/\s+/).length;
+}
 
 const chapterSchema = z.object({
     title: z.string().min(1, "Tiêu đề không được để trống"),
@@ -104,6 +114,10 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
             return { error: "Chapter with this order already exists in this volume (Slug conflict)" };
         }
 
+        // Calculate word count
+        const plainText = stripHtml(content);
+        const wordCount = countWords(plainText);
+
         await db.chapter.create({
             data: {
                 title,
@@ -113,6 +127,7 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
                 price,
                 isLocked,
                 slug,
+                wordCount, // Save word count
             },
         });
 
@@ -181,6 +196,10 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
             slug = `vol-${volume.order}-chap-${chapterSlug}`;
         }
 
+        // Calculate word count
+        const plainText = stripHtml(content);
+        const wordCount = countWords(plainText);
+
         await db.chapter.update({
             where: { id: chapterId },
             data: {
@@ -191,6 +210,7 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
                 price,
                 isLocked,
                 slug,
+                wordCount, // Update word count
             },
         });
 

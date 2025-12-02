@@ -33,21 +33,62 @@ export function ChapterPageClient({
         textAlign: "justify",
         theme: "light",
     })
+    const [progress, setProgress] = useState(0)
     const [showHeader, setShowHeader] = useState(true)
     const lastScrollY = useRef(0)
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
         // 1. Restore scroll position
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         const key = `reading-pos-${chapter.id}`
         const savedPos = localStorage.getItem(key)
+
         if (savedPos) {
-            window.scrollTo({ top: parseInt(savedPos), behavior: "instant" })
+            const pos = parseInt(savedPos)
+            if (!isNaN(pos) && pos >= 0) {
+                // Retry mechanism to wait for content to load
+                let attempts = 0
+                const maxAttempts = 10 // 1 second total
+
+                const tryScroll = () => {
+                    const docHeight = document.documentElement.scrollHeight
+                    const winHeight = window.innerHeight
+
+                    // If page is long enough to scroll to pos, OR we ran out of attempts
+                    if (docHeight - winHeight >= pos || attempts >= maxAttempts) {
+                        const targetPos = Math.min(pos, docHeight - winHeight)
+                        window.scrollTo({ top: targetPos, behavior: "instant" })
+                        return true // Done
+                    }
+                    return false // Keep waiting
+                }
+
+                // Try immediately
+                if (!tryScroll()) {
+                    const interval = setInterval(() => {
+                        attempts++
+                        if (tryScroll()) {
+                            clearInterval(interval)
+                        }
+                    }, 100)
+                }
+            }
         }
 
         // 2. Scroll handler
         const handleScroll = () => {
             const currentScrollY = window.scrollY
+            const docHeight = document.documentElement.scrollHeight
+            const winHeight = window.innerHeight
+
+            // Calculate Progress
+            const totalScroll = docHeight - winHeight
+            const currentProgress = totalScroll > 0 ? (currentScrollY / totalScroll) * 100 : 0
+            setProgress(Math.min(100, Math.max(0, currentProgress)))
 
             // Smart Header Logic
             if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
@@ -67,11 +108,25 @@ export function ChapterPageClient({
         }
 
         window.addEventListener("scroll", handleScroll, { passive: true })
+
         return () => {
             window.removeEventListener("scroll", handleScroll)
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+
+            // 3. Save on Exit (Unmount)
+            const currentY = window.scrollY
+            localStorage.setItem(key, currentY.toString())
         }
     }, [chapter.id])
+
+    // 3. Update History
+    useEffect(() => {
+        if (session?.user) {
+            import("@/actions/library").then(({ updateReadingHistory }) => {
+                updateReadingHistory(novel.id, chapter.id)
+            })
+        }
+    }, [chapter.id, novel.id, session?.user])
 
     return (
         <div
@@ -87,6 +142,12 @@ export function ChapterPageClient({
                 "--foreground": config.theme === "dark" ? "#ffffff" : config.theme === "sepia" ? "#5b4636" : "#09090b",
             } as React.CSSProperties}
         >
+            {/* Reading Progress Bar */}
+            <div
+                className="fixed top-0 left-0 h-1 bg-[#F59E0B] z-60 transition-all duration-150 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                style={{ width: `${progress}%` }}
+            />
+
             {/* Sticky Header */}
             <header
                 className={clsx(

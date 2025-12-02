@@ -142,3 +142,12 @@ body::after {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(52, 211, 153, 0.5);
 }
+
+/* Hide scrollbar for horizontal shelves */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

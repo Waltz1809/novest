@@ -23,12 +23,12 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
     const [isPaused, setIsPaused] = useState(false);
     const [progress, setProgress] = useState(0);
 
-    // Auto-rotate carousel every 8 seconds with progress bar
+    // Auto-rotate carousel every 4 seconds with progress bar
     useEffect(() => {
         if (isPaused || novels.length === 0) return;
 
         let startTime = Date.now();
-        const duration = 8000;
+        const duration = 4000;
 
         const progressInterval = setInterval(() => {
             const elapsed = Date.now() - startTime;
@@ -54,9 +54,7 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
     return (
         // FULL WIDTH - Breaking out of container
         <div
-            className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[70vh] md:h-[85vh] overflow-hidden"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+            className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[50vh] md:h-[60vh] overflow-hidden"
         >
             {/* LAYER 1: Atmospheric Background - Huge Blurred Cover */}
             <div className="absolute inset-0 -z-10">
@@ -71,7 +69,7 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
                         />
                     </div>
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#1E293B]/30 to-[#0B0C10]" />
+                    <div className="w-full h-full bg-linear-to-br from-[#1E293B]/30 to-[#0B0C10]" />
                 )}
             </div>
 
@@ -79,33 +77,37 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
             <div
                 className="absolute inset-0 -z-5"
                 style={{
-                    background: 'linear-gradient(to bottom, rgba(11, 12, 16, 0.3) 0%, rgba(11, 12, 16, 0.7) 50%, rgba(11, 12, 16, 0.95) 100%)'
+                    background: 'linear-gradient(to bottom, transparent 0%, rgba(11, 12, 16, 0.8) 70%, #0B0C10 100%)'
                 }}
             />
 
             {/* LAYER 3: Content - Overlapping the Image */}
-            <div className="relative h-full flex items-center">
+            <div
+                className="relative h-full flex items-center"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
                 <div className="container mx-auto px-6 md:px-16 max-w-7xl">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         {/* Left: Massive Typography */}
                         <div className="lg:col-span-7 z-10">
-                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 leading-[0.9] tracking-tighter drop-shadow-2xl">
+                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-[0.9] tracking-tighter drop-shadow-2xl">
                                 {currentNovel.title}
                             </h1>
 
-                            <p className="text-xl md:text-2xl text-[#FBBF24] mb-6 font-semibold tracking-wide">
+                            <p className="text-lg md:text-xl text-[#FBBF24] mb-4 font-semibold tracking-wide">
                                 {currentNovel.author}
                             </p>
 
                             {currentNovel.description && (
-                                <p className="text-base md:text-lg text-gray-300 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
+                                <p className="text-sm md:text-base text-gray-300 mb-6 line-clamp-2 max-w-2xl leading-relaxed">
                                     {currentNovel.description}
                                 </p>
                             )}
 
                             <Link
                                 href={`/truyen/${currentNovel.slug}`}
-                                className="inline-block bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 hover:scale-105 glow-amber-strong uppercase tracking-wider shadow-2xl"
+                                className="inline-block bg-[#F59E0B] hover:bg-[#FBBF24] text-[#0B0C10] px-8 py-3 rounded-lg font-bold text-lg transition-all duration-300 hover:scale-105 glow-amber-strong uppercase tracking-wider shadow-2xl"
                             >
                                 Đọc Ngay →
                             </Link>
@@ -114,7 +116,7 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
                         {/* Right: Sharp Cover Image (Overlapping) */}
                         {currentNovel.coverImage && (
                             <div className="lg:col-span-5 hidden lg:block">
-                                <div className="relative w-full aspect-[2/3] max-w-md ml-auto">
+                                <div className="relative w-full aspect-2/3 max-w-xs ml-auto">
                                     <Image
                                         src={currentNovel.coverImage}
                                         alt={currentNovel.title}
@@ -132,13 +134,17 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
             {/* Progress Bar (Bottom) - Replacing Pagination Dots */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
                 <div
-                    className="h-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] transition-all duration-100 ease-linear glow-amber"
+                    className="h-full bg-linear-to-r from-[#F59E0B] to-[#FBBF24] transition-all duration-100 ease-linear glow-amber"
                     style={{ width: `${progress}%` }}
                 />
             </div>
 
             {/* Thumbnail Strip (Bottom Right) */}
-            <div className="absolute bottom-8 right-8 flex gap-2">
+            <div
+                className="absolute bottom-8 right-8 flex gap-2"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
                 {novels.map((novel, index) => (
                     <button
                         key={novel.id}
@@ -147,8 +153,8 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
                             setProgress(0);
                         }}
                         className={`relative w-12 h-16 rounded overflow-hidden transition-all ${index === currentIndex
-                                ? "ring-2 ring-[#F59E0B] scale-110 glow-amber"
-                                : "opacity-50 hover:opacity-100 hover:scale-105"
+                            ? "ring-2 ring-[#F59E0B] scale-110 glow-amber"
+                            : "opacity-50 hover:opacity-100 hover:scale-105"
                             }`}
                     >
                         {novel.coverImage ? (

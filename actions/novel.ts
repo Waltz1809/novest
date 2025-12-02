@@ -126,3 +126,102 @@ export async function reindexAllNovels() {
 
     revalidatePath("/dashboard/novels");
 }
+
+export async function getRelatedNovels(novelId: number, genreIds: number[], limit: number = 5) {
+    // 1. Get the current novel to check author (if not passed, we might need to fetch it, but let's assume we can get it from the candidates or just ignore author boost if we don't have it handy. 
+    // Actually, we need the author of the current novel to boost same author. 
+    // Let's fetch the current novel's author first.
+    const currentNovel = await db.novel.findUnique({
+        where: { id: novelId },
+        select: { author: true }
+    });
+
+    if (!currentNovel) return [];
+
+    // 2. Find candidates: Novels that share AT LEAST ONE genre
+    // We fetch a bit more than the limit to sort them in memory
+    const candidates = await db.novel.findMany({
+        where: {
+            id: { not: novelId },
+            status: { not: "HIDDEN" },
+            genres: {
+                some: {
+                    id: { in: genreIds }
+                }
+            }
+        },
+        take: 50, // Fetch a pool of candidates
+        include: {
+            genres: { select: { id: true, name: true } }
+        }
+    });
+
+    // 3. Score candidates
+    const scored = candidates.map(novel => {
+        let score = 0;
+
+        // +10 points for each shared genre
+        const sharedGenres = novel.genres.filter(g => genreIds.includes(g.id)).length;
+        score += sharedGenres * 10;
+
+        // +50 points for same author
+        if (novel.author === currentNovel.author) {
+            score += 50;
+        }
+
+        // +1 point for every 10k views (capped at 20 points) to add a slight popularity bias
+        score += Math.min(Math.floor(novel.viewCount / 10000), 20);
+
+        return { ...novel, score };
+    });
+
+    // 4. Sort by score desc
+    scored.sort((a, b) => b.score - a.score);
+
+    // 5. Take top N
+    const related = scored.slice(0, limit);
+
+    // 6. Fallback: If not enough related, fill with Top Viewed
+    if (related.length < limit) {
+        const existingIds = [novelId, ...related.map(n => n.id)];
+        const additional = await db.novel.findMany({
+            where: {
+                id: { notIn: existingIds },
+                status: { not: "HIDDEN" }
+            },
+            orderBy: { viewCount: "desc" },
+            take: limit - related.length,
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                coverImage: true,
+                author: true,
+                genres: {
+                    take: 1,
+                    select: { name: true }
+                }
+            }
+        });
+
+        // Combine and return
+        return [...related, ...additional].map(n => ({
+            id: n.id,
+            title: n.title,
+            slug: n.slug,
+            coverImage: n.coverImage,
+            author: n.author,
+            genres: n.genres
+        }));
+    }
+
+    // Return with consistent shape
+    return related.map(n => ({
+        id: n.id,
+        title: n.title,
+        slug: n.slug,
+        coverImage: n.coverImage,
+        author: n.author,
+        genres: n.genres
+    }));
+}

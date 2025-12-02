@@ -177,6 +177,9 @@ model Chapter {
   purchases        UserPurchase[]
   readingHistories ReadingHistory[]
   comments         Comment[]
+
+  createdAt DateTime @default(now())
+  wordCount Int      @default(0)
 }
 
 model UserPurchase {

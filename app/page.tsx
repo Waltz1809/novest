@@ -2,10 +2,9 @@ import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { BookOpen } from "lucide-react";
 import MainHeader from "@/components/layout/main-header";
-import { NovelCard } from "@/components/novel/novel-card";
 import { HeroCarousel } from "@/components/home/hero-carousel";
-import { RankingsSidebar } from "@/components/home/rankings-sidebar";
 import { ContinueReading } from "@/components/home/continue-reading";
+import { NovelShelf } from "@/components/novel/novel-shelf";
 import { getTopViewed, getTopRated } from "@/actions/ranking";
 import { getHistory } from "@/actions/library";
 
@@ -58,75 +57,43 @@ export default async function Home() {
       orderBy: {
         updatedAt: "desc",
       },
-      take: 12, // Show 12 latest novels
+      take: 20, // Increased for shelf
     }),
 
     // Get top viewed novels
-    getTopViewed(10),
+    getTopViewed(20),
 
     // Get top rated novels
-    getTopRated(10),
+    getTopRated(20),
 
     // Get reading history if user is logged in
     session?.user ? getHistory() : Promise.resolve([]),
   ]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen bg-[#0B0C10] text-gray-100 font-sans pb-20">
       {/* Header */}
       <MainHeader />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main>
         {/* Hero Carousel */}
         <div className="mb-8">
           <HeroCarousel novels={carouselNovels} />
         </div>
 
-        {/* Continue Reading Section (only for logged-in users) */}
+        {/* Continue Reading Section */}
         {session?.user && readingHistory.length > 0 && (
-          <ContinueReading history={readingHistory} />
+          <div className="container mx-auto px-4 mb-8">
+            <ContinueReading history={readingHistory} />
+          </div>
         )}
 
-        {/* 2-Column Layout: Latest Updates + Rankings */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Latest Updates (70% width on desktop) */}
-          <div className="lg:col-span-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                Mới Cập Nhật
-              </h2>
-              <p className="text-muted-foreground">
-                Những bộ truyện mới nhất được cập nhật
-              </p>
-            </div>
-
-            {/* Novel Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-              {latestNovels.map((novel) => (
-                <NovelCard key={novel.id} novel={novel} />
-              ))}
-            </div>
-
-            {latestNovels.length === 0 && (
-              <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-                  <BookOpen className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-medium text-foreground">
-                  Chưa có truyện nào
-                </h3>
-                <p className="text-muted-foreground mt-1">
-                  Hãy thêm truyện mới vào cơ sở dữ liệu.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column: Rankings (30% width on desktop) */}
-          <div className="lg:col-span-4">
-            <RankingsSidebar topViewed={topViewed} topRated={topRated} />
-          </div>
+        {/* Shelves Stack */}
+        <div className="flex flex-col gap-4">
+          <NovelShelf title="Thịnh Hành" novels={topViewed} link="/rankings?sort=view" />
+          <NovelShelf title="Mới Cập Nhật" novels={latestNovels} link="/latest" />
+          <NovelShelf title="Đánh Giá Cao" novels={topRated} link="/rankings?sort=rating" />
         </div>
       </main>
     </div>

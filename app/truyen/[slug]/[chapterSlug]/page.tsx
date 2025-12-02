@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react";
 import UnlockButton from "@/components/novel/unlock-button";
 import ChapterContent from "@/components/novel/chapter-content";
-import { updateReadingHistory } from "@/actions/library";
+// import { updateReadingHistory } from "@/actions/library";
 import { incrementView } from "@/actions/ranking";
 import { ChapterPageClient } from "./chapter-page-client";
 import { CommentSection } from "@/components/comment/comment-section";
@@ -74,10 +74,10 @@ export default async function ChapterReadingPage({ params }: PageProps) {
         notFound();
     }
 
-    // Update reading history (fire and forget)
-    if (session?.user) {
-        updateReadingHistory(novel.id, chapter.id);
-    }
+    // Update reading history (moved to client component)
+    // if (session?.user) {
+    //     updateReadingHistory(novel.id, chapter.id);
+    // }
 
     // Increment view count (fire and forget)
     incrementView(novel.id).catch(() => { });
