@@ -92,9 +92,9 @@ export default function ChapterStructureTree({
                                         className="flex-1 flex items-center gap-2 p-2 text-[#9CA3AF] hover:text-white transition-colors"
                                     >
                                         {isCollapsed ? (
-                                            <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                                            <ChevronRight className="w-4 h-4 shrink-0" />
                                         ) : (
-                                            <ChevronDown className="w-4 h-4 flex-shrink-0" />
+                                            <ChevronDown className="w-4 h-4 shrink-0" />
                                         )}
                                         <span className="text-sm font-medium truncate">
                                             Tập {volume.order}: {volume.title}

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { createNotification } from "@/actions/notification";
 
 const chapterSchema = z.object({
     title: z.string().min(1, "Tiêu đề không được để trống"),
@@ -117,6 +118,31 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
 
         revalidatePath(`/dashboard/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
+
+        // Notify users who have this novel in their library
+        const libraryEntries = await db.library.findMany({
+            where: { novelId: volume.novelId },
+            select: { userId: true }
+        });
+
+        if (libraryEntries.length > 0) {
+            const notificationPromises = libraryEntries.map(entry =>
+                createNotification({
+                    userId: entry.userId,
+                    type: "NEW_CHAPTER",
+                    resourceId: `/truyen/${volume.novel.slug}/${slug}`, // Use full path for easier routing
+                    resourceType: "chapter",
+                    message: `Truyện bạn thích vừa cập nhật chương ${volume.novel.title} - ${title} mới toanh luôn nè`,
+                    actorId: session.user.id,
+                })
+            );
+
+            // Run in background, don't await completion to speed up response
+            Promise.all(notificationPromises).catch(err =>
+                console.error("Failed to send notifications:", err)
+            );
+        }
+
         return { success: "Tạo chương thành công!" };
     } catch (error) {
         console.error("Create chapter error:", error);

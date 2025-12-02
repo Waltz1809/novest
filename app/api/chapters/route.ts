@@ -69,9 +69,33 @@ export async function POST(request: Request) {
             return updatedChapter;
         });
 
+        // Create notifications for users who have this novel in their library
+        try {
+            const libraryUsers = await db.library.findMany({
+                where: { novelId: novel.id },
+                select: { userId: true },
+            });
+
+            // Create notification for each library user
+            for (const libraryUser of libraryUsers) {
+                await db.notification.create({
+                    data: {
+                        userId: libraryUser.userId,
+                        type: "NEW_CHAPTER",
+                        resourceId: `/truyen/${novel.slug}/${chapter.slug}`,
+                        resourceType: "chapter",
+                        message: `Truyện bạn thích vừa cập nhật chương [${novel.title} - ${chapter.title}] mới toanh luôn nè`,
+                    },
+                });
+            }
+        } catch (notifError) {
+            console.error("Error creating chapter notifications:", notifError);
+            // Don't fail the chapter creation if notification fails
+        }
+
         return NextResponse.json(chapter);
     } catch (error) {
-        console.error("Error creating chapter:", error);
+        console.error("Error creating  chapter:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

@@ -22,7 +22,7 @@ export async function addComment(data: {
     }
 
     try {
-        await db.comment.create({
+        const comment = await db.comment.create({
             data: {
                 content,
                 userId: session.user.id,
@@ -31,6 +31,33 @@ export async function addComment(data: {
                 parentId,
             },
         })
+
+        // Create notification for comment reply
+        if (parentId) {
+            const parentComment = await db.comment.findUnique({
+                where: { id: parentId },
+                select: { userId: true },
+            })
+
+            // Only notify if replying to someone else's comment
+            if (parentComment && parentComment.userId !== session.user.id) {
+                const novel = await db.novel.findUnique({
+                    where: { id: novelId },
+                    select: { title: true, slug: true },
+                })
+
+                await db.notification.create({
+                    data: {
+                        userId: parentComment.userId,
+                        actorId: session.user.id,
+                        type: "REPLY_COMMENT",
+                        resourceId: comment.id.toString(),
+                        resourceType: "comment",
+                        message: `${session.user.nickname || session.user.name} replied to your comment on "${novel?.title || 'a novel'}"`,
+                    },
+                })
+            }
+        }
 
         revalidatePath(`/truyen/${novelId}`)
         return { success: true }

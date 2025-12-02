@@ -53,7 +53,7 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                     <Search className="w-5 h-5 text-[#9CA3AF]" />
                     <input
                         type="text"
-                        placeholder="Search novels..."
+                        placeholder="Nhập tên truyện..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 bg-transparent outline-none text-white placeholder:text-[#9CA3AF]"

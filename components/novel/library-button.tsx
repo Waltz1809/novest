@@ -18,17 +18,25 @@ export default function LibraryButton({ novelId, initialIsInLibrary, className }
 
     const handleToggle = () => {
         // Optimistic update
-        setIsInLibrary((prev) => !prev);
+        const newState = !isInLibrary;
+        setIsInLibrary(newState);
 
         startTransition(async () => {
             try {
                 await toggleLibrary(novelId);
                 router.refresh();
-            } catch (error) {
+                // Optional: Show success message if needed, but the button state change is usually enough.
+                // Since user asked for "notification", we can add a small alert or just rely on the UI change.
+                // For now, let's just log success.
+                console.log(newState ? "Added to library" : "Removed from library");
+            } catch (error: any) {
                 // Revert on error
                 setIsInLibrary((prev) => !prev);
                 console.error("Failed to toggle library", error);
-                alert("Có lỗi xảy ra, vui lòng thử lại.");
+
+                // Show specific error message
+                const message = error.message || "Có lỗi xảy ra, vui lòng thử lại.";
+                alert(message);
             }
         });
     };
