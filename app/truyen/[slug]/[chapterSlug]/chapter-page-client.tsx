@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react"
 import UnlockButton from "@/components/novel/unlock-button"
@@ -33,6 +33,45 @@ export function ChapterPageClient({
         textAlign: "justify",
         theme: "light",
     })
+    const [showHeader, setShowHeader] = useState(true)
+    const lastScrollY = useRef(0)
+    const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
+
+    useEffect(() => {
+        // 1. Restore scroll position
+        const key = `reading-pos-${chapter.id}`
+        const savedPos = localStorage.getItem(key)
+        if (savedPos) {
+            window.scrollTo({ top: parseInt(savedPos), behavior: "instant" })
+        }
+
+        // 2. Scroll handler
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY
+
+            // Smart Header Logic
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                setShowHeader(false)
+            } else {
+                setShowHeader(true)
+            }
+            lastScrollY.current = currentScrollY
+
+            // Save Scroll Position (throttled)
+            if (!scrollTimeout.current) {
+                scrollTimeout.current = setTimeout(() => {
+                    localStorage.setItem(key, currentScrollY.toString())
+                    scrollTimeout.current = null
+                }, 500)
+            }
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true })
+        return () => {
+            window.removeEventListener("scroll", handleScroll)
+            if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+        }
+    }, [chapter.id])
 
     return (
         <div
@@ -51,7 +90,8 @@ export function ChapterPageClient({
             {/* Sticky Header */}
             <header
                 className={clsx(
-                    "fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-4 z-50 shadow-sm transition-all duration-300 backdrop-blur-sm border-b",
+                    "fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-4 z-50 shadow-sm transition-transform duration-300 backdrop-blur-sm border-b",
+                    !showHeader && "-translate-y-full",
                     config.theme === "light" && "bg-[#f9f7f1]/95 border-gray-200/50",
                     config.theme === "sepia" && "bg-[#f4ecd8]/95 border-[#e6dac0]/50",
                     config.theme === "dark" && "bg-gray-950/95 border-gray-800/50"
@@ -166,9 +206,9 @@ export function ChapterPageClient({
                         <ChapterContent
                             content={chapter.content}
                             className={clsx(
-                                config.font === "mono" && "!font-mono",
-                                config.font === "sans" && "!font-sans",
-                                config.font === "serif" && "!font-serif",
+                                config.font === "mono" && "font-mono!",
+                                config.font === "sans" && "font-sans!",
+                                config.font === "serif" && "font-serif!",
                                 config.theme === "dark" && "prose-invert text-white"
                             )}
                         />
