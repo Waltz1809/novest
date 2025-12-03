@@ -65,7 +65,7 @@ export default function CommentActivity({
                         className="flex items-start gap-3 p-3 rounded-lg bg-[#0B0C10]/50 hover:bg-[#0B0C10] transition-colors"
                     >
                         {/* Avatar */}
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#34D399] flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#F59E0B] to-[#34D399] flex items-center justify-center shrink-0">
                             <MessageCircle className="w-4 h-4 text-[#0B0C10]" />
                         </div>
 
@@ -75,7 +75,7 @@ export default function CommentActivity({
                                 <span className="text-sm font-medium text-white truncate">
                                     {comment.user}
                                 </span>
-                                <span className="text-xs text-[#9CA3AF] flex-shrink-0">
+                                <span className="text-xs text-[#9CA3AF] shrink-0">
                                     {comment.time}
                                 </span>
                             </div>

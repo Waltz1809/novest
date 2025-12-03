@@ -13,6 +13,9 @@ export const ourFileRouter = {
             // This code runs on your server before upload
             const session = await auth();
 
+            console.log("UploadThing Middleware - Session User:", session?.user?.id);
+            console.log("UploadThing Middleware - UPLOADTHING_URL:", process.env.UPLOADTHING_URL);
+
             // If you throw, the user will not be able to upload
             if (!session?.user) throw new UploadThingError("Unauthorized");
 
