@@ -21,7 +21,7 @@ const generateMockData = (days: number) => {
     const baseValue = 20000000; // 20M
     for (let i = 0; i < days; i++) {
         data.push({
-            day: i === 0 ? "Lần 1" : i === days - 1 ? `Lần ${days}` : `Day ${i + 1}`,
+            day: i === 0 ? "Hôm nay" : `Ngày ${i + 1}`,
             views: baseValue + Math.random() * 80000000 + (i * 2000000),
         });
     }
@@ -29,9 +29,9 @@ const generateMockData = (days: number) => {
 };
 
 const timePeriods = [
-    { label: "Last 7 Days", value: 7 },
-    { label: "Last 15 Days", value: 15 },
-    { label: "Last 30 Days", value: 30 },
+    { label: "7 ngày qua", value: 7 },
+    { label: "15 ngày qua", value: 15 },
+    { label: "30 ngày qua", value: 30 },
 ];
 
 export default function ReadershipChart({ className = "" }: ReadershipChartProps) {
@@ -44,7 +44,7 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">Readership growth</h2>
+                <h2 className="text-xl font-bold text-white">Tăng trưởng độc giả</h2>
                 <select
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(Number(e.target.value))}
@@ -89,8 +89,8 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
                             tick={{ fill: "#9CA3AF", fontSize: 12 }}
                             axisLine={{ stroke: "#34D399", strokeOpacity: 0.2 }}
                             tickFormatter={(value) => {
-                                if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
-                                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+                                if (value >= 1000000) return `${(value / 1000000).toFixed(0)}Tr`;
+                                if (value >= 1000) return `${(value / 1000).toFixed(0)}N`;
                                 return value;
                             }}
                         />
@@ -103,8 +103,8 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
                             }}
                             labelStyle={{ color: "#9CA3AF" }}
                             formatter={(value: number) => [
-                                value.toLocaleString(),
-                                "Views",
+                                value.toLocaleString("vi-VN"),
+                                "Lượt xem",
                             ]}
                         />
                         <Area

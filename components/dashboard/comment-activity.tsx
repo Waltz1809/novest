@@ -54,7 +54,7 @@ export default function CommentActivity({
 
             {/* Title */}
             <h3 className="text-[#9CA3AF] text-sm font-medium uppercase tracking-wide mb-4">
-                New Comments
+                Bình luận mới
             </h3>
 
             {/* Comments List */}

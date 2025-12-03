@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/novel/image-upload";
+import GenreSelector from "@/components/novel/genre-selector";
 import { createNovel, updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
 import { Loader2, Save, Wand2 } from "lucide-react";
@@ -65,6 +66,7 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
 
     const coverImage = watch("coverImage");
     const title = watch("title");
+    const genreIds = watch("genreIds");
 
     const generateSlug = () => {
         setValue("slug", toSlug(title));
@@ -90,12 +92,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                 {/* Left Column: Cover Image */}
                 <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-card p-6 rounded-xl shadow-md ">
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                    <div className="bg-[#0f172a] p-4 md:p-6 rounded-xl shadow-md border border-white/10 overflow-hidden">
+                        <label className="block text-sm font-medium text-[#9CA3AF] uppercase mb-3 tracking-wide">
                             Ảnh bìa
                         </label>
                         <ImageUpload
@@ -108,15 +110,15 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
 
                 {/* Right Column: Info */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-card p-6 rounded-xl shadow-md  space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-[#0f172a] p-4 md:p-6 rounded-xl shadow-md border border-white/10 space-y-5 md:space-y-6 overflow-hidden">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Tên truyện
                                 </label>
                                 <input
                                     {...register("title", { required: "Vui lòng nhập tên truyện" })}
-                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
                                     placeholder="Nhập tên truyện..."
                                 />
                                 {errors.title && (
@@ -125,22 +127,22 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Slug (URL)
                                 </label>
                                 <div className="flex gap-2">
                                     <input
                                         {...register("slug", { required: "Vui lòng nhập slug" })}
-                                        className="flex-1 px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        className="flex-1 px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
                                         placeholder="ten-truyen-slug"
                                     />
                                     <button
                                         type="button"
                                         onClick={generateSlug}
-                                        className="p-2 bg-muted text-muted-foreground rounded-lg hover:bg-accent transition-colors"
+                                        className="p-3 bg-white/5 text-gray-400 rounded-lg hover:bg-[#F59E0B]/10 hover:text-[#F59E0B] transition-colors"
                                         title="Tự động tạo từ tên truyện"
                                     >
-                                        <Wand2 className="w-4 h-4" />
+                                        <Wand2 className="w-5 h-5" />
                                     </button>
                                 </div>
                                 {errors.slug && (
@@ -149,12 +151,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Tác giả
                                 </label>
                                 <input
                                     {...register("author", { required: "Vui lòng nhập tác giả" })}
-                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
                                     placeholder="Tên tác giả..."
                                 />
                                 {errors.author && (
@@ -163,12 +165,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Trạng thái
                                 </label>
                                 <select
                                     {...register("status")}
-                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-white"
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
                                 >
                                     <option value="ONGOING">Đang ra (ONGOING)</option>
                                     <option value="COMPLETED">Hoàn thành (COMPLETED)</option>
@@ -176,60 +178,52 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                                 </select>
                             </div>
 
-                            <div className="col-span-2 space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                            <div className="col-span-1 md:col-span-2 space-y-2">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Tên khác (Alternative Titles)
                                 </label>
                                 <input
                                     {...register("alternativeTitles")}
-                                    className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
                                     placeholder="Tên gọi khác, ngăn cách bởi dấu phẩy..."
                                 />
                             </div>
 
-                            <div className="col-span-2 space-y-2">
-                                <label className="text-sm font-medium text-foreground">
+                            <div className="col-span-1 md:col-span-2 space-y-2">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                     Thể loại
                                 </label>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2  rounded-lg">
-                                    {genres.map((genre) => (
-                                        <label key={genre.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                value={genre.id}
-                                                {...register("genreIds")}
-                                                className="rounded border-border text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            {genre.name}
-                                        </label>
-                                    ))}
-                                </div>
+                                <GenreSelector
+                                    genres={genres}
+                                    selectedValues={genreIds}
+                                    onChange={(values) => setValue("genreIds", values)}
+                                />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">
+                            <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
                                 Mô tả
                             </label>
                             <textarea
                                 {...register("description")}
                                 rows={6}
-                                className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                                className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all resize-none"
                                 placeholder="Mô tả nội dung truyện..."
                             />
                         </div>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-end sticky bottom-4 md:static z-10">
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-8 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all shadow-lg shadow-[#F59E0B]/20 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center"
                         >
                             {isPending ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
-                                <Save className="w-4 h-4" />
+                                <Save className="w-5 h-5" />
                             )}
                             {initialData ? "Lưu thay đổi" : "Tạo truyện mới"}
                         </button>
