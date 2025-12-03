@@ -9,10 +9,15 @@ import { clsx } from "clsx"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
+import { voteComment } from "@/actions/comment"
+import { ThumbsUp, ThumbsDown } from "lucide-react"
+import Link from "next/link"
+
 interface CommentUser {
     id: string
     name: string | null
     nickname: string | null
+    username: string | null
     image: string | null
 }
 
@@ -23,6 +28,8 @@ interface Comment {
     user: CommentUser
     parentId: number | null
     children?: Comment[]
+    score: number
+    userVote: "UPVOTE" | "DOWNVOTE" | null
 }
 
 interface CommentSectionProps {
@@ -175,28 +182,74 @@ function CommentItem({
 }) {
     const [isReplying, setIsReplying] = useState(false)
     const { data: session } = useSession()
+    const router = useRouter()
+
+    const [score, setScore] = useState(comment.score || 0)
+    const [userVote, setUserVote] = useState(comment.userVote)
+
+    const handleVote = async (type: "UPVOTE" | "DOWNVOTE") => {
+        if (!session) {
+            router.push("/login")
+            return
+        }
+
+        // Optimistic update
+        const previousVote = userVote
+        const previousScore = score
+
+        if (userVote === type) {
+            // Toggle off
+            setUserVote(null)
+            setScore(prev => type === "UPVOTE" ? prev - 1 : prev + 1)
+        } else {
+            // Change vote
+            setUserVote(type)
+            if (userVote) {
+                // Switching vote (e.g. +1 to -1 = -2)
+                setScore(prev => type === "UPVOTE" ? prev + 2 : prev - 2)
+            } else {
+                // New vote
+                setScore(prev => type === "UPVOTE" ? prev + 1 : prev - 1)
+            }
+        }
+
+        // Call server action
+        const res = await voteComment(comment.id, type)
+        if (res.error) {
+            // Revert on error
+            setUserVote(previousVote)
+            setScore(previousScore)
+        }
+    }
 
     return (
         <div className="flex gap-4">
             <div className="shrink-0">
-                {comment.user.image ? (
-                    <Image
-                        src={comment.user.image}
-                        alt={comment.user.name || "User"}
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover"
-                    />
-                ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0B0C10] border border-gray-800">
-                        <User className="h-6 w-6 text-gray-500" />
-                    </div>
-                )}
+                <Link href={`/u/${comment.user.username || comment.user.id}`}>
+                    {comment.user.image ? (
+                        <Image
+                            src={comment.user.image}
+                            alt={comment.user.name || "User"}
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover hover:ring-2 hover:ring-amber-500 transition-all"
+                        />
+                    ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0B0C10] border border-gray-800 hover:border-amber-500 transition-colors">
+                            <User className="h-6 w-6 text-gray-500" />
+                        </div>
+                    )}
+                </Link>
             </div>
             <div className="flex-1 space-y-2">
                 <div className="rounded-lg bg-[#0B0C10] p-4 border border-gray-800">
                     <div className="mb-1 flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <span className="font-semibold text-gray-200 text-sm sm:text-base wrap-break-word">{comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}</span>
+                        <Link
+                            href={`/u/${comment.user.username || comment.user.id}`}
+                            className="font-semibold text-gray-200 text-sm sm:text-base wrap-break-word hover:text-amber-500 transition-colors"
+                        >
+                            {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
+                        </Link>
                         <span className="text-xs text-gray-500 shrink-0">
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
@@ -205,6 +258,35 @@ function CommentItem({
                 </div>
 
                 <div className="flex items-center gap-4 pl-2">
+                    {/* Vote Controls */}
+                    <div className="flex items-center gap-1 bg-[#0B0C10] border border-white/5 rounded-full px-2 py-1">
+                        <button
+                            onClick={() => handleVote("UPVOTE")}
+                            className={clsx(
+                                "p-1 rounded hover:bg-white/5 transition-colors",
+                                userVote === "UPVOTE" ? "text-amber-500" : "text-gray-500"
+                            )}
+                        >
+                            <ThumbsUp className={clsx("w-3 h-3", userVote === "UPVOTE" && "fill-current")} />
+                        </button>
+                        <span className={clsx(
+                            "text-xs font-medium min-w-[1ch] text-center",
+                            userVote === "UPVOTE" ? "text-amber-500" :
+                                userVote === "DOWNVOTE" ? "text-red-500" : "text-gray-400"
+                        )}>
+                            {score}
+                        </span>
+                        <button
+                            onClick={() => handleVote("DOWNVOTE")}
+                            className={clsx(
+                                "p-1 rounded hover:bg-white/5 transition-colors",
+                                userVote === "DOWNVOTE" ? "text-red-500" : "text-gray-500"
+                            )}
+                        >
+                            <ThumbsDown className={clsx("w-3 h-3", userVote === "DOWNVOTE" && "fill-current")} />
+                        </button>
+                    </div>
+
                     {session && (
                         <button
                             onClick={() => setIsReplying(!isReplying)}

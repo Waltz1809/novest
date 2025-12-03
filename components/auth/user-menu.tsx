@@ -12,6 +12,7 @@ interface UserMenuProps {
         name?: string | null;
         image?: string | null;
         role: string;
+        username?: string | null;
     };
 }
 
@@ -83,21 +84,19 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                         </div>
                     </div>
 
-                    {/* Dashboard Link - Only for ADMIN and TRANSLATOR */}
-                    {isAdminOrTranslator && (
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <LayoutDashboard className="w-4 h-4" />
-                            <span>Dashboard</span>
-                        </Link>
-                    )}
+                    {/* Profile Link */}
+                    <Link
+                        href={`/u/${user.username}`}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <User className="w-4 h-4" />
+                        <span>Trang cá nhân</span>
+                    </Link>
 
                     {/* Settings Link - For all users */}
                     <Link
-                        href="/settings"
+                        href={`/u/${user.username}/settings`}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
@@ -114,6 +113,18 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                         <Book className="w-4 h-4" />
                         <span>Tủ truyện</span>
                     </Link>
+
+                    {/* Dashboard Link - Only for ADMIN and TRANSLATOR */}
+                    {isAdminOrTranslator && (
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>Dashboard</span>
+                        </Link>
+                    )}
 
                     {/* Sign Out */}
                     <button

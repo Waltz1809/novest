@@ -62,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     image: user.image,
                     role: user.role,
                     nickname: user.nickname,
+                    username: user.username,
                 };
             }
         })
@@ -73,11 +74,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.id = user.id;
                 token.role = user.role;
                 token.nickname = user.nickname;
+                token.username = user.username;
                 token.picture = user.image;
             }
 
             if (trigger === "update" && session) {
                 token.nickname = session.user.nickname;
+                token.username = session.user.username;
                 token.picture = session.user.image;
             }
 
@@ -89,12 +92,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
                 session.user.nickname = token.nickname as string | null;
+                session.user.username = token.username as string | null;
+                session.user.image = token.picture as string | null;
             }
             return session;
+        },
+    },
+    events: {
+        async createUser({ user }) {
+            if (!user.email || !user.id) return;
+
+            // Generate username from email
+            const emailPrefix = user.email.split('@')[0];
+            let username = emailPrefix.replace(/[^a-zA-Z0-9_]/g, ''); // Sanitize
+
+            // Check for collision
+            const existingUser = await db.user.findUnique({
+                where: { username }
+            });
+
+            if (existingUser) {
+                // Append 4 random digits
+                const randomDigits = Math.floor(1000 + Math.random() * 9000);
+                username = `${username}_${randomDigits}`;
+            }
+
+            // Update user with generated username
+            await db.user.update({
+                where: { id: user.id },
+                data: { username }
+            });
         }
     },
     pages: {
-        signIn: '/login', // You can customize this
+        signIn: '/login',
+        newUser: '/settings?welcome=true' // Redirect new users to settings
     },
     session: {
         strategy: "jwt"

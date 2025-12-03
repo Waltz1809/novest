@@ -28,6 +28,15 @@ export default async function NovelDetailPage({ params }: PageProps) {
         where: { slug },
         include: {
             genres: true,
+            uploader: {
+                select: {
+                    id: true,
+                    name: true,
+                    nickname: true,
+                    username: true,
+                    image: true,
+                }
+            },
             volumes: {
                 orderBy: { order: "asc" },
                 include: {
@@ -307,17 +316,28 @@ export default async function NovelDetailPage({ params }: PageProps) {
 
                             {/* Right Column: Sidebar (25%) */}
                             <div className="lg:col-span-1 space-y-8 order-2">
+
                                 {/* Translator Profile */}
                                 <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399]">
-                                            <User className="w-6 h-6" />
+                                    <Link href={`/u/${novel.uploader.username || novel.uploader.id}`} className="flex items-center gap-3 mb-4 group">
+                                        <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399] overflow-hidden border border-[#34D399]/20 group-hover:border-[#F59E0B] transition-colors">
+                                            {novel.uploader.image ? (
+                                                <Image
+                                                    src={novel.uploader.image}
+                                                    alt={novel.uploader.name || "Uploader"}
+                                                    width={48}
+                                                    height={48}
+                                                    className="object-cover w-full h-full"
+                                                />
+                                            ) : (
+                                                <User className="w-6 h-6" />
+                                            )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm text-gray-200">Nhóm dịch</h3>
-                                            <p className="text-xs text-gray-400">Novest Official</p>
+                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">Nhóm dịch</h3>
+                                            <p className="text-xs text-gray-400">{novel.uploader.nickname || novel.uploader.name || "Novest Official"}</p>
                                         </div>
-                                    </div>
+                                    </Link>
                                     <button className="w-full py-2 bg-[#F59E0B] text-[#0B0C10] font-bold text-sm rounded-lg hover:bg-[#D97706] hover:shadow-md transition-all">
                                         🎁 Ủng hộ nhóm dịch
                                     </button>
@@ -374,10 +394,10 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                         )}
                                     </div>
                                 </div>
-                            </div>
+                            </div >
 
                             {/* Comments Section - Shows below sidebar on mobile */}
-                            <div className="lg:col-span-3 order-3">
+                            < div className="lg:col-span-3 order-3" >
                                 <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-white/10">
                                     <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-l-4 border-[#F59E0B]">
                                         <div className="p-6 md:p-8">
@@ -385,11 +405,11 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+                            </div >
+                        </div >
+                    </div >
+                </div >
+            </main >
+        </div >
     );
 }

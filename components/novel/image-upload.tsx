@@ -1,64 +1,144 @@
 "use client";
 
-import { UploadButton } from "@/lib/uploadthing";
-import { X } from "lucide-react";
+import { getPresignedUrl } from "@/actions/upload";
+import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
     value: string;
     onChange: (url: string) => void;
     disabled?: boolean;
+    variant?: "cover" | "avatar"; // New: support different shapes
 }
 
 export default function ImageUpload({
     value,
     onChange,
     disabled,
+    variant = "cover", // Default to rectangular cover
 }: ImageUploadProps) {
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("File size too large (max 5MB)");
+                return;
+            }
+
+            setIsUploading(true);
+
+            try {
+                // 1. Get pre-signed URL
+                const { success, url, fileUrl, error } = await getPresignedUrl(
+                    file.name,
+                    file.type
+                );
+
+                if (!success || !url || !fileUrl) {
+                    throw new Error(error || "Failed to get upload URL");
+                }
+
+                // 2. Upload to R2
+                const uploadResponse = await fetch(url, {
+                    method: "PUT",
+                    body: file,
+                    headers: {
+                        "Content-Type": file.type,
+                    },
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error("Failed to upload to storage");
+                }
+
+                // 3. Update parent
+                onChange(fileUrl);
+                toast.success("Upload thành công!");
+            } catch (error) {
+                console.error("Upload error:", error);
+                toast.error("Lỗi upload ảnh, vui lòng thử lại");
+            } finally {
+                setIsUploading(false);
+            }
+        },
+        [onChange]
+    );
+
     if (value) {
+        const isAvatar = variant === "avatar";
+
         return (
-            <div className="relative w-full h-64 bg-[#020617] rounded-lg overflow-hidden border border-white/10 group">
+            <div className={`relative bg-[#020617] border border-white/10 group overflow-hidden ${isAvatar
+                ? "w-48 h-48 rounded-full mx-auto"
+                : "w-full h-64 rounded-lg"
+                }`}>
+                {/* Delete Button */}
                 <button
                     onClick={() => onChange("")}
-                    className="absolute top-2 right-2 z-10 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg opacity-0 group-hover:opacity-100 transition-all"
+                    className="absolute top-2 right-2 z-20 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg opacity-0 group-hover:opacity-100 transition-all"
                     type="button"
                     disabled={disabled}
                 >
                     <X className="w-4 h-4" />
                 </button>
-                <Image
-                    src={value}
-                    alt="Upload"
-                    fill
-                    className="object-cover"
-                />
+
+                {/* Change Image Button */}
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <label className="cursor-pointer">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleUpload}
+                            disabled={disabled || isUploading}
+                            className="hidden"
+                        />
+                        <div className="flex items-center gap-2 px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] rounded-lg text-slate-950 font-medium transition-colors">
+                            <ImagePlus className="w-4 h-4" />
+                            <span>Thay đổi ảnh</span>
+                        </div>
+                    </label>
+                </div>
+
+                <Image src={value} alt="Upload" fill className="object-cover" />
             </div>
         );
     }
 
+    const isAvatar = variant === "avatar";
+
     return (
-        <div className="w-full h-64 bg-[#020617] border-2 border-dashed border-white/10 rounded-lg flex flex-col items-center justify-center gap-4 hover:bg-[#F59E0B]/5 hover:border-[#F59E0B]/30 transition-all group overflow-hidden">
-            <div className="scale-90 sm:scale-100 max-w-full overflow-hidden px-4">
-                <UploadButton
-                    endpoint="imageUploader"
-                    appearance={{
-                        button: "bg-[#F59E0B] text-[#0B0C10] font-bold hover:bg-[#FBBF24] transition-colors",
-                        allowedContent: "text-gray-400"
-                    }}
-                    onClientUploadComplete={(res) => {
-                        if (res && res[0]) {
-                            onChange(res[0].url);
-                            alert("Upload thành công!");
-                        }
-                    }}
-                    onUploadError={(error: Error) => {
-                        alert(`Lỗi upload: ${error.message}`);
-                    }}
-                />
+        <div className={`bg-[#020617] border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 hover:bg-[#F59E0B]/5 hover:border-[#F59E0B]/30 transition-all group overflow-hidden relative ${isAvatar
+            ? "w-48 h-48 rounded-full mx-auto"
+            : "w-full h-64 rounded-lg"
+            }`}>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                disabled={disabled || isUploading}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+            />
+            <div className="flex flex-col items-center justify-center gap-2 text-gray-400 group-hover:text-[#F59E0B] transition-colors">
+                {isUploading ? (
+                    <Loader2 className="w-10 h-10 animate-spin" />
+                ) : (
+                    <ImagePlus className="w-10 h-10" />
+                )}
+                <p className="font-medium text-sm text-center px-4">
+                    {isUploading ? "Đang tải lên..." : "Click hoặc kéo thả ảnh vào đây"}
+                </p>
             </div>
-            <p className="text-xs text-gray-500 group-hover:text-[#F59E0B]/70 transition-colors">
-                Hỗ trợ ảnh tối đa 4MB
-            </p>
+            {!isAvatar && (
+                <p className="text-xs text-gray-500 group-hover:text-[#F59E0B]/70 transition-colors">
+                    Hỗ trợ ảnh tối đa 5MB
+                </p>
+            )}
         </div>
     );
 }

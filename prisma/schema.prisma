@@ -66,6 +66,34 @@ model User {
   triggeredNotifications Notification[] @relation("ActorNotifications")
 
   createdAt DateTime @default(now())
+
+  // Identity
+  username         String?           @unique // Unique handle for URLs
+  badges           UserBadge[]
+  commentReactions CommentReaction[]
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String // URL or icon name
+  color       String? // Hex code or tailwind class
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  userId    String
+  badgeId   String
+  awardedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
 }
 
 model VerificationToken {
@@ -233,9 +261,23 @@ model Comment {
   chapterId Int?
   chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
-  parentId Int?
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  children Comment[] @relation("CommentReplies")
+  parentId  Int?
+  parent    Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Comment[]         @relation("CommentReplies")
+  reactions CommentReaction[]
+}
+
+model CommentReaction {
+  id        String   @id @default(cuid())
+  userId    String
+  commentId Int
+  type      String // UPVOTE, DOWNVOTE
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
 }
 
 model Rating {

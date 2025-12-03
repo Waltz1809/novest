@@ -61,6 +61,18 @@ export async function updateNovel(id: number, data: {
 
     const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
+    // Get current novel data to check for old cover image
+    const currentNovel = await db.novel.findUnique({
+        where: { id: Number(id) },
+        select: { coverImage: true }
+    });
+
+    // Delete old cover image from R2 if it exists and is different
+    if (currentNovel?.coverImage && currentNovel.coverImage !== data.coverImage) {
+        const { deleteFromR2 } = await import("./upload");
+        await deleteFromR2(currentNovel.coverImage);
+    }
+
     await db.novel.update({
         where: { id: Number(id) },
         data: {

@@ -70,6 +70,7 @@ export async function addComment(data: {
 export async function getComments(novelId: number, chapterId?: number, page: number = 1) {
     const TAKE = 20
     const SKIP = (page - 1) * TAKE
+    const session = await auth()
 
     try {
         const whereCondition: any = {
@@ -91,9 +92,11 @@ export async function getComments(novelId: number, chapterId?: number, page: num
                         id: true,
                         name: true,
                         nickname: true,
+                        username: true,
                         image: true,
                     },
                 },
+                reactions: true,
             },
             orderBy: {
                 createdAt: "asc",
@@ -102,11 +105,27 @@ export async function getComments(novelId: number, chapterId?: number, page: num
             skip: SKIP,
         })
 
+        // Process comments to add score and userVote
+        const processedComments = comments.map(comment => {
+            const upvotes = comment.reactions.filter(r => r.type === "UPVOTE").length
+            const downvotes = comment.reactions.filter(r => r.type === "DOWNVOTE").length
+            const score = upvotes - downvotes
+            const userVote = session?.user?.id ? comment.reactions.find(r => r.userId === session.user.id)?.type : null
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { reactions, ...rest } = comment
+            return {
+                ...rest,
+                score,
+                userVote
+            }
+        })
+
         // Count total comments (flat)
         const total = await db.comment.count({ where: whereCondition })
 
         return {
-            comments,
+            comments: processedComments,
             hasMore: SKIP + TAKE < total,
             total
         }

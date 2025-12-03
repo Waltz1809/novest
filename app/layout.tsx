@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import FooterWrapper from "@/components/layout/footer-wrapper";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +15,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const beVietnamPro = Be_Vietnam_Pro({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-be-vietnam-pro",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -38,7 +46,7 @@ export default async function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
       >
         <Providers session={session}>
           <ThemeProvider
@@ -49,6 +57,7 @@ export default async function RootLayout({
           >
             {children}
             <FooterWrapper />
+            <Toaster />
           </ThemeProvider>
         </Providers>
       </body>
