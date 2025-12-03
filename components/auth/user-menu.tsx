@@ -114,15 +114,27 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                         <span>Tủ truyện</span>
                     </Link>
 
-                    {/* Dashboard Link - Only for ADMIN and TRANSLATOR */}
-                    {isAdminOrTranslator && (
+                    {/* Admin Dashboard Link - Only for ADMIN */}
+                    {user.role === "ADMIN" && (
+                        <Link
+                            href="/admin"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>Admin Dashboard</span>
+                        </Link>
+                    )}
+
+                    {/* Dashboard Link - Only for TRANSLATOR (and ADMIN if they want to see translator view) */}
+                    {(user.role === "TRANSLATOR" || user.role === "ADMIN") && (
                         <Link
                             href="/dashboard"
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
-                            <LayoutDashboard className="w-4 h-4" />
-                            <span>Dashboard</span>
+                            <Book className="w-4 h-4" />
+                            <span>Creator Studio</span>
                         </Link>
                     )}
 
