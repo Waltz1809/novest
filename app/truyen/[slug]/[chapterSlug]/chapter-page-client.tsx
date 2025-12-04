@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Lock } from "lucide-react"
+import { Lock, MessageSquare } from "lucide-react"
 import UnlockButton from "@/components/novel/unlock-button"
 import ChapterContent from "@/components/novel/chapter-content"
-import { CommentSection } from "@/components/comment/comment-section"
+import { DiscussionDrawer } from "@/components/comment/discussion-drawer"
 import { ReadingSettings, ReadingConfig } from "@/components/novel/reading-settings"
 import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
 import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
@@ -41,6 +41,7 @@ export function ChapterPageClient({
     const [progress, setProgress] = useState(0)
     const [showSettings, setShowSettings] = useState(false)
     const [showTOC, setShowTOC] = useState(false)
+    const [showComments, setShowComments] = useState(false)
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const isRestoring = useRef(true)
     const settingsRef = useRef<HTMLDivElement>(null)
@@ -254,13 +255,20 @@ export function ChapterPageClient({
                     )}
                 </div>
 
-                {/* Comments */}
+                {/* Discuss Chapter Button */}
                 <div className="mt-16 max-w-3xl mx-auto">
-                    <CommentSection
-                        novelId={novel.id}
-                        chapterId={chapter.id}
-                        themeId={config.theme}
-                    />
+                    <button
+                        onClick={() => setShowComments(true)}
+                        className={clsx(
+                            "w-full py-4 px-6 rounded-2xl border flex items-center justify-center gap-3 transition-all duration-200",
+                            ["dark", "night", "onyx", "dusk"].includes(config.theme)
+                                ? "bg-white/5 border-white/10 hover:bg-white/10 text-gray-200"
+                                : "bg-black/5 border-black/10 hover:bg-black/10 text-gray-700"
+                        )}
+                    >
+                        <MessageSquare className="w-5 h-5" />
+                        <span className="font-medium">Thảo luận chương này</span>
+                    </button>
                 </div>
             </main>
 
@@ -278,6 +286,11 @@ export function ChapterPageClient({
                     setShowTOC(!showTOC)
                     setShowSettings(false)
                 }}
+                onToggleComments={() => {
+                    setShowComments(true)
+                    setShowSettings(false)
+                    setShowTOC(false)
+                }}
                 isHidden={showTOC}
             />
 
@@ -288,6 +301,14 @@ export function ChapterPageClient({
                 isOpen={showTOC}
                 onClose={() => setShowTOC(false)}
                 themeId={config.theme}
+            />
+
+            {/* Discussion Drawer */}
+            <DiscussionDrawer
+                isOpen={showComments}
+                onClose={() => setShowComments(false)}
+                novelId={novel.id}
+                chapterId={chapter.id}
             />
         </div>
     )

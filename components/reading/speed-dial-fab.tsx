@@ -1,13 +1,16 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     Plus,
     Home,
     Settings,
     ChevronLeft,
     ChevronRight,
-    List
+    List,
+    MessageSquare,
+    X
 } from "lucide-react"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { clsx } from "clsx"
@@ -20,6 +23,7 @@ interface SpeedDialFabProps {
     nextChapterSlug?: string
     onToggleSettings: () => void
     onToggleTOC: () => void
+    onToggleComments: () => void
     isHidden?: boolean
 }
 
@@ -30,6 +34,7 @@ export function SpeedDialFab({
     nextChapterSlug,
     onToggleSettings,
     onToggleTOC,
+    onToggleComments,
     isHidden = false
 }: SpeedDialFabProps) {
     const [isOpen, setIsOpen] = useState(false)
@@ -39,99 +44,218 @@ export function SpeedDialFab({
 
     const toggleMenu = () => setIsOpen(!isOpen)
 
+    // Menu items configuration
+    const menuItems = [
+        {
+            id: "settings",
+            icon: Settings,
+            label: "Cài đặt",
+            onClick: () => {
+                onToggleSettings()
+                setIsOpen(false)
+            },
+        },
+        {
+            id: "home",
+            icon: Home,
+            label: "Trang chính",
+            href: `/truyen/${novelSlug}`,
+        },
+        {
+            id: "toc",
+            icon: List,
+            label: "Mục lục",
+            onClick: () => {
+                onToggleTOC()
+                setIsOpen(false)
+            },
+        },
+        {
+            id: "comments",
+            icon: MessageSquare,
+            label: "Bình luận",
+            onClick: () => {
+                onToggleComments()
+                setIsOpen(false)
+            },
+        },
+    ]
+
+    const navItems = [
+        {
+            id: "prev",
+            icon: ChevronLeft,
+            label: "Chương trước",
+            href: prevChapterSlug ? `/truyen/${novelSlug}/${prevChapterSlug}` : undefined,
+            disabled: !prevChapterSlug,
+        },
+        {
+            id: "next",
+            icon: ChevronRight,
+            label: "Chương sau",
+            href: nextChapterSlug ? `/truyen/${novelSlug}/${nextChapterSlug}` : undefined,
+            disabled: !nextChapterSlug,
+        },
+    ]
+
     return (
-        <div
+        <motion.div
             ref={containerRef}
             className={clsx(
-                "fixed bottom-8 right-8 z-50 flex flex-col items-center gap-4 transition-all duration-300",
-                isHidden ? "translate-y-32 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+                "fixed bottom-8 right-8 z-50 transition-all duration-300",
+                isHidden && "translate-y-32 opacity-0 pointer-events-none"
             )}
+            layout
         >
-            {/* Menu Content */}
-            <div
+            <motion.div
+                layout
                 className={clsx(
-                    "flex flex-col items-center gap-3 p-2 rounded-full bg-slate-900/80 backdrop-blur-md shadow-2xl border border-white/10 transition-all duration-300 ease-out origin-bottom",
-                    isOpen
-                        ? "opacity-100 translate-y-0 scale-100 visible"
-                        : "opacity-0 translate-y-8 scale-95 invisible pointer-events-none"
+                    "bg-slate-900/95 backdrop-blur-md shadow-2xl border border-white/10 flex items-center justify-center overflow-hidden",
+                    isOpen ? "rounded-3xl" : "rounded-full"
                 )}
+                initial={false}
+                animate={{
+                    width: isOpen ? "auto" : 56,
+                    height: isOpen ? "auto" : 56,
+                }}
+                transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30,
+                }}
             >
-                {/* Settings */}
-                <button
-                    onClick={() => {
-                        onToggleSettings()
-                        setIsOpen(false)
-                    }}
-                    className="p-3 rounded-full text-amber-500 hover:bg-white/10 transition-colors"
-                    title="Cài đặt"
-                >
-                    <Settings className="w-6 h-6" />
-                </button>
+                <AnimatePresence mode="wait">
+                    {isOpen ? (
+                        // Expanded Menu
+                        <motion.div
+                            key="menu"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15, delay: 0.1 }}
+                            className="flex flex-col items-center gap-1.5 p-2"
+                        >
+                            {/* Close Button */}
+                            <motion.button
+                                onClick={toggleMenu}
+                                className="w-full p-2.5 rounded-xl text-red-400 hover:bg-white/10 transition-colors flex items-center justify-center"
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.05 }}
+                            >
+                                <X className="w-5 h-5" />
+                            </motion.button>
 
-                {/* Home (Novel Detail) */}
-                <Link
-                    href={`/truyen/${novelSlug}`}
-                    className="p-3 rounded-full text-amber-500 hover:bg-white/10 transition-colors"
-                    title="Trang chính"
-                >
-                    <Home className="w-6 h-6" />
-                </Link>
+                            {/* Menu Items */}
+                            {menuItems.map((item, index) => {
+                                const Icon = item.icon
+                                const content = (
+                                    <motion.div
+                                        className="w-full p-2.5 rounded-xl text-amber-500 hover:bg-white/10 transition-colors flex items-center justify-center"
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.05 + index * 0.03 }}
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                    </motion.div>
+                                )
 
-                {/* TOC */}
-                <button
-                    onClick={() => {
-                        onToggleTOC()
-                        setIsOpen(false)
-                    }}
-                    className="p-3 rounded-full text-amber-500 hover:bg-white/10 transition-colors"
-                    title="Mục lục"
-                >
-                    <List className="w-6 h-6" />
-                </button>
+                                if (item.href) {
+                                    return (
+                                        <Link
+                                            key={item.id}
+                                            href={item.href}
+                                            title={item.label}
+                                            className="w-full"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            {content}
+                                        </Link>
+                                    )
+                                }
 
-                <div className="w-8 h-px bg-white/20 my-1" />
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={item.onClick}
+                                        title={item.label}
+                                        className="w-full"
+                                    >
+                                        {content}
+                                    </button>
+                                )
+                            })}
 
-                {/* Previous Chapter */}
-                {prevChapterSlug ? (
-                    <Link
-                        href={`/truyen/${novelSlug}/${prevChapterSlug}`}
-                        className="p-3 rounded-full text-amber-500 hover:bg-white/10 transition-colors"
-                        title="Chương trước"
-                    >
-                        <ChevronLeft className="w-6 h-6" />
-                    </Link>
-                ) : (
-                    <button disabled className="p-3 rounded-full text-gray-500 cursor-not-allowed">
-                        <ChevronLeft className="w-6 h-6" />
-                    </button>
-                )}
+                            {/* Divider */}
+                            <motion.div
+                                className="w-8 h-px bg-white/20 my-0.5"
+                                initial={{ opacity: 0, scaleX: 0 }}
+                                animate={{ opacity: 1, scaleX: 1 }}
+                                transition={{ delay: 0.2 }}
+                            />
 
-                {/* Next Chapter */}
-                {nextChapterSlug ? (
-                    <Link
-                        href={`/truyen/${novelSlug}/${nextChapterSlug}`}
-                        className="p-3 rounded-full text-amber-500 hover:bg-white/10 transition-colors"
-                        title="Chương sau"
-                    >
-                        <ChevronRight className="w-6 h-6" />
-                    </Link>
-                ) : (
-                    <button disabled className="p-3 rounded-full text-gray-500 cursor-not-allowed">
-                        <ChevronRight className="w-6 h-6" />
-                    </button>
-                )}
-            </div>
+                            {/* Navigation Items */}
+                            {navItems.map((item, index) => {
+                                const Icon = item.icon
+                                const content = (
+                                    <motion.div
+                                        className={clsx(
+                                            "w-full p-2.5 rounded-xl transition-colors flex items-center justify-center",
+                                            item.disabled
+                                                ? "text-gray-600 cursor-not-allowed"
+                                                : "text-amber-500 hover:bg-white/10"
+                                        )}
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.25 + index * 0.03 }}
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                    </motion.div>
+                                )
 
-            {/* Main Trigger Button */}
-            <button
-                onClick={toggleMenu}
-                className={clsx(
-                    "w-14 h-14 rounded-full bg-amber-500 hover:bg-amber-600 text-white shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out z-50",
-                    isOpen && "rotate-45 bg-red-500 hover:bg-red-600"
-                )}
-            >
-                <Plus className="w-8 h-8" />
-            </button>
-        </div>
+                                if (item.href && !item.disabled) {
+                                    return (
+                                        <Link
+                                            key={item.id}
+                                            href={item.href}
+                                            title={item.label}
+                                            className="w-full"
+                                        >
+                                            {content}
+                                        </Link>
+                                    )
+                                }
+
+                                return (
+                                    <button
+                                        key={item.id}
+                                        disabled={item.disabled}
+                                        title={item.label}
+                                        className="w-full"
+                                    >
+                                        {content}
+                                    </button>
+                                )
+                            })}
+                        </motion.div>
+                    ) : (
+                        // Collapsed FAB Button
+                        <motion.button
+                            key="fab"
+                            onClick={toggleMenu}
+                            className="w-14 h-14 flex items-center justify-center text-white"
+                            initial={{ opacity: 0, rotate: -45 }}
+                            animate={{ opacity: 1, rotate: 0 }}
+                            exit={{ opacity: 0, rotate: 45 }}
+                            transition={{ duration: 0.15 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Plus className="w-7 h-7" />
+                        </motion.button>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        </motion.div>
     )
 }

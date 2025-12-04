@@ -168,7 +168,7 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
     )
 }
 
-function CommentItem({
+export function CommentItem({
     comment,
     novelId,
     chapterId,
