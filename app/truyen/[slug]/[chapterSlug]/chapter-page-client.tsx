@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, Home, List, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 import UnlockButton from "@/components/novel/unlock-button"
 import ChapterContent from "@/components/novel/chapter-content"
 import { CommentSection } from "@/components/comment/comment-section"
 import { ReadingSettings, ReadingConfig } from "@/components/novel/reading-settings"
+import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
+import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
+import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { clsx } from "clsx"
 import { Session } from "next-auth"
 
@@ -30,14 +33,35 @@ export function ChapterPageClient({
     const [config, setConfig] = useState<ReadingConfig>({
         font: "serif",
         fontSize: 18,
+        lineHeight: 1.8,
         textAlign: "justify",
+        textIndent: false,
         theme: "light",
     })
     const [progress, setProgress] = useState(0)
-    const [showHeader, setShowHeader] = useState(true)
-    const lastScrollY = useRef(0)
+    const [showSettings, setShowSettings] = useState(false)
+    const [showTOC, setShowTOC] = useState(false)
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const isRestoring = useRef(true)
+    const settingsRef = useRef<HTMLDivElement>(null)
+
+    // Close settings panel when clicking outside
+    useOnClickOutside(settingsRef, () => {
+        if (showSettings) setShowSettings(false)
+    })
+
+    // Load saved reading config on mount
+    useEffect(() => {
+        const savedConfig = localStorage.getItem("reading-config")
+        if (savedConfig) {
+            try {
+                const parsed = JSON.parse(savedConfig)
+                setConfig(prev => ({ ...prev, ...parsed }))
+            } catch (e) {
+                console.error("Failed to parse reading config", e)
+            }
+        }
+    }, [])
 
     useEffect(() => {
         // Reset lock on chapter change
@@ -105,14 +129,6 @@ export function ChapterPageClient({
             const currentProgress = totalScroll > 0 ? (currentScrollY / totalScroll) * 100 : 0
             setProgress(Math.min(100, Math.max(0, currentProgress)))
 
-            // Smart Header Logic
-            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-                setShowHeader(false)
-            } else {
-                setShowHeader(true)
-            }
-            lastScrollY.current = currentScrollY
-
             // Save Scroll Position (throttled)
             if (!scrollTimeout.current) {
                 scrollTimeout.current = setTimeout(() => {
@@ -131,8 +147,10 @@ export function ChapterPageClient({
     }, [chapter.id])
 
     // 3. Update History
+    const lastUpdatedChapter = useRef<string | null>(null)
     useEffect(() => {
-        if (session?.user) {
+        if (session?.user && lastUpdatedChapter.current !== chapter.id) {
+            lastUpdatedChapter.current = chapter.id
             import("@/actions/library").then(({ updateReadingHistory }) => {
                 updateReadingHistory(novel.id, chapter.id)
             })
@@ -143,14 +161,22 @@ export function ChapterPageClient({
         <div
             className={clsx(
                 "min-h-screen transition-colors duration-300",
+                // Light themes
                 config.theme === "light" && "bg-[#f9f7f1] text-gray-900",
                 config.theme === "sepia" && "bg-[#f4ecd8] text-[#5b4636]",
-                config.theme === "dark" && "bg-gray-950 text-white"
+                config.theme === "lavender" && "bg-[#e6e6fa] text-[#2c2c54]",
+                config.theme === "frost" && "bg-[#f0f8ff] text-[#1e3799]",
+                config.theme === "matcha" && "bg-[#f0fff4] text-black",
+                config.theme === "ocean" && "bg-[#f0f9ff] text-black",
+                config.theme === "strawberry" && "bg-[#fff1f2] text-black",
+                // Dark themes
+                config.theme === "dark" && "bg-gray-900 text-gray-100",
+                config.theme === "night" && "bg-[#0B0C10] text-gray-200", // Deep Charcoal
+                config.theme === "onyx" && "bg-[#000000] text-gray-300", // Pure Black
+                config.theme === "dusk" && "bg-[#202030] text-gray-200" // Midnight Blue
             )}
             style={{
                 fontFamily: config.font === "mono" ? "monospace" : config.font === "sans" ? "sans-serif" : "serif",
-                "--background": config.theme === "dark" ? "#030712" : config.theme === "sepia" ? "#f4ecd8" : "#ffffff",
-                "--foreground": config.theme === "dark" ? "#ffffff" : config.theme === "sepia" ? "#5b4636" : "#09090b",
             } as React.CSSProperties}
         >
             {/* Reading Progress Bar */}
@@ -159,89 +185,25 @@ export function ChapterPageClient({
                 style={{ width: `${progress}%` }}
             />
 
-            {/* Sticky Header */}
-            <header
-                className={clsx(
-                    "fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-4 z-50 shadow-sm transition-transform duration-300 backdrop-blur-sm border-b",
-                    !showHeader && "-translate-y-full",
-                    config.theme === "light" && "bg-[#f9f7f1]/95 border-gray-200/50",
-                    config.theme === "sepia" && "bg-[#f4ecd8]/95 border-[#e6dac0]/50",
-                    config.theme === "dark" && "bg-gray-950/95 border-gray-800/50"
-                )}
-            >
-                <Link
-                    href={`/truyen/${novel.slug}`}
-                    className="flex items-center gap-1 hover:text-indigo-600 transition-colors"
+            {/* Settings Panel (Conditional Render) */}
+            {showSettings && (
+                <div
+                    ref={settingsRef}
+                    className="fixed bottom-24 right-8 z-50 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-200"
                 >
-                    <ChevronLeft className="w-5 h-5" />
-                    <span className="font-sans text-sm font-medium truncate max-w-[150px] sm:max-w-xs">
-                        {novel.title}
-                    </span>
-                </Link>
-                <div className="flex items-center gap-4">
                     <ReadingSettings onConfigChange={setConfig} />
-                    <Link href="/" className="hover:text-indigo-600">
-                        <Home className="w-5 h-5" />
-                    </Link>
                 </div>
-            </header>
+            )}
 
-            <main className="pt-20 pb-20 container mx-auto px-4 max-w-4xl">
+            <main className="pt-12 pb-20 container mx-auto px-4 max-w-4xl">
                 {/* Chapter Title */}
                 <div className="mb-8 text-center">
                     <h2 className="text-sm font-sans opacity-70 uppercase tracking-widest mb-2">
                         {chapter.volume.title}
                     </h2>
-                    <h1 className="text-3xl md:text-4xl font-bold leading-tight">
+                    <h1 className="text-3xl md:text-4xl font-bold leading-tight font-display">
                         {chapter.title}
                     </h1>
-                </div>
-
-                {/* Top Navigation */}
-                <div className="flex items-center justify-between mb-10 font-sans text-sm">
-                    {prevChapter ? (
-                        <Link
-                            href={`/truyen/${novel.slug}/${prevChapter.slug}`}
-                            className={clsx(
-                                "flex items-center gap-1 px-4 py-2 border rounded-full transition-all",
-                                config.theme === "dark"
-                                    ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
-                                    : "bg-white border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
-                            )}
-                        >
-                            <ChevronLeft className="w-4 h-4" /> Chương trước
-                        </Link>
-                    ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800 rounded-full">
-                            <ChevronLeft className="w-4 h-4" /> Chương trước
-                        </button>
-                    )}
-
-                    <Link
-                        href={`/truyen/${novel.slug}`}
-                        className="flex items-center gap-2 px-4 py-2 hover:text-indigo-600"
-                    >
-                        <List className="w-5 h-5" />
-                        <span className="hidden sm:inline">Mục lục</span>
-                    </Link>
-
-                    {nextChapter ? (
-                        <Link
-                            href={`/truyen/${novel.slug}/${nextChapter.slug}`}
-                            className={clsx(
-                                "flex items-center gap-1 px-4 py-2 border rounded-full transition-all",
-                                config.theme === "dark"
-                                    ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
-                                    : "bg-white border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
-                            )}
-                        >
-                            Chương sau <ChevronRight className="w-4 h-4" />
-                        </Link>
-                    ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800">
-                            Chương sau <ChevronRight className="w-4 h-4" />
-                        </button>
-                    )}
                 </div>
 
                 {/* Content */}
@@ -250,13 +212,16 @@ export function ChapterPageClient({
                     style={{
                         fontSize: `${config.fontSize}px`,
                         textAlign: config.textAlign,
-                        lineHeight: 1.8,
+                        lineHeight: config.lineHeight,
+                        textIndent: config.textIndent ? "2em" : "0",
                     }}
                 >
                     {isLocked ? (
                         <div className={clsx(
                             "border rounded-2xl p-10 text-center shadow-sm my-10",
-                            config.theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+                            ["dark", "night", "onyx", "dusk"].includes(config.theme)
+                                ? "bg-white/5 border-white/10"
+                                : "bg-black/5 border-black/10"
                         )}>
                             <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
                                 <Lock className="w-8 h-8 text-red-500" />
@@ -277,60 +242,53 @@ export function ChapterPageClient({
                     ) : (
                         <ChapterContent
                             content={chapter.content}
+                            fontSize={config.fontSize}
+                            lineHeight={config.lineHeight}
                             className={clsx(
                                 config.font === "mono" && "font-mono!",
                                 config.font === "sans" && "font-sans!",
                                 config.font === "serif" && "font-serif!",
-                                config.theme === "dark" && "prose-invert text-white"
+                                ["dark", "night", "onyx", "dusk"].includes(config.theme) && "prose-invert"
                             )}
                         />
                     )}
                 </div>
 
-                {/* Bottom Navigation */}
-                <div className="flex items-center justify-between mt-16 font-sans text-sm">
-                    {prevChapter ? (
-                        <Link
-                            href={`/truyen/${novel.slug}/${prevChapter.slug}`}
-                            className={clsx(
-                                "flex items-center gap-1 px-4 py-2 border rounded-full transition-all",
-                                config.theme === "dark"
-                                    ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
-                                    : "bg-white border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
-                            )}
-                        >
-                            <ChevronLeft className="w-4 h-4" /> Chương trước
-                        </Link>
-                    ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800 rounded-full">
-                            <ChevronLeft className="w-4 h-4" /> Chương trước
-                        </button>
-                    )}
-
-                    {nextChapter ? (
-                        <Link
-                            href={`/truyen/${novel.slug}/${nextChapter.slug}`}
-                            className={clsx(
-                                "flex items-center gap-1 px-4 py-2 border rounded-full transition-all",
-                                config.theme === "dark"
-                                    ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
-                                    : "bg-white border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
-                            )}
-                        >
-                            Chương sau <ChevronRight className="w-4 h-4" />
-                        </Link>
-                    ) : (
-                        <button disabled className="flex items-center gap-1 px-4 py-2 opacity-50 cursor-not-allowed border border-transparent bg-gray-100 dark:bg-gray-800">
-                            Chương sau <ChevronRight className="w-4 h-4" />
-                        </button>
-                    )}
-                </div>
-
                 {/* Comments */}
                 <div className="mt-16 max-w-3xl mx-auto">
-                    <CommentSection novelId={novel.id} chapterId={chapter.id} />
+                    <CommentSection
+                        novelId={novel.id}
+                        chapterId={chapter.id}
+                        themeId={config.theme}
+                    />
                 </div>
             </main>
+
+            {/* Speed Dial FAB */}
+            <SpeedDialFab
+                novelSlug={novel.slug}
+                chapterSlug={chapter.slug}
+                prevChapterSlug={prevChapter?.slug}
+                nextChapterSlug={nextChapter?.slug}
+                onToggleSettings={() => {
+                    setShowSettings(!showSettings)
+                    setShowTOC(false)
+                }}
+                onToggleTOC={() => {
+                    setShowTOC(!showTOC)
+                    setShowSettings(false)
+                }}
+                isHidden={showTOC}
+            />
+
+            {/* TOC Sidebar */}
+            <ChapterListSidebar
+                novel={novel}
+                currentChapterId={chapter.id}
+                isOpen={showTOC}
+                onClose={() => setShowTOC(false)}
+                themeId={config.theme}
+            />
         </div>
     )
 }

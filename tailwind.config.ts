@@ -56,6 +56,10 @@ const config: Config = {
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            zIndex: {
+                60: "60",
+                70: "70",
+            },
         },
     },
     plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

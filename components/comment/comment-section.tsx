@@ -35,6 +35,7 @@ interface Comment {
 interface CommentSectionProps {
     novelId: number
     chapterId?: number
+    themeId?: string
 }
 
 // Utility to build tree from flat list
@@ -60,7 +61,7 @@ function buildCommentTree(flatComments: Comment[]): Comment[] {
     return roots
 }
 
-export function CommentSection({ novelId, chapterId }: CommentSectionProps) {
+export function CommentSection({ novelId, chapterId, themeId }: CommentSectionProps) {
     const [flatComments, setFlatComments] = useState<Comment[]>([])
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)

@@ -27,10 +27,12 @@ interface Genre {
 interface Novel {
     id: number;
     title: string;
+    slug: string;
     author: string;
     description: string | null;
     status: string;
     coverImage: string | null;
+    alternativeTitles: string | null;
     genres: Genre[];
     volumes: Volume[];
 }
