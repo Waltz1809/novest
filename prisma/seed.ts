@@ -91,12 +91,17 @@ async function main() {
 
     // ============ 1. CLEANUP (Optional) ============
     console.log("🧹 Cleaning up existing data...");
+    await db.notification.deleteMany({});
+    await db.commentReaction.deleteMany({});
+    await db.userBadge.deleteMany({});
+    await db.library.deleteMany({});
     await db.readingHistory.deleteMany({});
     await db.rating.deleteMany({});
     await db.comment.deleteMany({});
     await db.chapter.deleteMany({});
     await db.volume.deleteMany({});
     await db.novel.deleteMany({});
+    // Don't delete users to preserve OAuth accounts, just update them
     console.log("✅ Cleanup complete\n");
 
     // ============ 2. CREATE GENRES ============
@@ -132,28 +137,31 @@ async function main() {
             email: "admin@novest.com",
             name: "Admin User",
             nickname: "Quản Trị Viên",
+            username: "admin",
             role: "ADMIN",
-            password: await bcrypt.hash("admin123", 10),
+            password: await bcrypt.hash("Admin123!", 10),
+            emailVerified: new Date(), // Admin is verified
         },
     });
 
-    const readerNames = [
-        { email: "reader1@test.com", name: "Nguyễn Văn A", nickname: "Độc Giả 1" },
-        { email: "reader2@test.com", name: "Trần Thị B", nickname: "Độc Giả 2" },
-        { email: "reader3@test.com", name: "Lê Văn C", nickname: "Độc Giả 3" },
-        { email: "reader4@test.com", name: "Phạm Thị D", nickname: "Độc Giả 4" },
-        { email: "reader5@test.com", name: "Hoàng Văn E", nickname: "Độc Giả 5" },
+    const readerData = [
+        { email: "reader1@test.com", name: "Nguyễn Văn A", nickname: "Tiểu Thư Họ Nguyễn", username: "nguyen_van_a" },
+        { email: "reader2@test.com", name: "Trần Thị B", nickname: "Đạo Hữu Họ Trần", username: "tran_thi_b" },
+        { email: "reader3@test.com", name: "Lê Văn C", nickname: "Công Tử Họ Lê", username: "le_van_c" },
+        { email: "reader4@test.com", name: "Phạm Thị D", nickname: "Tiên Tử Họ Phạm", username: "pham_thi_d" },
+        { email: "reader5@test.com", name: "Hoàng Văn E", nickname: "Ma Vương Họ Hoàng", username: "hoang_van_e" },
     ];
 
     const readers = [];
-    for (const readerData of readerNames) {
+    for (const data of readerData) {
         const reader = await db.user.upsert({
-            where: { email: readerData.email },
-            update: {},
+            where: { email: data.email },
+            update: { nickname: data.nickname, username: data.username },
             create: {
-                ...readerData,
+                ...data,
                 role: "READER",
-                password: await bcrypt.hash("123456", 10),
+                password: await bcrypt.hash("Reader123!", 10),
+                emailVerified: new Date(), // Readers are verified for testing
             },
         });
         readers.push(reader);

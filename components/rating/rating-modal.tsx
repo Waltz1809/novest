@@ -34,7 +34,7 @@ export function RatingModal({
 
         startTransition(async () => {
             const res = await rateNovel(novelId, score, content)
-            if (res.error) {
+            if ('error' in res) {
                 alert(res.error)
             } else {
                 onSuccess?.()

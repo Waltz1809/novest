@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
+import { requireEmailVerification } from "@/lib/verification"
 
 export async function addComment(data: {
     content: string
@@ -14,6 +15,12 @@ export async function addComment(data: {
     const session = await auth()
     if (!session || !session.user || !session.user.id) {
         return { error: "Bạn cần đăng nhập để bình luận." }
+    }
+
+    // Check email verification for write actions
+    const verificationCheck = requireEmailVerification(session)
+    if (verificationCheck) {
+        return verificationCheck
     }
 
     const { content, novelId, chapterId, parentId, paragraphId } = data
@@ -55,7 +62,7 @@ export async function addComment(data: {
                         type: "REPLY_COMMENT",
                         resourceId: comment.id.toString(),
                         resourceType: "comment",
-                        message: `${session.user.nickname || session.user.name} replied to your comment on "${novel?.title || 'a novel'}"`,
+                        message: `${session.user.nickname || session.user.name} đã phản hồi bình luận của bạn ở "${novel?.title || 'a novel'}"`,
                     },
                 })
             }
@@ -266,6 +273,12 @@ export async function rateNovel(novelId: number, score: number, content?: string
     const session = await auth()
     if (!session || !session.user || !session.user.id) {
         return { error: "Bạn cần đăng nhập để đánh giá." }
+    }
+
+    // Check email verification for write actions
+    const verificationCheck = requireEmailVerification(session)
+    if (verificationCheck) {
+        return verificationCheck
     }
 
     if (score < 1 || score > 5) {

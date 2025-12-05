@@ -63,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     role: user.role,
                     nickname: user.nickname,
                     username: user.username,
+                    emailVerified: user.emailVerified,
                 };
             }
         })
@@ -76,12 +77,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.nickname = user.nickname;
                 token.username = user.username;
                 token.picture = user.image;
+                token.emailVerified = user.emailVerified;
             }
 
             if (trigger === "update" && session) {
                 token.nickname = session.user.nickname;
                 token.username = session.user.username;
                 token.picture = session.user.image;
+                if (session.user.emailVerified !== undefined) {
+                    token.emailVerified = session.user.emailVerified;
+                }
             }
 
             return token;
@@ -94,6 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.nickname = token.nickname as string | null;
                 session.user.username = token.username as string | null;
                 session.user.image = token.picture as string | null;
+                session.user.emailVerified = token.emailVerified as Date | null;
             }
             return session;
         },
@@ -126,7 +132,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     pages: {
         signIn: '/login',
-        newUser: '/settings?welcome=true' // Redirect new users to settings
+        newUser: '/welcome' // Redirect new users to onboarding
     },
     session: {
         strategy: "jwt"

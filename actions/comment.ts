@@ -3,11 +3,18 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { requireEmailVerification } from "@/lib/verification";
 
 export async function voteComment(commentId: number, voteType: "UPVOTE" | "DOWNVOTE") {
     const session = await auth();
     if (!session?.user?.id) {
         return { error: "Unauthorized" };
+    }
+
+    // Check email verification for write actions
+    const verificationCheck = requireEmailVerification(session);
+    if (verificationCheck) {
+        return verificationCheck;
     }
 
     const userId = session.user.id;

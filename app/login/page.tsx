@@ -74,13 +74,24 @@ export default function LoginPage() {
         if (result.error) {
             setError(result.error);
             setIsLoading(false);
-        } else if (result.success) {
-            setSuccess(result.success);
-            setIsLoading(false);
-            setTimeout(() => {
-                setSuccess("");
+        } else if (result.success && result.autoSignIn) {
+            // Auto-signin with the credentials
+            setSuccess("Tài khoản đã tạo! Đang đăng nhập...");
+
+            const signInResult = await signIn("credentials", {
+                email: result.email,
+                password: result.password,
+                redirect: false,
+            });
+
+            if (signInResult?.error) {
+                setError("Đã tạo tài khoản nhưng không thể tự động đăng nhập. Vui lòng đăng nhập thủ công.");
+                setIsLoading(false);
                 setIsSignUp(false);
-            }, 1500);
+            } else {
+                // Redirect to welcome/onboarding page
+                window.location.href = "/welcome";
+            }
         }
     }
 

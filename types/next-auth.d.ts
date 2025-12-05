@@ -7,6 +7,7 @@ declare module "next-auth" {
             role: string
             nickname: string | null
             username: string | null
+            emailVerified: Date | null
         } & DefaultSession["user"]
     }
 
@@ -14,5 +15,6 @@ declare module "next-auth" {
         role: string
         nickname: string | null
         username: string | null
+        emailVerified: Date | null
     }
 }

@@ -358,7 +358,7 @@ function CommentFormDrawer({
                 paragraphId: paragraphId ?? undefined,
             })
 
-            if (res.error) {
+            if ('error' in res) {
                 alert(res.error)
             } else {
                 reset()

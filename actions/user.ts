@@ -30,6 +30,7 @@ const updateProfileSchema = z.object({
 
 /**
  * Register a new user with email and password
+ * Auto-signs in the user after successful registration (Zero-Friction Flow)
  */
 export async function registerUser(data: z.infer<typeof registerSchema>) {
     // Validate input data
@@ -57,7 +58,7 @@ export async function registerUser(data: z.infer<typeof registerSchema>) {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         // Create new user
-        await db.user.create({
+        const newUser = await db.user.create({
             data: {
                 name,
                 email,
@@ -66,7 +67,31 @@ export async function registerUser(data: z.infer<typeof registerSchema>) {
             }
         });
 
-        return { success: "Account created successfully! You can now sign in." };
+        // Generate auto username (same logic as createUser event)
+        const emailPrefix = email.split('@')[0];
+        let username = emailPrefix.replace(/[^a-zA-Z0-9_]/g, '');
+
+        const existingUsername = await db.user.findUnique({
+            where: { username }
+        });
+
+        if (existingUsername) {
+            const randomDigits = Math.floor(1000 + Math.random() * 9000);
+            username = `${username}_${randomDigits}`;
+        }
+
+        await db.user.update({
+            where: { id: newUser.id },
+            data: { username }
+        });
+
+        // Return success with auto-signin flag
+        return {
+            success: true,
+            autoSignIn: true,
+            email,
+            password // Pass back for client-side signIn call
+        };
     } catch (error) {
         console.error("Registration error:", error);
         return { error: "Something went wrong. Please try again." };

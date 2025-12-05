@@ -233,7 +233,7 @@ export function CommentItem({
 
         // Call server action
         const res = await voteComment(comment.id, type)
-        if (res.error) {
+        if ('error' in res) {
             // Revert on error
             setUserVote(previousVote)
             setScore(previousScore)
@@ -463,7 +463,7 @@ function CommentForm({
                 paragraphId: paragraphId ?? undefined,
             })
 
-            if (res.error) {
+            if ('error' in res) {
                 alert(res.error)
             } else {
                 reset()
