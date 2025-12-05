@@ -279,10 +279,14 @@ model Comment {
   chapterId Int?
   chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
+  paragraphId Int? // 0-based index of the paragraph for inline comments
+
   parentId  Int?
   parent    Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   children  Comment[]         @relation("CommentReplies")
   reactions CommentReaction[]
+
+  @@index([chapterId, paragraphId])
 }
 
 model CommentReaction {

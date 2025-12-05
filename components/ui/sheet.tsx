@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import { clsx } from "clsx"
+import { READING_THEMES, ReadingTheme } from "@/lib/reading-themes"
 
 interface SheetProps {
     isOpen: boolean
@@ -12,6 +13,7 @@ interface SheetProps {
     title?: string
     className?: string
     side?: "left" | "right"
+    themeId?: string // Theme ID from READING_THEMES
 }
 
 export function Sheet({
@@ -21,9 +23,13 @@ export function Sheet({
     title,
     className,
     side = "right",
+    themeId = "night", // Default to app dark theme
 }: SheetProps) {
     const sheetRef = useRef<HTMLDivElement>(null)
     const [mounted, setMounted] = useState(false)
+
+    // Get theme colors
+    const theme: ReadingTheme = READING_THEMES[themeId] || READING_THEMES["night"]
 
     // Ensure client-side only rendering for hydration
     useEffect(() => {
@@ -81,21 +87,40 @@ export function Sheet({
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
                         className={clsx(
                             "fixed top-0 h-full z-101 flex flex-col",
-                            "bg-[#0B0C10] border-l border-white/10",
                             "w-full sm:w-[420px] max-w-full",
-                            side === "right" ? "right-0" : "left-0",
+                            side === "right" ? "right-0 border-l" : "left-0 border-r",
                             className
                         )}
+                        style={{
+                            backgroundColor: theme.ui.background,
+                            borderColor: theme.ui.border,
+                            color: theme.ui.text,
+                        }}
                     >
                         {/* Header */}
                         {title && (
-                            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-                                <h2 className="text-lg font-bold text-gray-100">
+                            <div
+                                className="flex items-center justify-between px-5 py-4 border-b"
+                                style={{ borderColor: theme.ui.border }}
+                            >
+                                <h2
+                                    className="text-lg font-bold"
+                                    style={{ color: theme.foreground }}
+                                >
                                     {title}
                                 </h2>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-gray-200 transition-colors"
+                                    className="p-2 rounded-full transition-colors"
+                                    style={{
+                                        color: theme.ui.text,
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = theme.ui.hover
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = "transparent"
+                                    }}
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -112,3 +137,6 @@ export function Sheet({
         </AnimatePresence>
     )
 }
+
+// Re-export theme for convenience
+export { READING_THEMES, type ReadingTheme }

@@ -4,12 +4,13 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Lock, MessageSquare } from "lucide-react"
 import UnlockButton from "@/components/novel/unlock-button"
-import ChapterContent from "@/components/novel/chapter-content"
+import { ParagraphChapterContent } from "@/components/novel/paragraph-chapter-content"
 import { DiscussionDrawer } from "@/components/comment/discussion-drawer"
 import { ReadingSettings, ReadingConfig } from "@/components/novel/reading-settings"
 import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
 import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
+import { getChapterParagraphCommentCounts } from "@/actions/interaction"
 import { clsx } from "clsx"
 import { Session } from "next-auth"
 
@@ -42,6 +43,8 @@ export function ChapterPageClient({
     const [showSettings, setShowSettings] = useState(false)
     const [showTOC, setShowTOC] = useState(false)
     const [showComments, setShowComments] = useState(false)
+    const [selectedParagraphId, setSelectedParagraphId] = useState<number | null>(null)
+    const [paragraphCommentCounts, setParagraphCommentCounts] = useState<Record<number, number>>({})
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const isRestoring = useRef(true)
     const settingsRef = useRef<HTMLDivElement>(null)
@@ -63,6 +66,15 @@ export function ChapterPageClient({
             }
         }
     }, [])
+
+    // Fetch paragraph comment counts
+    useEffect(() => {
+        if (!isLocked && chapter?.id) {
+            getChapterParagraphCommentCounts(chapter.id).then(counts => {
+                setParagraphCommentCounts(counts)
+            })
+        }
+    }, [chapter?.id, isLocked])
 
     useEffect(() => {
         // Reset lock on chapter change
@@ -241,10 +253,16 @@ export function ChapterPageClient({
                             )}
                         </div>
                     ) : (
-                        <ChapterContent
+                        <ParagraphChapterContent
                             content={chapter.content}
                             fontSize={config.fontSize}
                             lineHeight={config.lineHeight}
+                            paragraphCommentCounts={paragraphCommentCounts}
+                            themeId={config.theme}
+                            onParagraphClick={(pid) => {
+                                setSelectedParagraphId(pid)
+                                setShowComments(true)
+                            }}
                             className={clsx(
                                 config.font === "mono" && "font-mono!",
                                 config.font === "sans" && "font-sans!",
@@ -258,7 +276,10 @@ export function ChapterPageClient({
                 {/* Discuss Chapter Button */}
                 <div className="mt-16 max-w-3xl mx-auto">
                     <button
-                        onClick={() => setShowComments(true)}
+                        onClick={() => {
+                            setSelectedParagraphId(null) // Show all chapter comments
+                            setShowComments(true)
+                        }}
                         className={clsx(
                             "w-full py-4 px-6 rounded-2xl border flex items-center justify-center gap-3 transition-all duration-200",
                             ["dark", "night", "onyx", "dusk"].includes(config.theme)
@@ -306,9 +327,20 @@ export function ChapterPageClient({
             {/* Discussion Drawer */}
             <DiscussionDrawer
                 isOpen={showComments}
-                onClose={() => setShowComments(false)}
+                onClose={() => {
+                    setShowComments(false)
+                    setSelectedParagraphId(null)
+                }}
                 novelId={novel.id}
                 chapterId={chapter.id}
+                themeId={config.theme}
+                paragraphId={selectedParagraphId}
+                onCommentAdded={() => {
+                    // Refresh paragraph comment counts
+                    getChapterParagraphCommentCounts(chapter.id).then(counts => {
+                        setParagraphCommentCounts(counts)
+                    })
+                }}
             />
         </div>
     )

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 import { voteComment } from "@/actions/comment"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
 import Link from "next/link"
+import { ReadingTheme, READING_THEMES } from "@/lib/reading-themes"
 
 interface CommentUser {
     id: string
@@ -27,6 +28,7 @@ interface Comment {
     createdAt: Date
     user: CommentUser
     parentId: number | null
+    paragraphId?: number | null // For paragraph-based comments
     children?: Comment[]
     score: number
     userVote: "UPVOTE" | "DOWNVOTE" | null
@@ -174,12 +176,14 @@ export function CommentItem({
     chapterId,
     onReplySuccess,
     level = 0,
+    theme,
 }: {
     comment: Comment
     novelId: number
     chapterId?: number
     onReplySuccess: () => void
     level?: number
+    theme?: ReadingTheme
 }) {
     const [isReplying, setIsReplying] = useState(false)
     const { data: session } = useSession()
@@ -223,6 +227,10 @@ export function CommentItem({
         }
     }
 
+    // Default theme fallback
+    const t = theme || READING_THEMES["night"]
+    const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
+
     return (
         <div className="flex gap-4">
             <div className="shrink-0">
@@ -236,53 +244,88 @@ export function CommentItem({
                             className="rounded-full object-cover hover:ring-2 hover:ring-amber-500 transition-all"
                         />
                     ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0B0C10] border border-gray-800 hover:border-amber-500 transition-colors">
-                            <User className="h-6 w-6 text-gray-500" />
+                        <div
+                            className="flex h-10 w-10 items-center justify-center rounded-full border hover:border-amber-500 transition-colors"
+                            style={{
+                                backgroundColor: t.ui.hover,
+                                borderColor: t.ui.border,
+                            }}
+                        >
+                            <User className="h-6 w-6" style={{ color: t.ui.text }} />
                         </div>
                     )}
                 </Link>
             </div>
             <div className="flex-1 space-y-2">
-                <div className="rounded-lg bg-[#0B0C10] p-4 border border-gray-800">
+                <div
+                    className="rounded-lg p-4 border"
+                    style={{
+                        backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                        borderColor: t.ui.border,
+                    }}
+                >
                     <div className="mb-1 flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <Link
-                            href={`/u/${comment.user.username || comment.user.id}`}
-                            className="font-semibold text-gray-200 text-sm sm:text-base wrap-break-word hover:text-amber-500 transition-colors"
-                        >
-                            {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
-                        </Link>
-                        <span className="text-xs text-gray-500 shrink-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <Link
+                                href={`/u/${comment.user.username || comment.user.id}`}
+                                className="font-semibold text-sm sm:text-base wrap-break-word hover:text-amber-500 transition-colors"
+                                style={{ color: t.foreground }}
+                            >
+                                {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
+                            </Link>
+                            {/* Paragraph hashtag */}
+                            {comment.paragraphId !== null && comment.paragraphId !== undefined && (
+                                <span
+                                    className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                                    style={{
+                                        backgroundColor: "rgba(245,158,11,0.15)",
+                                        color: "#f59e0b",
+                                    }}
+                                >
+                                    #{comment.paragraphId + 1}
+                                </span>
+                            )}
+                        </div>
+                        <span className="text-xs shrink-0" style={{ color: t.ui.text, opacity: 0.7 }}>
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                     </div>
-                    <p className="text-gray-300 whitespace-pre-wrap">{comment.content}</p>
+                    <p className="whitespace-pre-wrap" style={{ color: t.foreground, opacity: 0.9 }}>{comment.content}</p>
                 </div>
 
                 <div className="flex items-center gap-4 pl-2">
                     {/* Vote Controls */}
-                    <div className="flex items-center gap-1 bg-[#0B0C10] border border-white/5 rounded-full px-2 py-1">
+                    <div
+                        className="flex items-center gap-1 rounded-full px-2 py-1 border"
+                        style={{
+                            backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                            borderColor: t.ui.border,
+                        }}
+                    >
                         <button
                             onClick={() => handleVote("UPVOTE")}
                             className={clsx(
-                                "p-1 rounded hover:bg-white/5 transition-colors",
-                                userVote === "UPVOTE" ? "text-amber-500" : "text-gray-500"
+                                "p-1 rounded transition-colors",
+                                userVote === "UPVOTE" ? "text-amber-500" : ""
                             )}
+                            style={{ color: userVote === "UPVOTE" ? undefined : t.ui.text }}
                         >
                             <ThumbsUp className={clsx("w-3 h-3", userVote === "UPVOTE" && "fill-current")} />
                         </button>
                         <span className={clsx(
                             "text-xs font-medium min-w-[1ch] text-center",
                             userVote === "UPVOTE" ? "text-amber-500" :
-                                userVote === "DOWNVOTE" ? "text-red-500" : "text-gray-400"
-                        )}>
+                                userVote === "DOWNVOTE" ? "text-red-500" : ""
+                        )} style={{ color: !userVote ? t.ui.text : undefined }}>
                             {score}
                         </span>
                         <button
                             onClick={() => handleVote("DOWNVOTE")}
                             className={clsx(
-                                "p-1 rounded hover:bg-white/5 transition-colors",
-                                userVote === "DOWNVOTE" ? "text-red-500" : "text-gray-500"
+                                "p-1 rounded transition-colors",
+                                userVote === "DOWNVOTE" ? "text-red-500" : ""
                             )}
+                            style={{ color: userVote === "DOWNVOTE" ? undefined : t.ui.text }}
                         >
                             <ThumbsDown className={clsx("w-3 h-3", userVote === "DOWNVOTE" && "fill-current")} />
                         </button>
@@ -291,7 +334,8 @@ export function CommentItem({
                     {session && (
                         <button
                             onClick={() => setIsReplying(!isReplying)}
-                            className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-[#F59E0B]"
+                            className="flex items-center gap-1 text-xs font-medium hover:text-amber-500 transition-colors"
+                            style={{ color: t.ui.text }}
                         >
                             <Reply className="h-3 w-3" />
                             Trả lời
@@ -300,11 +344,12 @@ export function CommentItem({
                 </div>
 
                 {isReplying && (
-                    <div className="mt-2 pl-4 border-l-2 border-border">
+                    <div className="mt-2 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
                         <CommentForm
                             novelId={novelId}
                             chapterId={chapterId}
                             parentId={comment.id}
+                            paragraphId={comment.paragraphId}
                             onSuccess={() => {
                                 setIsReplying(false)
                                 onReplySuccess()
@@ -315,7 +360,7 @@ export function CommentItem({
                 )}
 
                 {comment.children && comment.children.length > 0 && (
-                    <div className="mt-4 space-y-4 pl-4 border-l-2 border-border">
+                    <div className="mt-4 space-y-4 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
                         {comment.children.map((child) => (
                             <CommentItem
                                 key={child.id}
@@ -324,6 +369,7 @@ export function CommentItem({
                                 chapterId={chapterId}
                                 onReplySuccess={onReplySuccess}
                                 level={level + 1}
+                                theme={theme}
                             />
                         ))}
                     </div>
@@ -337,12 +383,14 @@ function CommentForm({
     novelId,
     chapterId,
     parentId,
+    paragraphId,
     onSuccess,
     autoFocus = false,
 }: {
     novelId: number
     chapterId?: number
     parentId?: number
+    paragraphId?: number | null
     onSuccess: () => void
     autoFocus?: boolean
 }) {
@@ -356,6 +404,7 @@ function CommentForm({
                 novelId,
                 chapterId,
                 parentId,
+                paragraphId: paragraphId ?? undefined,
             })
 
             if (res.error) {

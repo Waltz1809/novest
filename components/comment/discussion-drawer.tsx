@@ -7,7 +7,7 @@ import { Loader2, MessageSquare, Send, User } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Sheet } from "@/components/ui/sheet"
+import { Sheet, READING_THEMES, ReadingTheme } from "@/components/ui/sheet"
 import { CommentItem } from "./comment-section"
 
 interface Comment {
@@ -22,6 +22,7 @@ interface Comment {
         image: string | null
     }
     parentId: number | null
+    paragraphId?: number | null
     children?: Comment[]
     score: number
     userVote: "UPVOTE" | "DOWNVOTE" | null
@@ -53,6 +54,9 @@ interface DiscussionDrawerProps {
     onClose: () => void
     novelId: number
     chapterId?: number
+    themeId?: string // Theme ID for syncing with reader theme
+    paragraphId?: number | null // For paragraph-specific comments
+    onCommentAdded?: () => void // Callback when comment is added
 }
 
 export function DiscussionDrawer({
@@ -60,6 +64,9 @@ export function DiscussionDrawer({
     onClose,
     novelId,
     chapterId,
+    themeId = "night",
+    paragraphId = null,
+    onCommentAdded,
 }: DiscussionDrawerProps) {
     const [flatComments, setFlatComments] = useState<Comment[]>([])
     const [page, setPage] = useState(1)
@@ -69,9 +76,12 @@ export function DiscussionDrawer({
     const { data: session } = useSession()
     const router = useRouter()
 
+    // Get theme
+    const theme: ReadingTheme = READING_THEMES[themeId] || READING_THEMES["night"]
+
     const fetchComments = async (pageNum: number, reset = false) => {
         setLoading(true)
-        const res = await getComments(novelId, chapterId, pageNum)
+        const res = await getComments(novelId, chapterId, pageNum, paragraphId)
         if (reset) {
             setFlatComments(res.comments as any)
         } else {
@@ -87,13 +97,13 @@ export function DiscussionDrawer({
         setLoading(false)
     }
 
-    // Fetch comments when drawer opens
+    // Fetch comments when drawer opens or paragraphId changes
     useEffect(() => {
         if (isOpen) {
             fetchComments(1, true)
             setPage(1)
         }
-    }, [isOpen, novelId, chapterId])
+    }, [isOpen, novelId, chapterId, paragraphId])
 
     const handleLoadMore = () => {
         const nextPage = page + 1
@@ -104,24 +114,40 @@ export function DiscussionDrawer({
     const handleCommentAdded = () => {
         fetchComments(1, true)
         setPage(1)
+        // Notify parent to refresh comment counts
+        if (onCommentAdded) {
+            onCommentAdded()
+        }
     }
 
     const commentTree = buildCommentTree(flatComments)
+
+    // Generate title based on context
+    const getTitle = () => {
+        if (paragraphId !== null) {
+            return `Thảo luận đoạn ${paragraphId + 1} (${total})`
+        }
+        return `Thảo luận (${total})`
+    }
 
     return (
         <Sheet
             isOpen={isOpen}
             onClose={onClose}
-            title={`Thảo luận (${total})`}
+            title={getTitle()}
+            themeId={themeId}
         >
             <div className="flex flex-col h-full">
                 {/* Scrollable Comment List */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
                     {commentTree.length === 0 && !loading ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <div
+                            className="flex flex-col items-center justify-center py-12"
+                            style={{ color: theme.ui.text }}
+                        >
                             <MessageSquare className="w-12 h-12 mb-3 opacity-50" />
                             <p className="text-sm">Chưa có bình luận nào</p>
-                            <p className="text-xs mt-1">Hãy là người đầu tiên bình luận!</p>
+                            <p className="text-xs mt-1 opacity-70">Hãy là người đầu tiên bình luận!</p>
                         </div>
                     ) : (
                         commentTree.map((comment) => (
@@ -131,13 +157,17 @@ export function DiscussionDrawer({
                                 novelId={novelId}
                                 chapterId={chapterId}
                                 onReplySuccess={handleCommentAdded}
+                                theme={theme}
                             />
                         ))
                     )}
 
                     {loading && (
                         <div className="flex justify-center py-4">
-                            <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                            <Loader2
+                                className="h-6 w-6 animate-spin"
+                                style={{ color: theme.ui.text }}
+                            />
                         </div>
                     )}
 
@@ -154,16 +184,24 @@ export function DiscussionDrawer({
                 </div>
 
                 {/* Fixed Comment Input Footer */}
-                <div className="border-t border-white/10 p-4 bg-[#0B0C10]">
+                <div
+                    className="border-t p-4"
+                    style={{
+                        borderColor: theme.ui.border,
+                        backgroundColor: theme.ui.background,
+                    }}
+                >
                     {session ? (
                         <CommentFormDrawer
                             novelId={novelId}
                             chapterId={chapterId}
+                            paragraphId={paragraphId}
                             onSuccess={handleCommentAdded}
+                            theme={theme}
                         />
                     ) : (
                         <div className="text-center py-2">
-                            <p className="text-sm text-gray-400 mb-2">
+                            <p className="text-sm mb-2" style={{ color: theme.ui.text }}>
                                 Đăng nhập để bình luận
                             </p>
                             <button
@@ -184,11 +222,15 @@ export function DiscussionDrawer({
 function CommentFormDrawer({
     novelId,
     chapterId,
+    paragraphId,
     onSuccess,
+    theme,
 }: {
     novelId: number
     chapterId?: number
+    paragraphId?: number | null
     onSuccess: () => void
+    theme: ReadingTheme
 }) {
     const { register, handleSubmit, reset } = useForm<{ content: string }>()
     const [isPending, startTransition] = useTransition()
@@ -201,6 +243,7 @@ function CommentFormDrawer({
                 content: data.content,
                 novelId,
                 chapterId,
+                paragraphId: paragraphId ?? undefined,
             })
 
             if (res.error) {
@@ -211,6 +254,9 @@ function CommentFormDrawer({
             }
         })
     }
+
+    // Determine if this is a dark theme
+    const isDark = ["dark", "night", "onyx", "dusk"].includes(theme.id)
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 items-center">
@@ -224,22 +270,32 @@ function CommentFormDrawer({
                         className="rounded-full object-cover"
                     />
                 ) : (
-                    <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-500" />
+                    <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: theme.ui.hover }}
+                    >
+                        <User className="w-5 h-5" style={{ color: theme.ui.text }} />
                     </div>
                 )}
             </div>
-            <div className="flex-1 relative">
+            <div className="flex-1 flex items-center gap-2">
                 <input
                     {...register("content", { required: true })}
                     placeholder="Viết bình luận..."
-                    className="w-full px-4 py-2.5 pr-12 text-sm bg-white/5 border border-white/10 rounded-full text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+                    className="flex-1 px-4 py-2.5 text-sm rounded-full focus:outline-none transition-colors"
+                    style={{
+                        backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                        borderColor: theme.ui.border,
+                        borderWidth: 1,
+                        borderStyle: "solid",
+                        color: theme.foreground,
+                    }}
                     disabled={isPending}
                 />
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-amber-500 hover:text-amber-400 disabled:opacity-50 transition-colors"
+                    className="p-2.5 text-amber-500 hover:text-amber-400 disabled:opacity-50 transition-colors shrink-0"
                 >
                     {isPending ? (
                         <Loader2 className="w-5 h-5 animate-spin" />

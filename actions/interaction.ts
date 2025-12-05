@@ -9,13 +9,14 @@ export async function addComment(data: {
     novelId: number
     chapterId?: number
     parentId?: number
+    paragraphId?: number // For paragraph-specific comments
 }) {
     const session = await auth()
     if (!session || !session.user || !session.user.id) {
         return { error: "Bạn cần đăng nhập để bình luận." }
     }
 
-    const { content, novelId, chapterId, parentId } = data
+    const { content, novelId, chapterId, parentId, paragraphId } = data
 
     if (!content || !content.trim()) {
         return { error: "Nội dung bình luận không được để trống." }
@@ -29,6 +30,7 @@ export async function addComment(data: {
                 novelId,
                 chapterId,
                 parentId,
+                paragraphId,
             },
         })
 
@@ -67,7 +69,12 @@ export async function addComment(data: {
     }
 }
 
-export async function getComments(novelId: number, chapterId?: number, page: number = 1) {
+export async function getComments(
+    novelId: number,
+    chapterId?: number,
+    page: number = 1,
+    paragraphId?: number | null // Filter by specific paragraph
+) {
     const TAKE = 20
     const SKIP = (page - 1) * TAKE
     const session = await auth()
@@ -79,6 +86,10 @@ export async function getComments(novelId: number, chapterId?: number, page: num
 
         if (chapterId) {
             whereCondition.chapterId = chapterId
+            // If paragraphId is explicitly provided (including 0), filter by it
+            if (paragraphId !== undefined && paragraphId !== null) {
+                whereCondition.paragraphId = paragraphId
+            }
         } else {
             whereCondition.chapterId = null
         }
@@ -132,6 +143,32 @@ export async function getComments(novelId: number, chapterId?: number, page: num
     } catch (error) {
         console.error("Error fetching comments:", error)
         return { comments: [], hasMore: false, total: 0 }
+    }
+}
+
+// Get comment counts per paragraph for a chapter (for displaying indicators)
+export async function getChapterParagraphCommentCounts(chapterId: number) {
+    try {
+        const counts = await db.comment.groupBy({
+            by: ['paragraphId'],
+            where: {
+                chapterId,
+                paragraphId: { not: null }
+            },
+            _count: { id: true }
+        })
+
+        // Convert to Record<number, number>
+        const result: Record<number, number> = {}
+        counts.forEach((c) => {
+            if (c.paragraphId !== null) {
+                result[c.paragraphId] = c._count.id
+            }
+        })
+        return result
+    } catch (error) {
+        console.error("Error fetching paragraph comment counts:", error)
+        return {}
     }
 }
 
