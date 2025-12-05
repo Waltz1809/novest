@@ -107,7 +107,24 @@ export async function getComments(
                         image: true,
                     },
                 },
+                parent: {
+                    select: {
+                        id: true,
+                        content: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                nickname: true,
+                                username: true,
+                            },
+                        },
+                    },
+                },
                 reactions: true,
+                _count: {
+                    select: { children: true }
+                }
             },
             orderBy: {
                 createdAt: "asc",
@@ -124,11 +141,12 @@ export async function getComments(
             const userVote = session?.user?.id ? comment.reactions.find(r => r.userId === session.user.id)?.type : null
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { reactions, ...rest } = comment
+            const { reactions, _count, ...rest } = comment
             return {
                 ...rest,
                 score,
-                userVote
+                userVote,
+                replyCount: _count?.children || 0,
             }
         })
 
@@ -169,6 +187,78 @@ export async function getChapterParagraphCommentCounts(chapterId: number) {
     } catch (error) {
         console.error("Error fetching paragraph comment counts:", error)
         return {}
+    }
+}
+
+// Get replies to a specific comment (for drill-down sub-thread view)
+export async function getCommentReplies(commentId: number, page: number = 1) {
+    const TAKE = 10
+    const SKIP = (page - 1) * TAKE
+    const session = await auth()
+
+    try {
+        const replies = await db.comment.findMany({
+            where: { parentId: commentId },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nickname: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+                parent: {
+                    select: {
+                        id: true,
+                        content: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                nickname: true,
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                reactions: true,
+                _count: {
+                    select: { children: true }
+                }
+            },
+            orderBy: { createdAt: "asc" },
+            take: TAKE,
+            skip: SKIP,
+        })
+
+        const processedReplies = replies.map(comment => {
+            const upvotes = comment.reactions.filter(r => r.type === "UPVOTE").length
+            const downvotes = comment.reactions.filter(r => r.type === "DOWNVOTE").length
+            const score = upvotes - downvotes
+            const userVote = session?.user?.id ? comment.reactions.find(r => r.userId === session.user.id)?.type : null
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { reactions, _count, ...rest } = comment
+            return {
+                ...rest,
+                score,
+                userVote,
+                replyCount: _count?.children || 0,
+            }
+        })
+
+        const total = await db.comment.count({ where: { parentId: commentId } })
+
+        return {
+            comments: processedReplies,
+            hasMore: SKIP + TAKE < total,
+            total
+        }
+    } catch (error) {
+        console.error("Error fetching comment replies:", error)
+        return { comments: [], hasMore: false, total: 0 }
     }
 }
 

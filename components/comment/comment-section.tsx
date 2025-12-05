@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { addComment, getComments } from "@/actions/interaction"
-import { Loader2, MessageSquare, Reply, Send, User } from "lucide-react"
+import { Loader2, MessageCircle, MessageSquare, Reply, Send, User } from "lucide-react"
 import Image from "next/image"
 import { clsx } from "clsx"
 import { useSession } from "next-auth/react"
@@ -29,9 +29,20 @@ interface Comment {
     user: CommentUser
     parentId: number | null
     paragraphId?: number | null // For paragraph-based comments
+    parent?: {
+        id: number
+        content: string
+        user: {
+            id: string
+            name: string | null
+            nickname: string | null
+            username: string | null
+        }
+    } | null // Parent comment for reply context
     children?: Comment[]
     score: number
     userVote: "UPVOTE" | "DOWNVOTE" | null
+    replyCount?: number // Count of direct children for drill-down
 }
 
 interface CommentSectionProps {
@@ -177,6 +188,7 @@ export function CommentItem({
     onReplySuccess,
     level = 0,
     theme,
+    onDrillDown,
 }: {
     comment: Comment
     novelId: number
@@ -184,6 +196,7 @@ export function CommentItem({
     onReplySuccess: () => void
     level?: number
     theme?: ReadingTheme
+    onDrillDown?: (comment: Comment) => void
 }) {
     const [isReplying, setIsReplying] = useState(false)
     const { data: session } = useSession()
@@ -290,6 +303,30 @@ export function CommentItem({
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                     </div>
+
+                    {/* Discord-style reply context */}
+                    {comment.parent && (
+                        <div
+                            className="mb-2 flex items-start gap-2 text-xs rounded-lg px-3 py-2"
+                            style={{
+                                backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                                borderLeft: `2px solid ${t.ui.border}`,
+                            }}
+                        >
+                            <div className="flex-1 min-w-0">
+                                <span style={{ color: "#f59e0b" }} className="font-medium">
+                                    @{comment.parent.user.nickname || comment.parent.user.name || "User"}
+                                </span>
+                                <span className="mx-1" style={{ color: t.ui.text, opacity: 0.5 }}>·</span>
+                                <span className="truncate" style={{ color: t.ui.text, opacity: 0.7 }}>
+                                    {comment.parent.content.length > 50
+                                        ? comment.parent.content.slice(0, 50) + "..."
+                                        : comment.parent.content}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     <p className="whitespace-pre-wrap" style={{ color: t.foreground, opacity: 0.9 }}>{comment.content}</p>
                 </div>
 
@@ -359,20 +396,39 @@ export function CommentItem({
                     </div>
                 )}
 
-                {comment.children && comment.children.length > 0 && (
-                    <div className="mt-4 space-y-4 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
-                        {comment.children.map((child) => (
-                            <CommentItem
-                                key={child.id}
-                                comment={child}
-                                novelId={novelId}
-                                chapterId={chapterId}
-                                onReplySuccess={onReplySuccess}
-                                level={level + 1}
-                                theme={theme}
-                            />
-                        ))}
-                    </div>
+                {/* Render children inline if depth < 1, otherwise show drill-down button */}
+                {level < 1 ? (
+                    comment.children && comment.children.length > 0 && (
+                        <div className="mt-4 space-y-4 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
+                            {comment.children.map((child) => (
+                                <CommentItem
+                                    key={child.id}
+                                    comment={child}
+                                    novelId={novelId}
+                                    chapterId={chapterId}
+                                    onReplySuccess={onReplySuccess}
+                                    level={level + 1}
+                                    theme={theme}
+                                    onDrillDown={onDrillDown}
+                                />
+                            ))}
+                        </div>
+                    )
+                ) : (
+                    // At depth 1+, show "View X replies" button instead of inline children
+                    (comment.replyCount && comment.replyCount > 0) || (comment.children && comment.children.length > 0) ? (
+                        <button
+                            onClick={() => onDrillDown?.(comment)}
+                            className="mt-3 flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                            style={{
+                                backgroundColor: isDark ? "rgba(245,158,11,0.15)" : "rgba(245,158,11,0.1)",
+                                color: "#f59e0b",
+                            }}
+                        >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            Xem {comment.replyCount || comment.children?.length || 0} trả lời
+                        </button>
+                    ) : null
                 )}
             </div>
         </div>

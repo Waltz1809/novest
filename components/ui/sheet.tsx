@@ -95,7 +95,11 @@ export function Sheet({
                             backgroundColor: theme.ui.background,
                             borderColor: theme.ui.border,
                             color: theme.ui.text,
-                        }}
+                            // Custom scrollbar CSS variables
+                            "--scrollbar-thumb": theme.ui.border,
+                            "--scrollbar-track": "transparent",
+                            "--scrollbar-hover": theme.ui.text,
+                        } as React.CSSProperties}
                     >
                         {/* Header */}
                         {title && (

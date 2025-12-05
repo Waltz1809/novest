@@ -2,7 +2,6 @@
 
 import DOMPurify from "isomorphic-dompurify"
 import { useEffect, useState, useMemo } from "react"
-import { MessageCircle } from "lucide-react"
 import { ReadingTheme, READING_THEMES } from "@/lib/reading-themes"
 
 interface ParagraphChapterContentProps {
@@ -125,9 +124,9 @@ export function ParagraphChapterContent({
                         <div
                             key={index}
                             data-pid={index}
-                            className="group relative"
+                            className="group"
                         >
-                            {/* Paragraph Text */}
+                            {/* Paragraph with inline comment indicator at end */}
                             <p
                                 className="cursor-pointer transition-colors duration-200 rounded-md px-1 -mx-1"
                                 onClick={() => handleParagraphClick(index)}
@@ -143,38 +142,34 @@ export function ParagraphChapterContent({
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.backgroundColor = "transparent"
                                 }}
-                                dangerouslySetInnerHTML={{ __html: paragraph }}
-                            />
-
-                            {/* Comment Indicator */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleParagraphClick(index)
-                                }}
-                                className={`
-                                    absolute -right-12 top-0 
-                                    flex items-center gap-1 
-                                    px-2 py-1 rounded-full
-                                    text-xs font-medium
-                                    transition-all duration-200
-                                    ${hasComments
-                                        ? "opacity-100"
-                                        : "opacity-0 group-hover:opacity-60"
-                                    }
-                                `}
-                                style={{
-                                    backgroundColor: hasComments
-                                        ? isDark ? "rgba(245,158,11,0.2)" : "rgba(245,158,11,0.15)"
-                                        : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
-                                    color: hasComments ? "#f59e0b" : theme.ui.text,
-                                }}
                             >
-                                <MessageCircle className="w-3.5 h-3.5" />
+                                <span dangerouslySetInnerHTML={{ __html: paragraph }} />
+                                {/* Inline comment indicator at end like Qidian */}
                                 {hasComments && (
-                                    <span>{commentCount}</span>
+                                    <span
+                                        className="inline-flex items-center ml-1 align-baseline"
+                                        style={{
+                                            color: theme.ui.text,
+                                            opacity: 0.5,
+                                            fontFamily: "'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif",
+                                            fontSize: "0.85em",
+                                            fontWeight: 400,
+                                        }}
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.5"
+                                            className="w-3.5 h-3.5 inline-block mr-0.5"
+                                            style={{ verticalAlign: "baseline" }}
+                                        >
+                                            <path d="M7.5 8.25h9M7.5 11.25h9M7.5 14.25h5.25M3.75 3.75h16.5v13.5H9l-3.75 3v-3H3.75V3.75z" />
+                                        </svg>
+                                        {commentCount}
+                                    </span>
                                 )}
-                            </button>
+                            </p>
                         </div>
                     )
                 })}

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { addComment, getComments } from "@/actions/interaction"
-import { Loader2, MessageSquare, Send, User } from "lucide-react"
+import { addComment, getComments, getCommentReplies } from "@/actions/interaction"
+import { ArrowLeft, Loader2, MessageSquare, Send, User } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -23,9 +23,20 @@ interface Comment {
     }
     parentId: number | null
     paragraphId?: number | null
+    parent?: {
+        id: number
+        content: string
+        user: {
+            id: string
+            name: string | null
+            nickname: string | null
+            username: string | null
+        }
+    } | null
     children?: Comment[]
     score: number
     userVote: "UPVOTE" | "DOWNVOTE" | null
+    replyCount?: number
 }
 
 // Build tree from flat list
@@ -76,6 +87,11 @@ export function DiscussionDrawer({
     const { data: session } = useSession()
     const router = useRouter()
 
+    // Sub-thread drill-down state
+    const [subThreadRoot, setSubThreadRoot] = useState<Comment | null>(null)
+    const [subThreadComments, setSubThreadComments] = useState<Comment[]>([])
+    const [subThreadLoading, setSubThreadLoading] = useState(false)
+
     // Get theme
     const theme: ReadingTheme = READING_THEMES[themeId] || READING_THEMES["night"]
 
@@ -118,12 +134,35 @@ export function DiscussionDrawer({
         if (onCommentAdded) {
             onCommentAdded()
         }
+        // Also refresh sub-thread if active
+        if (subThreadRoot) {
+            handleDrillDown(subThreadRoot)
+        }
+    }
+
+    // Handle drill-down into a comment's sub-thread
+    const handleDrillDown = async (comment: Comment) => {
+        setSubThreadRoot(comment)
+        setSubThreadLoading(true)
+        const res = await getCommentReplies(comment.id)
+        setSubThreadComments(res.comments as any)
+        setSubThreadLoading(false)
+    }
+
+    // Handle back navigation from sub-thread
+    const handleBackFromSubThread = () => {
+        setSubThreadRoot(null)
+        setSubThreadComments([])
     }
 
     const commentTree = buildCommentTree(flatComments)
 
     // Generate title based on context
     const getTitle = () => {
+        if (subThreadRoot) {
+            const userName = subThreadRoot.user.nickname || subThreadRoot.user.name || "Người dùng"
+            return `Trả lời ${userName}`
+        }
         if (paragraphId !== null) {
             return `Thảo luận đoạn ${paragraphId + 1} (${total})`
         }
@@ -138,28 +177,101 @@ export function DiscussionDrawer({
             themeId={themeId}
         >
             <div className="flex flex-col h-full">
+                {/* Back button for sub-thread view */}
+                {subThreadRoot && (
+                    <button
+                        onClick={handleBackFromSubThread}
+                        className="flex items-center gap-2 px-4 py-3 text-sm font-medium border-b transition-colors"
+                        style={{
+                            borderColor: theme.ui.border,
+                            color: theme.ui.text,
+                        }}
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Quay lại
+                    </button>
+                )}
+
                 {/* Scrollable Comment List */}
-                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
-                    {commentTree.length === 0 && !loading ? (
-                        <div
-                            className="flex flex-col items-center justify-center py-12"
-                            style={{ color: theme.ui.text }}
-                        >
-                            <MessageSquare className="w-12 h-12 mb-3 opacity-50" />
-                            <p className="text-sm">Chưa có bình luận nào</p>
-                            <p className="text-xs mt-1 opacity-70">Hãy là người đầu tiên bình luận!</p>
-                        </div>
+                <div
+                    className="flex-1 overflow-y-auto px-4 py-4 space-y-6"
+                    style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: `${theme.ui.border} transparent`,
+                    }}
+                >
+                    {subThreadRoot ? (
+                        // Sub-thread view: show parent comment + its direct replies
+                        <>
+                            {/* Parent comment (context) */}
+                            <div
+                                className="pb-4 border-b mb-4"
+                                style={{ borderColor: theme.ui.border }}
+                            >
+                                <CommentItem
+                                    key={subThreadRoot.id}
+                                    comment={{ ...subThreadRoot, children: [], replyCount: 0 }}
+                                    novelId={novelId}
+                                    chapterId={chapterId}
+                                    onReplySuccess={handleCommentAdded}
+                                    theme={theme}
+                                />
+                            </div>
+
+                            {/* Sub-thread replies */}
+                            {subThreadLoading ? (
+                                <div className="flex justify-center py-4">
+                                    <Loader2
+                                        className="h-6 w-6 animate-spin"
+                                        style={{ color: theme.ui.text }}
+                                    />
+                                </div>
+                            ) : subThreadComments.length === 0 ? (
+                                <div
+                                    className="flex flex-col items-center justify-center py-8"
+                                    style={{ color: theme.ui.text }}
+                                >
+                                    <p className="text-sm opacity-70">Chưa có trả lời nào</p>
+                                </div>
+                            ) : (
+                                subThreadComments.map((reply) => (
+                                    <CommentItem
+                                        key={reply.id}
+                                        comment={reply}
+                                        novelId={novelId}
+                                        chapterId={chapterId}
+                                        onReplySuccess={handleCommentAdded}
+                                        theme={theme}
+                                        onDrillDown={handleDrillDown}
+                                        level={1}
+                                    />
+                                ))
+                            )}
+                        </>
                     ) : (
-                        commentTree.map((comment) => (
-                            <CommentItem
-                                key={comment.id}
-                                comment={comment}
-                                novelId={novelId}
-                                chapterId={chapterId}
-                                onReplySuccess={handleCommentAdded}
-                                theme={theme}
-                            />
-                        ))
+                        // Main comment list
+                        commentTree.length === 0 && !loading ? (
+                            <div
+                                className="flex flex-col items-center justify-center py-12"
+                                style={{ color: theme.ui.text }}
+                            >
+                                <MessageSquare className="w-12 h-12 mb-3 opacity-50" />
+                                <p className="text-sm">Chưa có bình luận nào</p>
+                                <p className="text-xs mt-1 opacity-70">Hãy là người đầu tiên bình luận!</p>
+                            </div>
+                        ) : (
+                            commentTree.map((comment) => (
+                                <CommentItem
+                                    key={comment.id}
+                                    comment={comment}
+                                    novelId={novelId}
+                                    chapterId={chapterId}
+                                    onReplySuccess={handleCommentAdded}
+                                    theme={theme}
+                                    onDrillDown={handleDrillDown}
+                                />
+                            ))
+                        )
                     )}
 
                     {loading && (
