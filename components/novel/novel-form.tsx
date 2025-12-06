@@ -82,7 +82,7 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                     await createNovel(data);
                     alert("Tạo truyện thành công!");
                 }
-                router.push("/dashboard/novels");
+                router.push("/studio/novels");
                 router.refresh();
             } catch (error) {
                 console.error(error);

@@ -129,7 +129,7 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                     {/* Dashboard Link - Only for TRANSLATOR (and ADMIN if they want to see translator view) */}
                     {(user.role === "TRANSLATOR" || user.role === "ADMIN") && (
                         <Link
-                            href="/dashboard"
+                            href="/studio"
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                             onClick={() => setIsOpen(false)}
                         >

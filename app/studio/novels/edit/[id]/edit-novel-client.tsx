@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import NovelInfoEditor from "@/components/dashboard/novel-info-editor";
-import VolumeAccordion from "@/components/dashboard/volume-accordion";
+import NovelInfoEditor from "@/components/studio/novel-info-editor";
+import VolumeAccordion from "@/components/studio/volume-accordion";
 
 interface Volume {
     id: number;

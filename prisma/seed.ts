@@ -132,7 +132,7 @@ async function main() {
 
     const admin = await db.user.upsert({
         where: { email: "admin@novest.com" },
-        update: {},
+        update: { username: "admin", nickname: "Quản Trị Viên" },
         create: {
             email: "admin@novest.com",
             name: "Admin User",
@@ -140,7 +140,7 @@ async function main() {
             username: "admin",
             role: "ADMIN",
             password: await bcrypt.hash("Admin123!", 10),
-            emailVerified: new Date(), // Admin is verified
+            emailVerified: new Date(),
         },
     });
 

@@ -81,24 +81,40 @@ export async function updateReadingHistory(novelId: number, chapterId: number) {
 
     const userId = session.user.id;
 
-    await db.readingHistory.upsert({
-        where: {
-            userId_novelId: {
+    try {
+        // Validate that both novel and chapter exist before upserting
+        const [novel, chapter] = await Promise.all([
+            db.novel.findUnique({ where: { id: novelId }, select: { id: true } }),
+            db.chapter.findUnique({ where: { id: chapterId }, select: { id: true } }),
+        ]);
+
+        if (!novel || !chapter) {
+            console.warn(`[updateReadingHistory] Invalid novelId=${novelId} or chapterId=${chapterId}`);
+            return;
+        }
+
+        await db.readingHistory.upsert({
+            where: {
+                userId_novelId: {
+                    userId,
+                    novelId,
+                },
+            },
+            update: {
+                chapterId,
+            },
+            create: {
                 userId,
                 novelId,
+                chapterId,
             },
-        },
-        update: {
-            chapterId,
-        },
-        create: {
-            userId,
-            novelId,
-            chapterId,
-        },
-    });
+        });
 
-    revalidatePath("/tu-truyen");
+        revalidatePath("/tu-truyen");
+    } catch (error) {
+        console.error("[updateReadingHistory] Error:", error);
+        // Silently fail - reading history is not critical
+    }
 }
 
 export async function getLibrary() {

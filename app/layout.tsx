@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Be_Vietnam_Pro } from "next/font/google";
+import { Geist, Geist_Mono, Be_Vietnam_Pro, Merriweather, Lora, Roboto, Noto_Sans, Nunito } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
@@ -21,6 +21,42 @@ const beVietnamPro = Be_Vietnam_Pro({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin", "vietnamese"],
   variable: "--font-be-vietnam-pro",
+  display: "swap",
+});
+
+// Reading fonts with Vietnamese support
+const merriweather = Merriweather({
+  weight: ["300", "400", "700"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-merriweather",
+  display: "swap",
+});
+
+const lora = Lora({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-lora",
+  display: "swap",
+});
+
+const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-roboto",
+  display: "swap",
+});
+
+const notoSans = Noto_Sans({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-noto-sans",
+  display: "swap",
+});
+
+const nunito = Nunito({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-nunito",
   display: "swap",
 });
 
@@ -46,7 +82,7 @@ export default async function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
       >
         <Providers session={session}>
           <ThemeProvider

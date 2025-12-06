@@ -75,7 +75,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                     alert(result.error);
                 } else {
                     alert("Cập nhật chương thành công!");
-                    router.push(`/dashboard/novels/edit/${novelId}`);
+                    router.push(`/studio/novels/edit/${novelId}`);
                     router.refresh();
                 }
             } catch (error) {
@@ -89,7 +89,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex items-center justify-between">
                 <Link
-                    href={`/dashboard/novels/edit/${novelId}`}
+                    href={`/studio/novels/edit/${novelId}`}
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Quay lại

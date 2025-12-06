@@ -52,9 +52,9 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
     const currentNovel = novels[currentIndex];
 
     return (
-        // FULL WIDTH - Breaking out of container
+        // FULL WIDTH - Safe approach without viewport calculation issues
         <div
-            className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[50vh] md:h-[60vh] overflow-hidden"
+            className="relative w-full max-w-full h-[50vh] md:h-[60vh] overflow-hidden"
         >
             {/* LAYER 1: Atmospheric Background - Huge Blurred Cover */}
             <div className="absolute inset-0 -z-10">
@@ -141,7 +141,7 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
 
             {/* Thumbnail Strip (Bottom Right) */}
             <div
-                className="absolute bottom-8 right-8 flex gap-2"
+                className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 gap-2 hidden sm:flex"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
             >

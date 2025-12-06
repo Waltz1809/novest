@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import MainHeader from "@/components/layout/main-header";
-import DashboardLayoutClient from "@/components/dashboard/dashboard-layout-client";
+import DashboardLayoutClient from "@/components/studio/dashboard-layout-client";
 
 import { db } from "@/lib/db";
 

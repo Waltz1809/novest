@@ -37,11 +37,11 @@ export default async function EditNovelPage({ params }: PageProps) {
     });
 
     if (!novel) {
-        redirect("/dashboard/novels");
+        redirect("/studio/novels");
     }
 
     if (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR") {
-        redirect("/dashboard/novels");
+        redirect("/studio/novels");
     }
 
     return <EditNovelPageClient novel={novel} />;

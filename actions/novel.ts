@@ -40,7 +40,7 @@ export async function createNovel(data: {
         },
     });
 
-    revalidatePath("/dashboard/novels");
+    revalidatePath("/studio/novels");
     revalidatePath("/");
 }
 
@@ -91,7 +91,7 @@ export async function updateNovel(id: number, data: {
         },
     });
 
-    revalidatePath("/dashboard/novels");
+    revalidatePath("/studio/novels");
     revalidatePath(`/truyen/${data.slug}`);
     revalidatePath("/");
 }
@@ -116,7 +116,7 @@ export async function deleteNovel(id: number) {
         where: { id },
     });
 
-    revalidatePath("/dashboard/novels");
+    revalidatePath("/studio/novels");
     revalidatePath("/");
 }
 
@@ -136,7 +136,7 @@ export async function reindexAllNovels() {
         });
     }
 
-    revalidatePath("/dashboard/novels");
+    revalidatePath("/studio/novels");
 }
 
 export async function getRelatedNovels(novelId: number, genreIds: number[], limit: number = 5) {

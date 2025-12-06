@@ -304,14 +304,14 @@ export default function VolumeManager({ novelId, volumes }: VolumeManagerProps) 
                                                                 <span>•</span>
                                                             </>
                                                         )}
-                                                        <span className="font-mono">{chapter.slug}</span>
+                                                        <span className="font-sans">{chapter.slug}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
-                                                    href={`/dashboard/novels/${novelId}/chapters/${chapter.id}/edit`}
+                                                    href={`/studio/novels/${novelId}/chapters/${chapter.id}/edit`}
                                                     className="p-1.5 text-muted-foreground hover:text-indigo-600 hover:bg-accent rounded transition-colors"
                                                     title="Chỉnh sửa chương"
                                                 >

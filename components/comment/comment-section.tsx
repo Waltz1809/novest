@@ -199,6 +199,9 @@ export function CommentItem({
     onDrillDown?: (comment: Comment) => void
 }) {
     const [isReplying, setIsReplying] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(false) // For inline expansion
+    const [fetchedChildren, setFetchedChildren] = useState<Comment[]>([])
+    const [loadingChildren, setLoadingChildren] = useState(false)
     const { data: session } = useSession()
     const router = useRouter()
 
@@ -240,197 +243,257 @@ export function CommentItem({
         }
     }
 
+    // Handle inline expansion (when no drawer available)
+    const handleExpandChildren = async () => {
+        if (isExpanded) {
+            setIsExpanded(false)
+            return
+        }
+
+        // If children are already in comment, use them
+        if (comment.children && comment.children.length > 0) {
+            setFetchedChildren(comment.children)
+            setIsExpanded(true)
+            return
+        }
+
+        // Otherwise fetch from server
+        setLoadingChildren(true)
+        try {
+            const { getCommentReplies } = await import("@/actions/interaction")
+            const res = await getCommentReplies(comment.id)
+            setFetchedChildren(res.comments as Comment[])
+            setIsExpanded(true)
+        } catch (error) {
+            console.error("Failed to fetch replies:", error)
+        }
+        setLoadingChildren(false)
+    }
+
     // Default theme fallback
     const t = theme || READING_THEMES["night"]
     const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
 
+    const replyCount = comment.replyCount || comment.children?.length || 0
+    const hasReplies = replyCount > 0
+
+    // Calculate indentation based on level (half avatar width = ~16px per level)
+    const indentPx = level > 0 ? Math.min(level * 16, 48) : 0
+
     return (
-        <div className="flex gap-4">
-            <div className="shrink-0">
-                <Link href={`/u/${comment.user.username || comment.user.id}`}>
-                    {comment.user.image ? (
-                        <Image
-                            src={comment.user.image}
-                            alt={comment.user.name || "User"}
-                            width={40}
-                            height={40}
-                            className="rounded-full object-cover hover:ring-2 hover:ring-amber-500 transition-all"
-                        />
-                    ) : (
-                        <div
-                            className="flex h-10 w-10 items-center justify-center rounded-full border hover:border-amber-500 transition-colors"
-                            style={{
-                                backgroundColor: t.ui.hover,
-                                borderColor: t.ui.border,
-                            }}
-                        >
-                            <User className="h-6 w-6" style={{ color: t.ui.text }} />
-                        </div>
-                    )}
-                </Link>
-            </div>
-            <div className="flex-1 space-y-2">
-                <div
-                    className="rounded-lg p-4 border"
-                    style={{
-                        backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
-                        borderColor: t.ui.border,
-                    }}
-                >
-                    <div className="mb-1 flex flex-col sm:flex-row sm:justify-between gap-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <Link
-                                href={`/u/${comment.user.username || comment.user.id}`}
-                                className="font-semibold text-sm sm:text-base wrap-break-word hover:text-amber-500 transition-colors"
-                                style={{ color: t.foreground }}
+        <div className="min-w-0" style={{ marginLeft: indentPx }}>
+            <div className="flex gap-2 sm:gap-3">
+                {/* Avatar */}
+                <div className="shrink-0">
+                    <Link href={`/u/${comment.user.username || comment.user.id}`}>
+                        {comment.user.image ? (
+                            <Image
+                                src={comment.user.image}
+                                alt={comment.user.name || "User"}
+                                width={32}
+                                height={32}
+                                className="rounded-full object-cover hover:ring-2 hover:ring-amber-500 transition-all w-7 h-7 sm:w-8 sm:h-8"
+                            />
+                        ) : (
+                            <div
+                                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border hover:border-amber-500 transition-colors"
+                                style={{
+                                    backgroundColor: t.ui.hover,
+                                    borderColor: t.ui.border,
+                                }}
                             >
-                                {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
-                            </Link>
-                            {/* Paragraph hashtag */}
-                            {comment.paragraphId !== null && comment.paragraphId !== undefined && (
-                                <span
-                                    className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                                    style={{
-                                        backgroundColor: "rgba(245,158,11,0.15)",
-                                        color: "#f59e0b",
-                                    }}
-                                >
-                                    #{comment.paragraphId + 1}
-                                </span>
-                            )}
-                        </div>
-                        <span className="text-xs shrink-0" style={{ color: t.ui.text, opacity: 0.7 }}>
+                                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: t.ui.text }} />
+                            </div>
+                        )}
+                    </Link>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0 space-y-1.5">
+                    {/* Header: Name + Date */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                            href={`/u/${comment.user.username || comment.user.id}`}
+                            className="font-semibold text-sm hover:text-amber-500 transition-colors"
+                            style={{ color: t.foreground }}
+                        >
+                            {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
+                        </Link>
+                        <span className="text-xs" style={{ color: t.ui.text, opacity: 0.6 }}>
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
+                        {/* Paragraph hashtag */}
+                        {comment.paragraphId !== null && comment.paragraphId !== undefined && (
+                            <span
+                                className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                                style={{
+                                    backgroundColor: "rgba(245,158,11,0.15)",
+                                    color: "#f59e0b",
+                                }}
+                            >
+                                #{comment.paragraphId + 1}
+                            </span>
+                        )}
                     </div>
 
-                    {/* Discord-style reply context */}
+                    {/* Reply context tag */}
                     {comment.parent && (
                         <div
-                            className="mb-2 flex items-start gap-2 text-xs rounded-lg px-3 py-2"
+                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md"
+                            style={{
+                                backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                            }}
+                        >
+                            <span style={{ color: "#f59e0b" }} className="font-medium">
+                                @{comment.parent.user.nickname || comment.parent.user.name || "User"}
+                            </span>
+                            <span style={{ color: t.ui.text, opacity: 0.5 }}>·</span>
+                            <span className="truncate max-w-[150px] sm:max-w-[200px]" style={{ color: t.ui.text, opacity: 0.7 }}>
+                                {comment.parent.content.length > 30
+                                    ? comment.parent.content.slice(0, 30) + "..."
+                                    : comment.parent.content}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Comment content */}
+                    <p className="text-sm whitespace-pre-wrap break-words" style={{ color: t.foreground, opacity: 0.9 }}>
+                        {comment.content}
+                    </p>
+
+                    {/* Actions: Vote + Reply */}
+                    <div className="flex items-center gap-3 pt-1">
+                        <div
+                            className="flex items-center gap-0.5 rounded-full px-1.5 py-0.5"
                             style={{
                                 backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
-                                borderLeft: `2px solid ${t.ui.border}`,
                             }}
                         >
-                            <div className="flex-1 min-w-0">
-                                <span style={{ color: "#f59e0b" }} className="font-medium">
-                                    @{comment.parent.user.nickname || comment.parent.user.name || "User"}
-                                </span>
-                                <span className="mx-1" style={{ color: t.ui.text, opacity: 0.5 }}>·</span>
-                                <span className="truncate" style={{ color: t.ui.text, opacity: 0.7 }}>
-                                    {comment.parent.content.length > 50
-                                        ? comment.parent.content.slice(0, 50) + "..."
-                                        : comment.parent.content}
-                                </span>
-                            </div>
+                            <button
+                                onClick={() => handleVote("UPVOTE")}
+                                className={clsx(
+                                    "p-1 rounded transition-colors",
+                                    userVote === "UPVOTE" ? "text-amber-500" : ""
+                                )}
+                                style={{ color: userVote === "UPVOTE" ? undefined : t.ui.text }}
+                            >
+                                <ThumbsUp className={clsx("w-3 h-3", userVote === "UPVOTE" && "fill-current")} />
+                            </button>
+                            <span className={clsx(
+                                "text-xs font-medium min-w-[1ch] text-center",
+                                userVote === "UPVOTE" ? "text-amber-500" :
+                                    userVote === "DOWNVOTE" ? "text-red-500" : ""
+                            )} style={{ color: !userVote ? t.ui.text : undefined }}>
+                                {score}
+                            </span>
+                            <button
+                                onClick={() => handleVote("DOWNVOTE")}
+                                className={clsx(
+                                    "p-1 rounded transition-colors",
+                                    userVote === "DOWNVOTE" ? "text-red-500" : ""
+                                )}
+                                style={{ color: userVote === "DOWNVOTE" ? undefined : t.ui.text }}
+                            >
+                                <ThumbsDown className={clsx("w-3 h-3", userVote === "DOWNVOTE" && "fill-current")} />
+                            </button>
                         </div>
-                    )}
 
-                    <p className="whitespace-pre-wrap" style={{ color: t.foreground, opacity: 0.9 }}>{comment.content}</p>
-                </div>
-
-                <div className="flex items-center gap-4 pl-2">
-                    {/* Vote Controls */}
-                    <div
-                        className="flex items-center gap-1 rounded-full px-2 py-1 border"
-                        style={{
-                            backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
-                            borderColor: t.ui.border,
-                        }}
-                    >
-                        <button
-                            onClick={() => handleVote("UPVOTE")}
-                            className={clsx(
-                                "p-1 rounded transition-colors",
-                                userVote === "UPVOTE" ? "text-amber-500" : ""
-                            )}
-                            style={{ color: userVote === "UPVOTE" ? undefined : t.ui.text }}
-                        >
-                            <ThumbsUp className={clsx("w-3 h-3", userVote === "UPVOTE" && "fill-current")} />
-                        </button>
-                        <span className={clsx(
-                            "text-xs font-medium min-w-[1ch] text-center",
-                            userVote === "UPVOTE" ? "text-amber-500" :
-                                userVote === "DOWNVOTE" ? "text-red-500" : ""
-                        )} style={{ color: !userVote ? t.ui.text : undefined }}>
-                            {score}
-                        </span>
-                        <button
-                            onClick={() => handleVote("DOWNVOTE")}
-                            className={clsx(
-                                "p-1 rounded transition-colors",
-                                userVote === "DOWNVOTE" ? "text-red-500" : ""
-                            )}
-                            style={{ color: userVote === "DOWNVOTE" ? undefined : t.ui.text }}
-                        >
-                            <ThumbsDown className={clsx("w-3 h-3", userVote === "DOWNVOTE" && "fill-current")} />
-                        </button>
+                        {session && (
+                            <button
+                                onClick={() => setIsReplying(!isReplying)}
+                                className="flex items-center gap-1 text-xs font-medium hover:text-amber-500 transition-colors"
+                                style={{ color: t.ui.text }}
+                            >
+                                <Reply className="h-3 w-3" />
+                                Trả lời
+                            </button>
+                        )}
                     </div>
 
-                    {session && (
-                        <button
-                            onClick={() => setIsReplying(!isReplying)}
-                            className="flex items-center gap-1 text-xs font-medium hover:text-amber-500 transition-colors"
-                            style={{ color: t.ui.text }}
-                        >
-                            <Reply className="h-3 w-3" />
-                            Trả lời
-                        </button>
+                    {/* Reply form */}
+                    {isReplying && (
+                        <div className="mt-2">
+                            <CommentForm
+                                novelId={novelId}
+                                chapterId={chapterId}
+                                parentId={comment.id}
+                                paragraphId={comment.paragraphId}
+                                onSuccess={() => {
+                                    setIsReplying(false)
+                                    onReplySuccess()
+                                }}
+                                autoFocus
+                                theme={theme}
+                            />
+                        </div>
                     )}
                 </div>
+            </div>
 
-                {isReplying && (
-                    <div className="mt-2 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
-                        <CommentForm
-                            novelId={novelId}
-                            chapterId={chapterId}
-                            parentId={comment.id}
-                            paragraphId={comment.paragraphId}
-                            onSuccess={() => {
-                                setIsReplying(false)
-                                onReplySuccess()
+            {/* Children comments - indented, no border line */}
+            {level < 1 ? (
+                comment.children && comment.children.length > 0 && (
+                    <div className="mt-3 space-y-3">
+                        {comment.children.map((child) => (
+                            <CommentItem
+                                key={child.id}
+                                comment={child}
+                                novelId={novelId}
+                                chapterId={chapterId}
+                                onReplySuccess={onReplySuccess}
+                                level={level + 1}
+                                theme={theme}
+                                onDrillDown={onDrillDown}
+                            />
+                        ))}
+                    </div>
+                )
+            ) : (
+                // At depth 1+, use drawer if available, otherwise expand inline
+                hasReplies && (
+                    <div className="mt-2 ml-9 sm:ml-11">
+                        <button
+                            onClick={() => {
+                                if (onDrillDown) {
+                                    onDrillDown(comment)
+                                } else {
+                                    handleExpandChildren()
+                                }
                             }}
-                            autoFocus
-                        />
-                    </div>
-                )}
-
-                {/* Render children inline if depth < 1, otherwise show drill-down button */}
-                {level < 1 ? (
-                    comment.children && comment.children.length > 0 && (
-                        <div className="mt-4 space-y-4 pl-4 border-l-2" style={{ borderColor: t.ui.border }}>
-                            {comment.children.map((child) => (
-                                <CommentItem
-                                    key={child.id}
-                                    comment={child}
-                                    novelId={novelId}
-                                    chapterId={chapterId}
-                                    onReplySuccess={onReplySuccess}
-                                    level={level + 1}
-                                    theme={theme}
-                                    onDrillDown={onDrillDown}
-                                />
-                            ))}
-                        </div>
-                    )
-                ) : (
-                    // At depth 1+, show "View X replies" button instead of inline children
-                    (comment.replyCount && comment.replyCount > 0) || (comment.children && comment.children.length > 0) ? (
-                        <button
-                            onClick={() => onDrillDown?.(comment)}
-                            className="mt-3 flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                            disabled={loadingChildren}
+                            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors"
                             style={{
                                 backgroundColor: isDark ? "rgba(245,158,11,0.15)" : "rgba(245,158,11,0.1)",
                                 color: "#f59e0b",
                             }}
                         >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            Xem {comment.replyCount || comment.children?.length || 0} trả lời
+                            {loadingChildren ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                                <MessageCircle className="w-3 h-3" />
+                            )}
+                            {isExpanded ? "Ẩn trả lời" : `Xem ${replyCount} trả lời`}
                         </button>
-                    ) : null
-                )}
-            </div>
+
+                        {/* Inline expanded children */}
+                        {isExpanded && !onDrillDown && fetchedChildren.length > 0 && (
+                            <div className="mt-3 space-y-3">
+                                {fetchedChildren.map((child) => (
+                                    <CommentItem
+                                        key={child.id}
+                                        comment={child}
+                                        novelId={novelId}
+                                        chapterId={chapterId}
+                                        onReplySuccess={onReplySuccess}
+                                        level={level + 1}
+                                        theme={theme}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )
+            )}
         </div>
     )
 }
@@ -442,6 +505,7 @@ function CommentForm({
     paragraphId,
     onSuccess,
     autoFocus = false,
+    theme,
 }: {
     novelId: number
     chapterId?: number
@@ -449,9 +513,14 @@ function CommentForm({
     paragraphId?: number | null
     onSuccess: () => void
     autoFocus?: boolean
+    theme?: ReadingTheme
 }) {
     const { register, handleSubmit, reset } = useForm<{ content: string }>()
     const [isPending, startTransition] = useTransition()
+
+    // Default theme fallback
+    const t = theme || READING_THEMES["night"]
+    const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
 
     const onSubmit = (data: { content: string }) => {
         startTransition(async () => {
@@ -477,7 +546,14 @@ function CommentForm({
             <textarea
                 {...register("content", { required: true })}
                 placeholder={parentId ? "Viết câu trả lời..." : "Viết bình luận của bạn..."}
-                className="w-full rounded-md border border-gray-700 bg-[#0B0C10] p-3 text-sm text-gray-200 focus:border-[#F59E0B] focus:outline-none placeholder:text-gray-600"
+                className="w-full rounded-md p-3 text-sm focus:outline-none transition-colors"
+                style={{
+                    backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: t.ui.border,
+                    color: t.foreground,
+                }}
                 rows={3}
                 autoFocus={autoFocus}
             />

@@ -131,7 +131,7 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
             },
         });
 
-        revalidatePath(`/dashboard/novels/edit/${volume.novelId}`);
+        revalidatePath(`/studio/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
 
         // Notify users who have this novel in their library
@@ -214,7 +214,7 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
             },
         });
 
-        revalidatePath(`/dashboard/novels/edit/${existingChapter.volume.novelId}`);
+        revalidatePath(`/studio/novels/edit/${existingChapter.volume.novelId}`);
         revalidatePath(`/truyen/${existingChapter.volume.novel.slug}`);
         revalidatePath(`/truyen/${existingChapter.volume.novel.slug}/${slug}`);
 
@@ -243,7 +243,7 @@ export async function deleteChapter(chapterId: number) {
             where: { id: chapterId }
         });
 
-        revalidatePath(`/dashboard/novels/edit/${chapter.volume.novelId}`);
+        revalidatePath(`/studio/novels/edit/${chapter.volume.novelId}`);
         revalidatePath(`/truyen/${chapter.volume.novel.slug}`);
     } catch (error) {
         console.error("Delete chapter error:", error);
@@ -276,7 +276,7 @@ export async function createVolume(data: z.infer<typeof volumeSchema>) {
             data: { title, order, novelId },
         });
 
-        revalidatePath(`/dashboard/novels/edit/${novelId}`);
+        revalidatePath(`/studio/novels/edit/${novelId}`);
         revalidatePath(`/truyen/${novel.slug}`);
         return { success: "Tạo tập thành công!" };
     } catch (error) {
@@ -299,7 +299,7 @@ export async function updateVolume(volumeId: number, data: { title: string; orde
             data: { title: data.title, order: data.order },
         });
 
-        revalidatePath(`/dashboard/novels/edit/${volume.novelId}`);
+        revalidatePath(`/studio/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
         return { success: "Cập nhật tập thành công!" };
     } catch (error) {
@@ -322,7 +322,7 @@ export async function deleteVolume(volumeId: number) {
             db.volume.delete({ where: { id: volumeId } })
         ]);
 
-        revalidatePath(`/dashboard/novels/edit/${volume.novelId}`);
+        revalidatePath(`/studio/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
         return { success: "Xóa tập thành công!" };
     } catch (error) {

@@ -75,7 +75,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                                     {user.nickname || "Vị Đạo Hữu Vô Danh"}
                                 </h1>
                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                    <span className="text-slate-500 text-sm font-mono">@{user.username || "unknown"}</span>
+                                    <span className="text-slate-500 text-sm font-sans">@{user.username || "unknown"}</span>
                                     {getRoleBadge(user.role)}
                                 </div>
                             </div>

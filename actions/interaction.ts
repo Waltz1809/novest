@@ -30,6 +30,35 @@ export async function addComment(data: {
     }
 
     try {
+        // Validate that user exists in database
+        const user = await db.user.findUnique({
+            where: { id: session.user.id },
+            select: { id: true }
+        })
+        if (!user) {
+            return { error: "Tài khoản không tồn tại. Vui lòng đăng nhập lại." }
+        }
+
+        // Validate that novel exists
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { id: true, slug: true, title: true }
+        })
+        if (!novel) {
+            return { error: "Truyện không tồn tại." }
+        }
+
+        // Validate chapter if provided
+        if (chapterId) {
+            const chapter = await db.chapter.findUnique({
+                where: { id: chapterId },
+                select: { id: true }
+            })
+            if (!chapter) {
+                return { error: "Chương không tồn tại." }
+            }
+        }
+
         const comment = await db.comment.create({
             data: {
                 content,
@@ -50,11 +79,6 @@ export async function addComment(data: {
 
             // Only notify if replying to someone else's comment
             if (parentComment && parentComment.userId !== session.user.id) {
-                const novel = await db.novel.findUnique({
-                    where: { id: novelId },
-                    select: { title: true, slug: true },
-                })
-
                 await db.notification.create({
                     data: {
                         userId: parentComment.userId,
@@ -62,13 +86,13 @@ export async function addComment(data: {
                         type: "REPLY_COMMENT",
                         resourceId: comment.id.toString(),
                         resourceType: "comment",
-                        message: `${session.user.nickname || session.user.name} đã phản hồi bình luận của bạn ở "${novel?.title || 'a novel'}"`,
+                        message: `${session.user.nickname || session.user.name} đã phản hồi bình luận của bạn ở "${novel.title}"`,
                     },
                 })
             }
         }
 
-        revalidatePath(`/truyen/${novelId}`)
+        revalidatePath(`/truyen/${novel.slug}`)
         return { success: true }
     } catch (error) {
         console.error("Error adding comment:", error)
@@ -286,6 +310,24 @@ export async function rateNovel(novelId: number, score: number, content?: string
     }
 
     try {
+        // Validate user exists
+        const user = await db.user.findUnique({
+            where: { id: session.user.id },
+            select: { id: true }
+        })
+        if (!user) {
+            return { error: "Tài khoản không tồn tại. Vui lòng đăng nhập lại." }
+        }
+
+        // Validate novel exists
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { id: true }
+        })
+        if (!novel) {
+            return { error: "Truyện không tồn tại." }
+        }
+
         await db.rating.upsert({
             where: {
                 userId_novelId: {

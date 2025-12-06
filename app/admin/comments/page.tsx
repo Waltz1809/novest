@@ -22,7 +22,7 @@ export default async function CommentsPage({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="font-serif text-3xl font-bold text-white">Comments</h1>
+                <h1 className="font-sans text-3xl font-bold text-white">Comments</h1>
                 <p className="text-gray-400">Moderate user discussions.</p>
             </div>
 

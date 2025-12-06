@@ -72,7 +72,7 @@ export default function NovelGridCard({
 
             {/* Hover Overlay with Manage Button */}
             <Link
-                href={`/dashboard/novels/edit/${id}`}
+                href={`/studio/novels/edit/${id}`}
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
             >
                 <button className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg shadow-lg glow-amber-strong hover:scale-105 transition-transform">

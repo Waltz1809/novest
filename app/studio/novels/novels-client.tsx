@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
-import NovelGridCard from "@/components/dashboard/novel-grid-card";
+import NovelGridCard from "@/components/studio/novel-grid-card";
 import ReindexButton from "@/components/novel/reindex-button";
 
 interface Novel {
@@ -64,7 +64,7 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                 <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
                     <ReindexButton />
                     <Link
-                        href="/dashboard/novels/create"
+                        href="/studio/novels/create"
                         className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#F59E0B] text-[#F59E0B] font-bold rounded-lg hover:bg-[#F59E0B] hover:text-[#0B0C10] transition-all duration-300 text-sm md:text-base whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" />
@@ -110,7 +110,7 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                     </p>
                     {!searchQuery && (
                         <Link
-                            href="/dashboard/novels/create"
+                            href="/studio/novels/create"
                             className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-colors glow-amber"
                         >
                             Tạo Truyện Mới

@@ -147,13 +147,13 @@ export function ParagraphChapterContent({
                                 {/* Inline comment indicator at end like Qidian */}
                                 {hasComments && (
                                     <span
-                                        className="inline-flex items-center ml-1 align-baseline"
+                                        className="inline-flex items-center ml-2 align-baseline"
                                         style={{
                                             color: theme.ui.text,
-                                            opacity: 0.5,
-                                            fontFamily: "'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif",
-                                            fontSize: "0.85em",
-                                            fontWeight: 400,
+                                            opacity: 0.6,
+                                            fontFamily: "'Noto Sans', system-ui, sans-serif",
+                                            fontSize: "0.9em",
+                                            fontWeight: 500,
                                         }}
                                     >
                                         <svg
@@ -161,7 +161,7 @@ export function ParagraphChapterContent({
                                             fill="none"
                                             stroke="currentColor"
                                             strokeWidth="1.5"
-                                            className="w-3.5 h-3.5 inline-block mr-0.5"
+                                            className="w-4 h-4 inline-block mr-1"
                                             style={{ verticalAlign: "baseline" }}
                                         >
                                             <path d="M7.5 8.25h9M7.5 11.25h9M7.5 14.25h5.25M3.75 3.75h16.5v13.5H9l-3.75 3v-3H3.75V3.75z" />

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import StatCard from "@/components/dashboard/stat-card";
+import StatCard from "@/components/studio/stat-card";
 
 export default async function DashboardPage() {
     const session = await auth();

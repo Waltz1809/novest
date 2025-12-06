@@ -253,7 +253,7 @@ export default function WelcomePage() {
                                         }`}>
                                         {usernameMessage || "Định danh dùng cho URL trang cá nhân. Không thể thay đổi sau này!"}
                                     </p>
-                                    <span className="text-xs text-slate-600 font-mono shrink-0">
+                                    <span className="text-xs text-slate-600 font-sans shrink-0">
                                         novest.com/u/{username || "..."}
                                     </span>
                                 </div>

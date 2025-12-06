@@ -125,7 +125,7 @@ export default function SettingsPage() {
 
     if (!session) return null;
 
-    const backLink = session.user.role === "ADMIN" || session.user.role === "TRANSLATOR" ? "/dashboard" : "/";
+    const backLink = session.user.role === "ADMIN" || session.user.role === "TRANSLATOR" ? "/studio" : "/";
 
     return (
         <div className="min-h-screen bg-[#0B0C10] text-slate-200 font-sans selection:bg-amber-500/30">
@@ -227,12 +227,12 @@ export default function SettingsPage() {
                                     <div className="bg-slate-950/30 border border-amber-500/20 rounded-lg p-4">
                                         <div className="flex items-center gap-3 mb-2">
                                             <AtSign className="w-5 h-5 text-amber-500" />
-                                            <span className="text-lg font-mono text-amber-400">{username}</span>
+                                            <span className="text-lg font-sans text-amber-400">{username}</span>
                                         </div>
                                         <p className="text-xs text-slate-400 mb-1">
                                             Định danh của bạn đã được thiết lập và không thể thay đổi.
                                         </p>
-                                        <p className="text-xs text-slate-600 font-mono">
+                                        <p className="text-xs text-slate-600 font-sans">
                                             novest.com/u/{username}
                                         </p>
                                     </div>
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                                                 }`}>
                                                 {usernameMessage || "Định danh duy nhất dùng cho URL trang cá nhân của bạn. Bạn chỉ có thể thay đổi một lần."}
                                             </p>
-                                            <span className="text-xs text-slate-600 font-mono">
+                                            <span className="text-xs text-slate-600 font-sans">
                                                 novest.com/u/{username || "..."}
                                             </span>
                                         </div>

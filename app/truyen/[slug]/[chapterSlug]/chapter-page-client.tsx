@@ -6,7 +6,7 @@ import { Lock, MessageSquare } from "lucide-react"
 import UnlockButton from "@/components/novel/unlock-button"
 import { ParagraphChapterContent } from "@/components/novel/paragraph-chapter-content"
 import { DiscussionDrawer } from "@/components/comment/discussion-drawer"
-import { ReadingSettings, ReadingConfig } from "@/components/novel/reading-settings"
+import { ReadingSettings, ReadingConfig, getFontFamily } from "@/components/novel/reading-settings"
 import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
 import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
@@ -32,7 +32,7 @@ export function ChapterPageClient({
     session,
 }: ChapterPageClientProps) {
     const [config, setConfig] = useState<ReadingConfig>({
-        font: "serif",
+        font: "lora",
         fontSize: 18,
         lineHeight: 1.8,
         textAlign: "justify",
@@ -170,6 +170,34 @@ export function ChapterPageClient({
         }
     }, [chapter.id, novel.id, session?.user])
 
+    // 4. Keyboard Navigation (Arrow Keys)
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Don't trigger when typing in inputs or textareas
+            const target = e.target as HTMLElement
+            if (
+                target.tagName === "INPUT" ||
+                target.tagName === "TEXTAREA" ||
+                target.isContentEditable
+            ) {
+                return
+            }
+
+            // Left Arrow → Previous Chapter
+            if (e.key === "ArrowLeft" && prevChapter) {
+                window.location.href = `/truyen/${novel.slug}/${prevChapter.slug}`
+            }
+
+            // Right Arrow → Next Chapter
+            if (e.key === "ArrowRight" && nextChapter) {
+                window.location.href = `/truyen/${novel.slug}/${nextChapter.slug}`
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [novel.slug, prevChapter, nextChapter])
+
     return (
         <div
             className={clsx(
@@ -189,7 +217,7 @@ export function ChapterPageClient({
                 config.theme === "dusk" && "bg-[#202030] text-gray-200" // Midnight Blue
             )}
             style={{
-                fontFamily: config.font === "mono" ? "monospace" : config.font === "sans" ? "sans-serif" : "serif",
+                fontFamily: getFontFamily(config.font),
             } as React.CSSProperties}
         >
             {/* Reading Progress Bar */}
@@ -264,9 +292,6 @@ export function ChapterPageClient({
                                 setShowComments(true)
                             }}
                             className={clsx(
-                                config.font === "mono" && "font-mono!",
-                                config.font === "sans" && "font-sans!",
-                                config.font === "serif" && "font-serif!",
                                 ["dark", "night", "onyx", "dusk"].includes(config.theme) && "prose-invert"
                             )}
                         />
@@ -313,6 +338,7 @@ export function ChapterPageClient({
                     setShowTOC(false)
                 }}
                 isHidden={showTOC}
+                themeId={config.theme}
             />
 
             {/* TOC Sidebar */}

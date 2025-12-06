@@ -50,9 +50,9 @@ export async function updateNovel(
     });
 
     // Revalidate paths
-    revalidatePath(`/dashboard/novels/edit/${novelId}`);
-    revalidatePath("/dashboard/novels");
-    revalidatePath("/dashboard");
+    revalidatePath(`/studio/novels/edit/${novelId}`);
+    revalidatePath("/studio/novels");
+    revalidatePath("/studio");
 
     return { success: true };
 }
@@ -85,9 +85,9 @@ export async function updateNovelCoverUrl(novelId: number, coverUrl: string) {
     });
 
     // Revalidate paths
-    revalidatePath(`/dashboard/novels/edit/${novelId}`);
-    revalidatePath("/dashboard/novels");
-    revalidatePath("/dashboard");
+    revalidatePath(`/studio/novels/edit/${novelId}`);
+    revalidatePath("/studio/novels");
+    revalidatePath("/studio");
 
     return { success: true };
 }

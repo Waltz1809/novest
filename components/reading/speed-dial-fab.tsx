@@ -15,6 +15,7 @@ import {
 import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { clsx } from "clsx"
 import Link from "next/link"
+import { READING_THEMES, ReadingTheme } from "@/lib/reading-themes"
 
 interface SpeedDialFabProps {
     novelSlug: string
@@ -25,6 +26,7 @@ interface SpeedDialFabProps {
     onToggleTOC: () => void
     onToggleComments: () => void
     isHidden?: boolean
+    themeId?: string // Theme syncing with reader
 }
 
 export function SpeedDialFab({
@@ -35,7 +37,8 @@ export function SpeedDialFab({
     onToggleSettings,
     onToggleTOC,
     onToggleComments,
-    isHidden = false
+    isHidden = false,
+    themeId = "night"
 }: SpeedDialFabProps) {
     const [isOpen, setIsOpen] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -43,6 +46,10 @@ export function SpeedDialFab({
     useOnClickOutside(containerRef, () => setIsOpen(false))
 
     const toggleMenu = () => setIsOpen(!isOpen)
+
+    // Get theme colors
+    const theme: ReadingTheme = READING_THEMES[themeId] || READING_THEMES["night"]
+    const isDark = ["dark", "night", "onyx", "dusk"].includes(themeId)
 
     // Menu items configuration
     const menuItems = [
@@ -110,9 +117,13 @@ export function SpeedDialFab({
             <motion.div
                 layout
                 className={clsx(
-                    "bg-slate-900/95 backdrop-blur-md shadow-2xl border border-white/10 flex items-center justify-center overflow-hidden",
+                    "backdrop-blur-md shadow-2xl border flex items-center justify-center overflow-hidden",
                     isOpen ? "rounded-3xl" : "rounded-full"
                 )}
+                style={{
+                    backgroundColor: isDark ? "rgba(30, 30, 40, 0.95)" : "rgba(255, 255, 255, 0.95)",
+                    borderColor: theme.ui.border,
+                }}
                 initial={false}
                 animate={{
                     width: isOpen ? "auto" : 56,
@@ -138,7 +149,12 @@ export function SpeedDialFab({
                             {/* Close Button */}
                             <motion.button
                                 onClick={toggleMenu}
-                                className="w-full p-2.5 rounded-xl text-red-400 hover:bg-white/10 transition-colors flex items-center justify-center"
+                                className="w-full p-2.5 rounded-xl text-red-400 transition-colors flex items-center justify-center"
+                                style={{
+                                    backgroundColor: "transparent",
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.05 }}
@@ -151,7 +167,10 @@ export function SpeedDialFab({
                                 const Icon = item.icon
                                 const content = (
                                     <motion.div
-                                        className="w-full p-2.5 rounded-xl text-amber-500 hover:bg-white/10 transition-colors flex items-center justify-center"
+                                        className="w-full p-2.5 rounded-xl text-amber-500 transition-colors flex items-center justify-center"
+                                        style={{ backgroundColor: "transparent" }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.05 + index * 0.03 }}
@@ -188,7 +207,8 @@ export function SpeedDialFab({
 
                             {/* Divider */}
                             <motion.div
-                                className="w-8 h-px bg-white/20 my-0.5"
+                                className="w-8 h-px my-0.5"
+                                style={{ backgroundColor: theme.ui.border }}
                                 initial={{ opacity: 0, scaleX: 0 }}
                                 animate={{ opacity: 1, scaleX: 1 }}
                                 transition={{ delay: 0.2 }}
@@ -201,10 +221,18 @@ export function SpeedDialFab({
                                     <motion.div
                                         className={clsx(
                                             "w-full p-2.5 rounded-xl transition-colors flex items-center justify-center",
-                                            item.disabled
-                                                ? "text-gray-600 cursor-not-allowed"
-                                                : "text-amber-500 hover:bg-white/10"
+                                            item.disabled && "cursor-not-allowed"
                                         )}
+                                        style={{
+                                            color: item.disabled ? (isDark ? "#4b5563" : "#9ca3af") : "#f59e0b",
+                                            backgroundColor: "transparent",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!item.disabled) {
+                                                e.currentTarget.style.backgroundColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.25 + index * 0.03 }}
@@ -243,7 +271,8 @@ export function SpeedDialFab({
                         <motion.button
                             key="fab"
                             onClick={toggleMenu}
-                            className="w-14 h-14 flex items-center justify-center text-white"
+                            className="w-14 h-14 flex items-center justify-center"
+                            style={{ color: isDark ? "#fff" : "#1f2937" }}
                             initial={{ opacity: 0, rotate: -45 }}
                             animate={{ opacity: 1, rotate: 0 }}
                             exit={{ opacity: 0, rotate: 45 }}

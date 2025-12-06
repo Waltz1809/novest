@@ -74,7 +74,7 @@ export default function DashboardSidebar({
                 {/* Navigation */}
                 <nav className="flex-1 p-2 space-y-2 overflow-y-auto custom-scrollbar flex flex-col items-center pt-6">
                     <Link
-                        href="/dashboard"
+                        href="/studio"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
                             } text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
                         title="Thống kê"
@@ -83,7 +83,7 @@ export default function DashboardSidebar({
                         {(!isCollapsed && !isMobile) && <span>Thống kê</span>}
                     </Link>
                     <Link
-                        href="/dashboard/novels"
+                        href="/studio/novels"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
                             } text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
                         title="Quản lý Truyện"

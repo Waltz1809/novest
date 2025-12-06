@@ -42,7 +42,7 @@ export default async function AdminDashboardPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="font-serif text-3xl font-bold text-white">Dashboard Overview</h1>
+                <h1 className="font-sans text-3xl font-bold text-white">Dashboard Overview</h1>
                 <p className="text-gray-400">Welcome back, Administrator.</p>
             </div>
 
@@ -55,7 +55,7 @@ export default async function AdminDashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-400">{card.title}</p>
-                                <h3 className="mt-2 font-serif text-3xl font-bold text-white">
+                                <h3 className="mt-2 font-sans text-3xl font-bold text-white">
                                     {card.value.toLocaleString()}
                                 </h3>
                             </div>
@@ -75,7 +75,7 @@ export default async function AdminDashboardPage() {
             <div className="rounded-xl border border-white/5 bg-white/2 p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <TrendingUp className="h-5 w-5 text-amber-500" />
-                    <h2 className="font-serif text-xl font-bold text-white">System Status</h2>
+                    <h2 className="font-sans text-xl font-bold text-white">System Status</h2>
                 </div>
                 <p className="text-gray-400">System is running smoothly. No anomalies detected.</p>
             </div>

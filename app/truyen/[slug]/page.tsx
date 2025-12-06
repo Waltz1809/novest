@@ -224,7 +224,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <Eye className="w-4 h-4 text-[#34D399]" />
                                                         Lượt xem
                                                     </span>
-                                                    <span className="text-base font-bold text-white font-mono">354.3K</span>
+                                                    <span className="text-base font-bold text-white font-sans">354.3K</span>
                                                 </div>
                                                 {/* Rating */}
                                                 <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
@@ -232,7 +232,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <Star className="w-4 h-4 text-[#FBBF24]" />
                                                         Đánh giá
                                                     </span>
-                                                    <span className="text-base font-bold text-white font-mono flex items-center gap-1">
+                                                    <span className="text-base font-bold text-white font-sans flex items-center gap-1">
                                                         {userRating?.score || "4.9"}/5
                                                     </span>
                                                 </div>
@@ -242,7 +242,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <List className="w-4 h-4 text-[#F59E0B]" />
                                                         Chương
                                                     </span>
-                                                    <span className="text-base font-bold text-white font-mono">{totalChapters}</span>
+                                                    <span className="text-base font-bold text-white font-sans">{totalChapters}</span>
                                                 </div>
                                                 {/* Last Updated */}
                                                 <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
@@ -250,7 +250,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <Calendar className="w-4 h-4 text-blue-400" />
                                                         Cập nhật
                                                     </span>
-                                                    <span className="text-base font-bold text-white font-mono">{lastUpdated}</span>
+                                                    <span className="text-base font-bold text-white font-sans">{lastUpdated}</span>
                                                 </div>
                                                 {/* Word Count */}
                                                 <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
@@ -258,7 +258,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                         <Book className="w-4 h-4 text-pink-400" />
                                                         Số chữ
                                                     </span>
-                                                    <span className="text-base font-bold text-white font-mono">{wordCount} chữ</span>
+                                                    <span className="text-base font-bold text-white font-sans">{wordCount} chữ</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -396,8 +396,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                 </div>
                             </div >
 
-                            {/* Comments Section - Shows below sidebar on mobile */}
-                            < div className="lg:col-span-3 order-3" >
+                            {/* Comments Section - Full width on desktop */}
+                            < div className="lg:col-span-4 order-3" >
                                 <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-white/10">
                                     <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-l-4 border-[#F59E0B]">
                                         <div className="p-6 md:p-8">
