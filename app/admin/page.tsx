@@ -7,14 +7,14 @@ export default async function AdminDashboardPage() {
     if ("error" in stats) {
         return (
             <div className="flex h-[50vh] items-center justify-center text-red-500">
-                Failed to load stats
+                Không thể tải thống kê
             </div>
         );
     }
 
     const cards = [
         {
-            title: "Total Users",
+            title: "Tổng người dùng",
             value: stats.totalUsers,
             icon: Users,
             color: "text-blue-400",
@@ -22,7 +22,7 @@ export default async function AdminDashboardPage() {
             border: "border-blue-400/20",
         },
         {
-            title: "Total Comments",
+            title: "Tổng bình luận",
             value: stats.totalComments,
             icon: MessageSquare,
             color: "text-green-400",
@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
             border: "border-green-400/20",
         },
         {
-            title: "Total Novels",
+            title: "Tổng truyện",
             value: stats.totalNovels,
             icon: BookOpen,
             color: "text-amber-400",
@@ -42,8 +42,8 @@ export default async function AdminDashboardPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="font-sans text-3xl font-bold text-white">Dashboard Overview</h1>
-                <p className="text-gray-400">Welcome back, Administrator.</p>
+                <h1 className="font-sans text-3xl font-bold text-white">Tổng quan</h1>
+                <p className="text-gray-400">Chào mừng trở lại, Quản trị viên.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
@@ -71,13 +71,13 @@ export default async function AdminDashboardPage() {
                 ))}
             </div>
 
-            {/* Placeholder for charts or recent activity */}
+            {/* Trạng thái hệ thống */}
             <div className="rounded-xl border border-white/5 bg-white/2 p-6">
                 <div className="flex items-center gap-2 mb-4">
                     <TrendingUp className="h-5 w-5 text-amber-500" />
-                    <h2 className="font-sans text-xl font-bold text-white">System Status</h2>
+                    <h2 className="font-sans text-xl font-bold text-white">Trạng thái hệ thống</h2>
                 </div>
-                <p className="text-gray-400">System is running smoothly. No anomalies detected.</p>
+                <p className="text-gray-400">Hệ thống hoạt động bình thường. Không phát hiện bất thường.</p>
             </div>
         </div>
     );

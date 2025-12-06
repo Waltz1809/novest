@@ -80,24 +80,9 @@ export async function getUsers({
     }
 }
 
-/**
- * Delete a user
- */
-export async function deleteUser(userId: string) {
-    await checkAdmin();
-
-    try {
-        await db.user.delete({
-            where: { id: userId },
-        });
-
-        revalidatePath("/admin/users");
-        return { success: "User deleted successfully" };
-    } catch (error) {
-        console.error("Delete user error:", error);
-        return { error: "Failed to delete user" };
-    }
-}
+// Valid roles for the system (TRANSLATOR removed)
+const VALID_ROLES = ['ADMIN', 'MODERATOR', 'READER'] as const;
+type ValidRole = typeof VALID_ROLES[number];
 
 /**
  * Get paginated comments with search
@@ -195,9 +180,15 @@ export async function deleteComment(commentId: number) {
 
 /**
  * Update user role
+ * Note: User needs to re-login to see the new role (JWT caching)
  */
 export async function updateUserRole(userId: string, role: string) {
     await checkAdmin();
+
+    // Validate role
+    if (!VALID_ROLES.includes(role as ValidRole)) {
+        return { error: "Vai trò không hợp lệ" };
+    }
 
     try {
         await db.user.update({
@@ -206,15 +197,15 @@ export async function updateUserRole(userId: string, role: string) {
         });
 
         revalidatePath("/admin/users");
-        return { success: "User role updated successfully" };
+        return { success: "Đã cập nhật vai trò. Người dùng cần đăng nhập lại để thấy thay đổi." };
     } catch (error) {
         console.error("Update role error:", error);
-        return { error: "Failed to update user role" };
+        return { error: "Lỗi khi cập nhật vai trò" };
     }
 }
 
 /**
- * Ban user
+ * Ban user (soft ban - user can't login but account remains)
  */
 export async function banUser(userId: string, reason: string) {
     await checkAdmin();
@@ -224,15 +215,38 @@ export async function banUser(userId: string, reason: string) {
             where: { id: userId },
             data: {
                 isBanned: true,
-                banReason: reason,
+                banReason: reason || "Vi phạm quy định",
             },
         });
 
         revalidatePath("/admin/users");
-        return { success: "User banned successfully" };
+        return { success: "Đã cấm người dùng" };
     } catch (error) {
         console.error("Ban user error:", error);
-        return { error: "Failed to ban user" };
+        return { error: "Lỗi khi cấm người dùng" };
+    }
+}
+
+/**
+ * Unban user
+ */
+export async function unbanUser(userId: string) {
+    await checkAdmin();
+
+    try {
+        await db.user.update({
+            where: { id: userId },
+            data: {
+                isBanned: false,
+                banReason: null,
+            },
+        });
+
+        revalidatePath("/admin/users");
+        return { success: "Đã bỏ cấm người dùng" };
+    } catch (error) {
+        console.error("Unban user error:", error);
+        return { error: "Lỗi khi bỏ cấm người dùng" };
     }
 }
 

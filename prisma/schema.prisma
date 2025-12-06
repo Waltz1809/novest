@@ -45,7 +45,7 @@ model User {
   image         String?
   password      String? // For credentials-based login
   nickname      String? // Display name, fallback to name if not set
-  role          String    @default("READER") // ADMIN, TRANSLATOR, READER
+  role          String    @default("READER") // ADMIN, MODERATOR, READER
 
   accounts Account[]
   sessions Session[]
@@ -79,16 +79,32 @@ model User {
 }
 
 model Ticket {
-  id          String   @id @default(cuid())
-  userId      String
+  id     String @id @default(cuid())
+  userId String
+
+  // Main branch: REPORT, BUG, SUPPORT, FIX_CHAPTER, STATUS_CHANGE
+  mainType String  @default("BUG")
+  // Sub branch (for REPORT): NOVEL_QUALITY, SPAM_COMMENT, TOS_VIOLATION
+  // Sub branch (for STATUS_CHANGE): REQUEST_COMPLETE, REQUEST_HIATUS, etc.
+  subType  String?
+
   title       String
   description String
-  type        String   @default("BUG") // BUG, CHEAT, OTHER
-  status      String   @default("OPEN") // OPEN, RESOLVED, CLOSED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // For FIX_CHAPTER / STATUS_CHANGE tickets - optional references
+  chapterId Int?
+  novelId   Int?
+
+  status String @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  novel   Novel?   @relation(fields: [novelId], references: [id], onDelete: SetNull)
+
+  @@index([mainType, status])
 }
 
 model Badge {
@@ -167,19 +183,33 @@ model Novel {
   title       String
   slug        String  @unique
   author      String
+  artist      String? // Họa sĩ (optional)
   description String?
-  status      String  @default("ONGOING")
+  status      String  @default("ONGOING") // ONGOING, COMPLETED, HIATUS, DROPPED
   coverImage  String?
   viewCount   Int     @default(0)
 
   // Search & SEO
   alternativeTitles String? // Tên khác
+  originalName      String? // Tên gốc (private - chỉ admin/mod/uploader thấy)
   searchIndex       String? // Index tìm kiếm (slug hóa của title + author + alt)
+
+  // Novel classification
+  nation      String @default("CN") // CN, JP, KR
+  novelFormat String @default("WN") // WN (Web Novel), LN (Light Novel)
+
+  // Approval workflow
+  approvalStatus  String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+
+  // Discount for completed novels (uploader can set 10-100%)
+  discountPercent Int @default(0)
 
   volumes        Volume[]
   genres         Genre[]
   library        Library[]
   readingHistory ReadingHistory[]
+  tickets        Ticket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -188,6 +218,9 @@ model Novel {
   uploader   User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
   comments   Comment[]
   ratings    Rating[]
+
+  @@index([approvalStatus])
+  @@index([nation, novelFormat])
 }
 
 model Genre {
@@ -220,12 +253,20 @@ model Chapter {
   volumeId Int
   volume   Volume @relation(fields: [volumeId], references: [id])
 
+  // Draft/Publish system
+  isDraft   Boolean   @default(true) // New chapters start as drafts
+  publishAt DateTime? // Scheduled publish time (null = not scheduled)
+
   purchases        UserPurchase[]
   readingHistories ReadingHistory[]
   comments         Comment[]
+  tickets          Ticket[]
+  versions         ChapterVersion[] // Version history for reverting
 
   createdAt DateTime @default(now())
   wordCount Int      @default(0)
+
+  @@index([isDraft, publishAt])
 }
 
 model UserPurchase {
@@ -313,4 +354,23 @@ model Rating {
   novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
   @@id([userId, novelId])
+}
+
+// ================= 5. CHAPTER VERSIONING (EXPERIMENTAL) =================
+// This stores chapter history for 1 week to enable reverting.
+// To remove: Delete this model and related code in actions/chapter.ts
+model ChapterVersion {
+  id        Int     @id @default(autoincrement())
+  chapterId Int
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  title     String
+  content   String
+  wordCount Int
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime // Auto-cleanup after 1 week
+
+  @@index([chapterId])
+  @@index([expiresAt])
 }

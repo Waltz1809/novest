@@ -47,6 +47,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     return null;
                 }
 
+                // Check if user is banned
+                if (user.isBanned) {
+                    return null; // Block banned users from logging in
+                }
+
                 // Verify password
                 const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -69,6 +74,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
     ],
     callbacks: {
+        // Block banned users from signing in via OAuth
+        async signIn({ user }) {
+            if (!user.id) return true; // New user, allow
+
+            const dbUser = await db.user.findUnique({
+                where: { id: user.id },
+                select: { isBanned: true }
+            });
+
+            if (dbUser?.isBanned) {
+                return false; // Block banned users
+            }
+
+            return true;
+        },
         async jwt({ token, user, trigger, session }) {
             // Persist user data in JWT token
             if (user) {

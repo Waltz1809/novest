@@ -144,6 +144,21 @@ async function main() {
         },
     });
 
+    // Create MODERATOR user
+    const moderator = await db.user.upsert({
+        where: { email: "mod@novest.com" },
+        update: { username: "moderator", nickname: "Điều Hành Viên" },
+        create: {
+            email: "mod@novest.com",
+            name: "Moderator User",
+            nickname: "Điều Hành Viên",
+            username: "moderator",
+            role: "MODERATOR",
+            password: await bcrypt.hash("Mod123!", 10),
+            emailVerified: new Date(),
+        },
+    });
+
     const readerData = [
         { email: "reader1@test.com", name: "Nguyễn Văn A", nickname: "Tiểu Thư Họ Nguyễn", username: "nguyen_van_a" },
         { email: "reader2@test.com", name: "Trần Thị B", nickname: "Đạo Hữu Họ Trần", username: "tran_thi_b" },
@@ -166,7 +181,7 @@ async function main() {
         });
         readers.push(reader);
     }
-    console.log(`✅ Created admin + ${readers.length} readers\n`);
+    console.log(`✅ Created admin + moderator + ${readers.length} readers\n`);
 
     // ============ 4. CREATE 50 NOVELS ============
     console.log("📖 Creating 50 novels...");
@@ -185,6 +200,10 @@ async function main() {
         // Generate realistic viewCount (1,000 to 1,000,000)
         const viewCount = randomInt(1000, 1000000);
 
+        // Random nation and format
+        const nation = randomChoice(["CN", "JP", "KR"]);
+        const novelFormat = randomChoice(["WN", "LN"]);
+
         // ============ TRANSACTION-WRAPPED TWO-STEP CREATION ============
         // Step 1: Create Novel + Step 2: Update with ID-based slug (Atomic)
         const novel = await db.$transaction(async (tx) => {
@@ -199,6 +218,9 @@ async function main() {
                     searchIndex,
                     viewCount,
                     uploaderId: uploader.id,
+                    nation,
+                    novelFormat,
+                    approvalStatus: "APPROVED", // Seeded novels are approved by default
                     genres: {
                         connect: novelGenres.map(g => ({ id: g.id })),
                     },
@@ -248,6 +270,7 @@ async function main() {
                         isLocked,
                         price,
                         volumeId: volume.id,
+                        isDraft: false, // Seeded chapters are published
                     },
                 });
 
@@ -323,9 +346,9 @@ async function main() {
     console.log("\n🎉 Seeding completed successfully!");
     console.log("\n📊 Summary:");
     console.log(`   - Genres: ${genres.length}`);
-    console.log(`   - Users: ${allUsers.length} (1 admin + 5 readers)`);
-    console.log(`   - Novels: 50 (with viewCount 1K-1M)`);
-    console.log(`   - Chapters: ~700 (10-20 per novel)`);
+    console.log(`   - Users: ${allUsers.length + 1} (1 admin + 1 moderator + 5 readers)`);
+    console.log(`   - Novels: 50 (with viewCount 1K-1M, nation CN/JP/KR, format WN/LN)`);
+    console.log(`   - Chapters: ~700 (10-20 per novel, all published)`);
     console.log(`   - Ratings: ~150-250 (now with varied scores 1-5)`);
     console.log(`   - Reading History: ~500-750 records`);
 }
