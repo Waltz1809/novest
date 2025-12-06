@@ -110,6 +110,20 @@ export default async function NovelDetailPage({ params }: PageProps) {
     // Fetch Related Novels
     const relatedNovels = await getRelatedNovels(novel.id, novel.genres.map(g => g.id));
 
+    // Fetch followers count (library entries for this novel)
+    const followersCount = await db.library.count({
+        where: { novelId: novel.id }
+    });
+
+    // Fetch average rating
+    const ratingsData = await db.rating.aggregate({
+        where: { novelId: novel.id },
+        _avg: { score: true },
+        _count: { score: true }
+    });
+    const averageRating = ratingsData._avg.score ? ratingsData._avg.score.toFixed(1) : "0";
+    const ratingCount = ratingsData._count.score;
+
     return (
         <div className="min-h-screen bg-background font-sans text-foreground">
             {/* Header */}
@@ -120,14 +134,14 @@ export default async function NovelDetailPage({ params }: PageProps) {
                 <div className="relative bg-background py-12 md:py-16">
                     <div className="container mx-auto px-4">
                         {/* Dark Card with Jade Border Glow */}
-                        <div className="relative bg-[#1E293B] backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-[#34D399]/20 glow-jade">
+                        <div className="relative bg-[#1E293B] backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-[#374151]">
                             {/* Content Container */}
-                            <div className="relative z-10 p-6 md:p-10">
-                                {/* 3-Column Grid Layout */}
-                                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-6 md:gap-8">
-                                    {/* Left Column: Cover Image */}
-                                    <div className="w-full md:w-56 shrink-0 relative group mx-auto md:mx-0">
-                                        <div className="aspect-2/3 relative rounded-lg overflow-hidden shadow-2xl ring-2 ring-[#34D399]/30 transition-all duration-300 group-hover:ring-[#34D399]/60 group-hover:scale-105 glow-jade">
+                            <div className="relative z-10 p-6 md:p-8">
+                                {/* Top Row: Cover | Info | Stats */}
+                                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_280px] gap-6 md:gap-8">
+                                    {/* Left: Cover Image */}
+                                    <div className="w-40 md:w-48 shrink-0 relative group mx-auto md:mx-0">
+                                        <div className="aspect-2/3 relative rounded-lg overflow-hidden shadow-2xl ring-2 ring-[#F59E0B]/30 transition-all duration-300 group-hover:ring-[#F59E0B]/60 group-hover:scale-105">
                                             {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
                                                 <Image
                                                     src={novel.coverImage}
@@ -135,149 +149,151 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                     fill
                                                     className="object-cover"
                                                     priority
-                                                    sizes="(max-width: 768px) 100vw, 224px"
+                                                    sizes="(max-width: 768px) 160px, 192px"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-linear-to-br from-[#F59E0B] to-[#FBBF24] flex flex-col items-center justify-center text-[#0B0C10]">
-                                                    <Book className="w-16 h-16 mb-3" />
-                                                    <span className="text-sm font-medium">No Cover</span>
+                                                    <Book className="w-12 h-12 mb-2" />
+                                                    <span className="text-xs font-medium">No Cover</span>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Middle Column: Novel Info */}
-                                    <div className="flex flex-col gap-4 text-center md:text-left">
-                                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white tracking-tight">
+                                    {/* Middle: Novel Info - Left Aligned */}
+                                    <div className="flex flex-col gap-3 text-left">
+                                        {/* Title */}
+                                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white">
                                             {novel.title}
                                         </h1>
 
-                                        {/* Metadata Row */}
-                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[#9CA3AF] text-sm">
-                                            <span className="flex items-center gap-1.5 hover:text-[#FBBF24] transition-colors cursor-pointer">
-                                                <User className="w-4 h-4" /> <strong className="text-[#9CA3AF]">Tác giả:</strong> {novel.author}
-                                            </span>
+                                        {/* Author */}
+                                        <div className="flex items-center gap-2 text-[#9CA3AF] text-sm">
+                                            <User className="w-4 h-4" />
+                                            <span>Tác giả:</span>
+                                            <span className="text-white font-medium">{novel.author}</span>
                                         </div>
 
                                         {/* Status & Genres */}
-                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                                            <span className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 ${novel.status === 'ONGOING' ? 'bg-[#10B981]/20 border-[#10B981] text-[#34D399]' :
-                                                novel.status === 'COMPLETED' ? 'bg-[#F59E0B]/20 border-[#F59E0B] text-[#FBBF24]' :
-                                                    'bg-[#9CA3AF]/20 border-[#9CA3AF] text-[#9CA3AF]'
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${novel.status === 'ONGOING'
+                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                : novel.status === 'COMPLETED'
+                                                    ? 'bg-amber-500/20 text-amber-400'
+                                                    : 'bg-gray-500/20 text-gray-400'
                                                 }`}>
                                                 {novel.status === 'ONGOING' ? 'Đang tiến hành' : novel.status === 'COMPLETED' ? 'Hoàn thành' : 'Tạm dừng'}
                                             </span>
-                                            {/* Genre Tags - Dark Style */}
-                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F59E0B]/20 border-2 border-[#F59E0B] text-[#FBBF24]">
-                                                Huyền Huyễn
-                                            </span>
-                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#34D399]/20 border-2 border-[#34D399] text-[#34D399]">
-                                                Tiên Hiệp
-                                            </span>
+                                            {novel.genres.slice(0, 3).map((genre) => (
+                                                <span key={genre.id} className="px-3 py-1 rounded-full text-xs font-medium bg-[#374151] text-[#9CA3AF]">
+                                                    {genre.name}
+                                                </span>
+                                            ))}
                                         </div>
 
-                                        {/* Description */}
-                                        <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-[#9CA3AF]" />
-
                                         {/* Actions */}
-                                        <div className="grid grid-cols-3 gap-3 pt-4 w-full md:w-auto">
+                                        <div className="flex flex-wrap gap-3 pt-2">
                                             {firstChapter ? (
                                                 <Link
                                                     href={`/truyen/${novel.slug}/${firstChapter.slug}`}
-                                                    className="flex flex-col md:flex-row items-center justify-center gap-2 px-4 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-xl hover:bg-[#FBBF24] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 glow-amber-strong group"
-                                                    title="Đọc ngay"
+                                                    className="flex items-center gap-2 px-6 py-2.5 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all"
                                                 >
-                                                    <BookOpen className="w-5 h-5 group-hover:animate-pulse" />
-                                                    <span className="hidden md:inline">Đọc ngay</span>
+                                                    <BookOpen className="w-5 h-5" />
+                                                    <span>Đọc ngay</span>
                                                 </Link>
                                             ) : (
-                                                <button disabled className="flex flex-col md:flex-row items-center justify-center gap-2 px-4 py-3 bg-[#0B0C10] text-[#9CA3AF] font-bold rounded-xl cursor-not-allowed border-2 border-[#34D399]/20 opacity-50">
+                                                <button disabled className="flex items-center gap-2 px-6 py-2.5 bg-[#374151] text-[#9CA3AF] font-bold rounded-lg cursor-not-allowed">
                                                     <BookOpen className="w-5 h-5" />
-                                                    <span className="hidden md:inline">Chưa có</span>
+                                                    <span>Chưa có chương</span>
                                                 </button>
                                             )}
 
                                             <LibraryButton
                                                 novelId={novel.id}
                                                 initialIsInLibrary={isInLibrary}
-                                                className="h-full w-full flex flex-col md:flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#1E293B] text-white border border-[#34D399]/40 hover:border-[#34D399] hover:bg-[#0B0C10] font-medium transition-all duration-200 hover:scale-105 group"
+                                                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#0B0C10] text-white border border-[#374151] hover:border-[#F59E0B] font-medium transition-all"
                                             />
 
                                             <RatingButton
                                                 novelId={novel.id}
                                                 initialRating={userRating?.score}
                                                 initialContent={userRating?.content || ""}
-                                                className="h-full w-full flex flex-col md:flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#1E293B] text-white border border-[#34D399]/40 hover:border-[#34D399] hover:bg-[#0B0C10] font-medium transition-all duration-200 hover:scale-105 group"
+                                                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#0B0C10] text-white border border-[#374151] hover:border-[#F59E0B] font-medium transition-all"
                                             />
                                         </div>
                                     </div>
 
-                                    {/* Right Column: Stats & Achievements */}
-                                    <div className="lg:w-64 space-y-4 mx-auto lg:mx-0 w-full max-w-sm lg:max-w-none">
-                                        {/* Stats Card - Dark Style */}
-                                        <div className="bg-[#0B0C10] rounded-xl p-5 border border-[#34D399]/20">
-                                            <h3 className="text-xs font-bold text-[#9CA3AF] mb-4 uppercase tracking-wide">Thống kê</h3>
-                                            <div className="space-y-3">
-                                                {/* Views */}
-                                                <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
-                                                    <span className="text-sm text-[#9CA3AF] flex items-center gap-2">
-                                                        <Eye className="w-4 h-4 text-[#34D399]" />
-                                                        Lượt xem
-                                                    </span>
-                                                    <span className="text-base font-bold text-white font-sans">354.3K</span>
+                                    {/* Right: Stats */}
+                                    <div className="lg:block">
+                                        <div className="bg-[#0B0C10] rounded-xl p-4 border border-[#374151]">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">Số từ:</span>
+                                                    <span className="font-bold text-white">{wordCount}</span>
                                                 </div>
-                                                {/* Rating */}
-                                                <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
-                                                    <span className="text-sm text-[#9CA3AF] flex items-center gap-2">
-                                                        <Star className="w-4 h-4 text-[#FBBF24]" />
-                                                        Đánh giá
-                                                    </span>
-                                                    <span className="text-base font-bold text-white font-sans flex items-center gap-1">
-                                                        {userRating?.score || "4.9"}/5
-                                                    </span>
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">Đề cử:</span>
+                                                    <span className="font-bold text-white">0</span>
                                                 </div>
-                                                {/* Chapters */}
-                                                <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
-                                                    <span className="text-sm text-[#9CA3AF] flex items-center gap-2">
-                                                        <List className="w-4 h-4 text-[#F59E0B]" />
-                                                        Chương
-                                                    </span>
-                                                    <span className="text-base font-bold text-white font-sans">{totalChapters}</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">Phiếu thưởng:</span>
+                                                    <span className="font-bold text-white">0</span>
                                                 </div>
-                                                {/* Last Updated */}
-                                                <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
-                                                    <span className="text-sm text-[#9CA3AF] flex items-center gap-2">
-                                                        <Calendar className="w-4 h-4 text-blue-400" />
-                                                        Cập nhật
-                                                    </span>
-                                                    <span className="text-base font-bold text-white font-sans">{lastUpdated}</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">View:</span>
+                                                    <span className="font-bold text-white">{novel.viewCount.toLocaleString('vi-VN')}</span>
                                                 </div>
-                                                {/* Word Count */}
-                                                <div className="bg-[#1E293B] rounded-lg px-4 py-3 flex items-center justify-between border border-[#34D399]/10">
-                                                    <span className="text-sm text-[#9CA3AF] flex items-center gap-2">
-                                                        <Book className="w-4 h-4 text-pink-400" />
-                                                        Số chữ
-                                                    </span>
-                                                    <span className="text-base font-bold text-white font-sans">{wordCount} chữ</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">Đánh giá:</span>
+                                                    <span className="font-bold text-white">{averageRating}/5</span>
+                                                </div>
+                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
+                                                    <span className="text-sm text-[#9CA3AF]">Cập nhật:</span>
+                                                    <span className="font-bold text-white">{lastUpdated}</span>
+                                                </div>
+                                                <div className="flex items-center justify-between py-2">
+                                                    <span className="text-sm text-[#9CA3AF]">Lượt theo dõi:</span>
+                                                    <span className="font-bold text-white">{followersCount.toLocaleString('vi-VN')}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        {/* Achievements Card - Dark Badges */}
-                                        <div className="bg-[#1E293B] rounded-xl p-5 border border-[#34D399]/20">
+                                {/* Bottom Row: Summary | Badges */}
+                                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6 pt-6 border-t border-[#374151]">
+                                    {/* Summary */}
+                                    <div>
+                                        <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-[#9CA3AF] text-sm leading-relaxed" />
+                                    </div>
+
+                                    {/* Badges */}
+                                    <div className="flex lg:flex-col gap-4">
+                                        <div className="bg-[#0B0C10] rounded-xl p-4 border border-[#374151] flex-1">
                                             <h3 className="text-xs font-bold text-[#9CA3AF] mb-3 uppercase tracking-wide flex items-center gap-2">
-                                                <Award className="w-4 h-4 text-[#FBBF24]" />
-                                                Thành tích
+                                                <Award className="w-4 h-4 text-amber-400" /> Thành tích
                                             </h3>
                                             <div className="flex gap-2 flex-wrap">
-                                                <div className="w-12 h-12 rounded-full bg-[#F59E0B]/20 border-2 border-[#F59E0B] flex items-center justify-center text-sm font-bold shadow-sm" title="Top 1">
-                                                    🏆
+                                                <div className="w-10 h-10 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-sm" title="Top 1">🏆</div>
+                                                <div className="w-10 h-10 rounded-full bg-orange-500/20 border-2 border-orange-500 flex items-center justify-center text-sm" title="Trending">🔥</div>
+                                                <div className="w-10 h-10 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center text-sm" title="Popular">⭐</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Mobile Stats - Only visible on smaller screens */}
+                                        <div className="lg:hidden bg-[#0B0C10] rounded-xl p-4 border border-[#374151] flex-1">
+                                            <div className="grid grid-cols-3 gap-2 text-center">
+                                                <div>
+                                                    <div className="font-bold text-white">{totalChapters}</div>
+                                                    <div className="text-xs text-[#9CA3AF]">Chương</div>
                                                 </div>
-                                                <div className="w-12 h-12 rounded-full bg-[#34D399]/20 border-2 border-[#34D399] flex items-center justify-center text-sm font-bold shadow-sm" title="Trending">
-                                                    🔥
+                                                <div>
+                                                    <div className="font-bold text-white">4.9</div>
+                                                    <div className="text-xs text-[#9CA3AF]">Đánh giá</div>
                                                 </div>
-                                                <div className="w-12 h-12 rounded-full bg-[#FBBF24]/20 border-2 border-[#FBBF24] flex items-center justify-center text-sm font-bold shadow-sm" title="Popular">
-                                                    ⭐
+                                                <div>
+                                                    <div className="font-bold text-white">{wordCount}</div>
+                                                    <div className="text-xs text-[#9CA3AF]">Chữ</div>
                                                 </div>
                                             </div>
                                         </div>

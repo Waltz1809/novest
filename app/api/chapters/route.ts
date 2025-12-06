@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { toSlug } from "@/lib/utils";
+import { toSlug, calculateWordCount } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -47,12 +47,14 @@ export async function POST(request: Request) {
         // Step 1: Create Chapter + Step 2: Update with ID-based slug (Atomic)
         const chapter = await db.$transaction(async (tx) => {
             // Create chapter with temporary slug
+            const wordCount = calculateWordCount(content);
             const tempChapter = await tx.chapter.create({
                 data: {
                     title,
                     content,
                     volumeId,
                     order: newOrder,
+                    wordCount,
                     slug: `temp-ch-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}`, // Temporary unique slug
                 },
             });

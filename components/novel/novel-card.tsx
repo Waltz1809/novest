@@ -37,10 +37,10 @@ export function NovelCard({ novel }: NovelCardProps) {
     return (
         <Link
             href={`/truyen/${novel.slug}`}
-            className="group flex h-full flex-col overflow-hidden rounded-lg bg-[#1E293B] border border-[#34D399]/20 transition-all duration-300 hover:border-[#34D399]/60 hover:scale-[1.02] glow-jade-on-hover"
+            className="group flex h-full flex-col overflow-hidden rounded-lg bg-[#1E293B] border border-[#374151] transition-all duration-300 hover:border-[#F59E0B]/60 hover:scale-[1.02]"
         >
             {/* Cover Image Area */}
-            <div className="relative aspect-[2/3] overflow-hidden bg-[#0B0C10]">
+            <div className="relative aspect-2/3 overflow-hidden bg-[#0B0C10]">
                 {novel.coverImage && (novel.coverImage.startsWith("http") || novel.coverImage.startsWith("/")) ? (
                     <Image
                         src={novel.coverImage}
@@ -79,7 +79,7 @@ export function NovelCard({ novel }: NovelCardProps) {
             </div>
 
             {/* Content Area */}
-            <div className="flex flex-grow flex-col p-4 bg-[#1E293B]">
+            <div className="flex grow flex-col p-4 bg-[#1E293B]">
                 <h3 className="mb-2 line-clamp-2 font-bold text-white transition-colors group-hover:text-[#FBBF24] leading-relaxed">
                     {novel.title}
                 </h3>
@@ -87,7 +87,7 @@ export function NovelCard({ novel }: NovelCardProps) {
                     {novel.author}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between pt-3 text-xs text-[#9CA3AF] border-t border-[#34D399]/10">
+                <div className="mt-auto flex items-center justify-between pt-3 text-xs text-[#9CA3AF] border-t border-[#374151]">
                     <span>{new Date(novel.createdAt).toLocaleDateString("vi-VN")}</span>
                 </div>
             </div>

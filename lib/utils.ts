@@ -24,3 +24,14 @@ export function generateSearchIndex(title: string, author: string, alternativeTi
     const combined = `${title} ${author} ${alternativeTitles}`;
     return toSlug(combined).replace(/-/g, " "); // Giữ lại khoảng trắng để tìm kiếm like
 }
+
+// 4. Calculate Word Count from HTML content
+export function calculateWordCount(content: string): number {
+    if (!content) return 0;
+    return content
+        .replace(/<[^>]*>/g, ' ')  // Remove HTML tags
+        .replace(/&nbsp;/g, ' ')   // Replace &nbsp;
+        .trim()
+        .split(/\s+/)
+        .filter(word => word.length > 0).length;
+}

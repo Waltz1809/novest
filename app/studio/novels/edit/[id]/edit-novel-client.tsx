@@ -114,7 +114,7 @@ export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
                     >
                         Danh sách tập & Chương
                         {activeTab === "chapters" && (
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#34D399] glow-jade"></span>
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#F59E0B] glow-amber"></span>
                         )}
                     </button>
                 </div>
