@@ -3,7 +3,7 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { User, LogOut, Book, ChevronDown, LayoutDashboard, Settings, Coins, PlusCircle } from "lucide-react";
+import { User, LogOut, Book, LayoutDashboard, Settings, Coins, PlusCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { addMockBalance } from "@/actions/wallet";
 
@@ -54,7 +54,6 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                 <span className="text-sm font-medium text-gray-200 hidden sm:inline-block">
                     {user.name}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
             {isOpen && (

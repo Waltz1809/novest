@@ -82,19 +82,19 @@ export default async function Home() {
           <HeroCarousel novels={carouselNovels} />
         </div>
 
-        {/* Continue Reading Section */}
-        {session?.user && readingHistory.length > 0 && (
-          <div className="container mx-auto px-4 mb-8">
-            <ContinueReading history={readingHistory} />
-          </div>
-        )}
-
         {/* Shelves Stack */}
         <div className="flex flex-col gap-4">
           <NovelShelf title="Thịnh Hành" novels={topViewed} link="/rankings?sort=view" />
           <NovelShelf title="Mới Cập Nhật" novels={latestNovels} link="/latest" />
           <NovelShelf title="Đánh Giá Cao" novels={topRated} link="/rankings?sort=rating" />
         </div>
+
+        {/* Continue Reading Section - At the bottom */}
+        {session?.user && readingHistory.length > 0 && (
+          <div className="container mx-auto max-w-md mt-8">
+            <ContinueReading history={readingHistory} />
+          </div>
+        )}
       </main>
     </div>
   );

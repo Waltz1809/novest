@@ -9,6 +9,9 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            screens: {
+                'xs': '400px',
+            },
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
@@ -59,6 +62,7 @@ const config: Config = {
             zIndex: {
                 60: "60",
                 70: "70",
+                100: "100",
             },
         },
     },

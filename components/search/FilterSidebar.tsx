@@ -98,10 +98,10 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">Bộ lọc</h2>
+                <h2 className="text-lg font-bold text-white">Bộ lọc</h2>
                 <button
                     onClick={clearFilters}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                    className="text-sm text-[#F59E0B] hover:text-[#FBBF24] font-medium"
                 >
                     Xóa tất cả
                 </button>
@@ -109,11 +109,11 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
             {/* Sort */}
             <div>
-                <h3 className="font-semibold text-foreground mb-3">Sắp xếp</h3>
+                <h3 className="font-semibold text-white mb-3">Sắp xếp</h3>
                 <select
                     value={selectedSort}
                     onChange={(e) => handleSortChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#1F2937] border border-[#374151] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
                 >
                     <option value="latest">Mới nhất</option>
                     <option value="updated">Cập nhật gần đây</option>
@@ -123,7 +123,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
             {/* Status */}
             <div>
-                <h3 className="font-semibold text-foreground mb-3">Trạng thái</h3>
+                <h3 className="font-semibold text-white mb-3">Trạng thái</h3>
                 <div className="space-y-2">
                     {["", "ONGOING", "COMPLETED"].map((status) => (
                         <label key={status} className="flex items-center cursor-pointer group">
@@ -132,9 +132,9 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
                                 name="status"
                                 checked={selectedStatus === status}
                                 onChange={() => handleStatusChange(status)}
-                                className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                className="w-4 h-4 text-[#F59E0B] bg-[#1F2937] border-[#374151] focus:ring-[#F59E0B] focus:ring-offset-[#0B0C10]"
                             />
-                            <span className="ml-2 text-sm text-foreground group-hover:text-indigo-600">
+                            <span className="ml-2 text-sm text-gray-300 group-hover:text-[#F59E0B]">
                                 {status === "" ? "Tất cả" : status === "ONGOING" ? "Đang ra" : "Hoàn thành"}
                             </span>
                         </label>
@@ -144,19 +144,19 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
             {/* Genres */}
             <div>
-                <h3 className="font-semibold text-foreground mb-3">
-                    Thể loại ({selectedGenres.length > 0 && `${selectedGenres.length} đã chọn`})
+                <h3 className="font-semibold text-white mb-3">
+                    Thể loại {selectedGenres.length > 0 && `(${selectedGenres.length} đã chọn)`}
                 </h3>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
                     {genres.map((genre) => (
                         <label key={genre.id} className="flex items-center cursor-pointer group">
                             <input
                                 type="checkbox"
                                 checked={selectedGenres.includes(genre.slug)}
                                 onChange={() => handleGenreToggle(genre.slug)}
-                                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                className="w-4 h-4 text-[#F59E0B] bg-[#1F2937] border-[#374151] rounded focus:ring-[#F59E0B] focus:ring-offset-[#0B0C10]"
                             />
-                            <span className="ml-2 text-sm text-foreground group-hover:text-indigo-600">
+                            <span className="ml-2 text-sm text-gray-300 group-hover:text-[#F59E0B]">
                                 {genre.name}
                             </span>
                         </label>
@@ -171,7 +171,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
             {/* Mobile Filter Button */}
             <button
                 onClick={() => setIsMobileOpen(true)}
-                className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+                className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-6 py-3 bg-[#F59E0B] text-[#0B0C10] rounded-full shadow-lg hover:bg-[#FBBF24] transition-colors font-semibold"
             >
                 <Filter className="w-5 h-5" />
                 Bộ lọc
@@ -179,7 +179,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
             {/* Desktop Sidebar */}
             <div className="hidden lg:block sticky top-6">
-                <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="bg-[#1E293B] border border-[#374151] rounded-xl p-6 shadow-lg">
                     <FilterContent />
                 </div>
             </div>
@@ -189,21 +189,23 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
                 <>
                     {/* Backdrop */}
                     <div
-                        className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
+                        className="lg:hidden fixed inset-0 bg-black/60 z-40 transition-opacity"
                         onClick={() => setIsMobileOpen(false)}
                     />
 
                     {/* Panel */}
-                    <div className="lg:hidden fixed inset-y-0 right-0 w-80 max-w-full bg-card shadow-2xl z-50 overflow-y-auto transition-transform">
-                        <div className="p-6">
-                            {/* Close Button */}
+                    <div className="lg:hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#0B0C10] shadow-2xl z-50 overflow-y-auto transition-transform">
+                        {/* Close Button - Fixed at top */}
+                        <div className="sticky top-0 flex justify-end p-3 bg-[#0B0C10] border-b border-[#1F2937]">
                             <button
                                 onClick={() => setIsMobileOpen(false)}
-                                className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                                className="p-2 text-gray-400 hover:text-white hover:bg-[#1F2937] rounded-full transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
+                        </div>
 
+                        <div className="p-6">
                             <FilterContent />
                         </div>
                     </div>
