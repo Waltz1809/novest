@@ -115,6 +115,7 @@ export default async function TicketsPage({
                                         }}
                                     >
                                         <Button
+                                            type="submit"
                                             variant="ghost"
                                             size="icon"
                                             className="h-8 w-8 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
@@ -132,6 +133,7 @@ export default async function TicketsPage({
                                         }}
                                     >
                                         <Button
+                                            type="submit"
                                             variant="ghost"
                                             size="icon"
                                             className="h-8 w-8 text-green-500 hover:bg-green-500/10 hover:text-green-400"
@@ -148,6 +150,7 @@ export default async function TicketsPage({
                                     }}
                                 >
                                     <Button
+                                        type="submit"
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-gray-500 hover:bg-gray-500/10 hover:text-gray-400"

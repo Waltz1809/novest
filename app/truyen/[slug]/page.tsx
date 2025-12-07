@@ -24,6 +24,27 @@ export default async function NovelDetailPage({ params }: PageProps) {
     const { slug } = await params;
     const session = await auth();
 
+    // First fetch novel with basic info to check permissions
+    const novelBasic = await db.novel.findUnique({
+        where: { slug },
+        select: {
+            id: true,
+            uploaderId: true,
+        },
+    });
+
+    if (!novelBasic) {
+        notFound();
+    }
+
+    // Determine if user can see drafts
+    const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
+    const isUploader = session?.user?.id === novelBasic.uploaderId;
+    const canSeeDrafts = isAdmin || isUploader;
+
+    // Build chapter filter - only show published chapters to public
+    const chapterWhere = canSeeDrafts ? {} : { isDraft: false };
+
     const novel = await db.novel.findUnique({
         where: { slug },
         include: {
@@ -41,6 +62,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                 orderBy: { order: "asc" },
                 include: {
                     chapters: {
+                        where: chapterWhere,
                         orderBy: { order: "asc" },
                         select: {
                             id: true,
@@ -49,6 +71,8 @@ export default async function NovelDetailPage({ params }: PageProps) {
                             slug: true,
                             createdAt: true,
                             wordCount: true,
+                            isDraft: true, // Include to show draft badge
+                            publishAt: true, // Include to show scheduled time
                         }
                     },
                 },
@@ -57,6 +81,17 @@ export default async function NovelDetailPage({ params }: PageProps) {
     });
 
     if (!novel) {
+        notFound();
+    }
+
+    // Approval Status Visibility Check (reusing isAdmin, isUploader from earlier)
+    // REJECTED novels: Admin/mod or uploader can see (so uploader can edit and resubmit)
+    if (novel.approvalStatus === "REJECTED" && !canSeeDrafts) {
+        notFound();
+    }
+
+    // PENDING novels: Only admin/mod and uploader can see
+    if (novel.approvalStatus === "PENDING" && !canSeeDrafts) {
         notFound();
     }
 

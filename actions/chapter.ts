@@ -20,9 +20,11 @@ const chapterSchema = z.object({
     title: z.string().min(1, "Tiêu đề không được để trống"),
     content: z.string().min(1, "Nội dung không được để trống"),
     volumeId: z.coerce.number().min(1, "Vui lòng chọn tập"),
-    order: z.coerce.number().positive("Vui lòng nhập số thứ tự hợp lệ"), // Changed to support floats (e.g., 1.5)
+    order: z.coerce.number().positive("Vui lòng nhập số thứ tự hợp lệ"),
     price: z.coerce.number().min(0).default(0),
     isLocked: z.boolean().default(false),
+    isDraft: z.boolean().default(true), // Chapters are drafts by default
+    publishAt: z.date().nullable().optional(), // Scheduled publish time
 });
 
 export async function getNovels() {
@@ -81,7 +83,7 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
         return { error: "Dữ liệu không hợp lệ" };
     }
 
-    const { title, content, volumeId, order, price, isLocked } = validatedFields.data;
+    const { title, content, volumeId, order, price, isLocked, isDraft, publishAt } = validatedFields.data;
 
     try {
         // Fetch volume to get novel slug and volume order for slug generation
@@ -127,38 +129,41 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
                 price,
                 isLocked,
                 slug,
-                wordCount, // Save word count
+                wordCount,
+                isDraft: isDraft ?? true, // Default to draft
+                publishAt: publishAt ?? null,
             },
         });
 
         revalidatePath(`/studio/novels/edit/${volume.novelId}`);
         revalidatePath(`/truyen/${volume.novel.slug}`);
 
-        // Notify users who have this novel in their library
-        const libraryEntries = await db.library.findMany({
-            where: { novelId: volume.novelId },
-            select: { userId: true }
-        });
+        // Only notify users when chapter is published (not a draft)
+        if (!isDraft) {
+            const libraryEntries = await db.library.findMany({
+                where: { novelId: volume.novelId },
+                select: { userId: true }
+            });
 
-        if (libraryEntries.length > 0) {
-            const notificationPromises = libraryEntries.map(entry =>
-                createNotification({
-                    userId: entry.userId,
-                    type: "NEW_CHAPTER",
-                    resourceId: `/truyen/${volume.novel.slug}/${slug}`, // Use full path for easier routing
-                    resourceType: "chapter",
-                    message: `Truyện bạn thích vừa cập nhật chương ${volume.novel.title} - ${title} mới toanh luôn nè`,
-                    actorId: session.user.id,
-                })
-            );
+            if (libraryEntries.length > 0) {
+                const notificationPromises = libraryEntries.map(entry =>
+                    createNotification({
+                        userId: entry.userId,
+                        type: "NEW_CHAPTER",
+                        resourceId: `/truyen/${volume.novel.slug}/${slug}`,
+                        resourceType: "chapter",
+                        message: `Truyện bạn thích vừa cập nhật chương ${volume.novel.title} - ${title} mới toanh luôn nè`,
+                        actorId: session.user.id,
+                    })
+                );
 
-            // Run in background, don't await completion to speed up response
-            Promise.all(notificationPromises).catch(err =>
-                console.error("Failed to send notifications:", err)
-            );
+                Promise.all(notificationPromises).catch(err =>
+                    console.error("Failed to send notifications:", err)
+                );
+            }
         }
 
-        return { success: "Tạo chương thành công!" };
+        return { success: isDraft ? "Đã lưu nháp chương!" : "Đã xuất bản chương thành công!" };
     } catch (error) {
         console.error("Create chapter error:", error);
         return { error: "Có lỗi xảy ra khi tạo chương" };
@@ -167,8 +172,16 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
 
 export async function updateChapter(chapterId: number, data: z.infer<typeof chapterSchema>) {
     const session = await auth();
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
-        return { error: "Unauthorized" };
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+        // Check if user is uploader
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: { volume: { include: { novel: { select: { uploaderId: true } } } } }
+        });
+
+        if (!chapter || chapter.volume.novel.uploaderId !== session?.user?.id) {
+            return { error: "Unauthorized" };
+        }
     }
 
     const validatedFields = chapterSchema.safeParse(data);
@@ -186,6 +199,24 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
         });
 
         if (!existingChapter) return { error: "Chapter not found" };
+
+        // === VERSIONING: Save current version before updating ===
+        // Only save version if content actually changed
+        if (existingChapter.content !== content) {
+            const oneWeekFromNow = new Date();
+            oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+
+            await db.chapterVersion.create({
+                data: {
+                    chapterId: existingChapter.id,
+                    title: existingChapter.title,
+                    content: existingChapter.content,
+                    wordCount: existingChapter.wordCount,
+                    expiresAt: oneWeekFromNow,
+                },
+            });
+        }
+        // === END VERSIONING ===
 
         // Only regenerate slug if volume or order changed
         let slug = existingChapter.slug;
@@ -210,7 +241,7 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
                 price,
                 isLocked,
                 slug,
-                wordCount, // Update word count
+                wordCount,
             },
         });
 
@@ -372,5 +403,334 @@ export async function reslugNovel(novelId: number) {
     } catch (error) {
         console.error("Reslug error:", error);
         return { error: "Lỗi khi cập nhật slug" };
+    }
+}
+
+/**
+ * Publish a draft chapter immediately
+ */
+export async function publishChapter(chapterId: number) {
+    const session = await auth();
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+        // Check if user is the uploader
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: { volume: { include: { novel: true } } }
+        });
+
+        if (!chapter || chapter.volume.novel.uploaderId !== session?.user?.id) {
+            return { error: "Không có quyền thực hiện" };
+        }
+    }
+
+    try {
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: { volume: { include: { novel: true } } }
+        });
+
+        if (!chapter) {
+            return { error: "Không tìm thấy chương" };
+        }
+
+        if (!chapter.isDraft) {
+            return { error: "Chương đã được xuất bản" };
+        }
+
+        // Publish the chapter
+        await db.chapter.update({
+            where: { id: chapterId },
+            data: {
+                isDraft: false,
+                publishAt: null, // Clear scheduled time
+            },
+        });
+
+        // Notify users who have this novel in their library
+        const libraryEntries = await db.library.findMany({
+            where: { novelId: chapter.volume.novelId },
+            select: { userId: true }
+        });
+
+        if (libraryEntries.length > 0) {
+            const notificationPromises = libraryEntries.map(entry =>
+                createNotification({
+                    userId: entry.userId,
+                    type: "NEW_CHAPTER",
+                    resourceId: `/truyen/${chapter.volume.novel.slug}/${chapter.slug}`,
+                    resourceType: "chapter",
+                    message: `Truyện bạn thích vừa cập nhật chương ${chapter.volume.novel.title} - ${chapter.title} mới toanh luôn nè`,
+                    actorId: session.user.id,
+                })
+            );
+
+            Promise.all(notificationPromises).catch(err =>
+                console.error("Failed to send notifications:", err)
+            );
+        }
+
+        revalidatePath(`/studio/novels/edit/${chapter.volume.novelId}`);
+        revalidatePath(`/truyen/${chapter.volume.novel.slug}`);
+        revalidatePath(`/truyen/${chapter.volume.novel.slug}/${chapter.slug}`);
+
+        return { success: "Đã xuất bản chương thành công!" };
+    } catch (error) {
+        console.error("Publish chapter error:", error);
+        return { error: "Lỗi khi xuất bản chương" };
+    }
+}
+
+/**
+ * Schedule a chapter to be published at a specific time
+ */
+export async function schedulePublish(chapterId: number, publishAt: Date) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: { volume: { include: { novel: true } } }
+        });
+
+        if (!chapter) {
+            return { error: "Không tìm thấy chương" };
+        }
+
+        // Check permission
+        const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+        const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+
+        if (!isAdmin && !isUploader) {
+            return { error: "Không có quyền thực hiện" };
+        }
+
+        if (!chapter.isDraft) {
+            return { error: "Chương đã được xuất bản, không thể đặt lịch" };
+        }
+
+        // Validate publish time is in the future
+        if (publishAt <= new Date()) {
+            return { error: "Thời gian xuất bản phải trong tương lai" };
+        }
+
+        await db.chapter.update({
+            where: { id: chapterId },
+            data: {
+                publishAt,
+            },
+        });
+
+        revalidatePath(`/studio/novels/edit/${chapter.volume.novelId}`);
+
+        const formattedDate = publishAt.toLocaleString('vi-VN', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+
+        return { success: `Đã đặt lịch xuất bản vào ${formattedDate}` };
+    } catch (error) {
+        console.error("Schedule publish error:", error);
+        return { error: "Lỗi khi đặt lịch xuất bản" };
+    }
+}
+
+/**
+ * Cancel scheduled publish
+ */
+export async function cancelScheduledPublish(chapterId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: { volume: { include: { novel: true } } }
+        });
+
+        if (!chapter) {
+            return { error: "Không tìm thấy chương" };
+        }
+
+        // Check permission
+        const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+        const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+
+        if (!isAdmin && !isUploader) {
+            return { error: "Không có quyền thực hiện" };
+        }
+
+        await db.chapter.update({
+            where: { id: chapterId },
+            data: {
+                publishAt: null,
+            },
+        });
+
+        revalidatePath(`/studio/novels/edit/${chapter.volume.novelId}`);
+
+        return { success: "Đã hủy lịch xuất bản" };
+    } catch (error) {
+        console.error("Cancel scheduled publish error:", error);
+        return { error: "Lỗi khi hủy lịch xuất bản" };
+    }
+}
+
+// Get version history for a chapter
+export async function getChapterVersions(chapterId: number) {
+    try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return { error: "Chưa đăng nhập" };
+        }
+
+        // Get chapter with novel uploader info
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: {
+                volume: {
+                    include: {
+                        novel: {
+                            select: { uploaderId: true },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!chapter) {
+            return { error: "Không tìm thấy chương" };
+        }
+
+        // Check permission
+        const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+        const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+
+        if (!isAdmin && !isUploader) {
+            return { error: "Không có quyền thực hiện" };
+        }
+
+        // Fetch versions ordered by creation date (newest first)
+        const versions = await db.chapterVersion.findMany({
+            where: {
+                chapterId: chapterId,
+                expiresAt: { gt: new Date() }, // Only non-expired versions
+            },
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                wordCount: true,
+                createdAt: true,
+                expiresAt: true,
+            },
+        });
+
+        return { versions };
+    } catch (error) {
+        console.error("Get chapter versions error:", error);
+        return { error: "Lỗi khi tải lịch sử phiên bản" };
+    }
+}
+
+// Revert chapter to a previous version
+export async function revertChapter(chapterId: number, versionId: number) {
+    try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return { error: "Chưa đăng nhập" };
+        }
+
+        // Get chapter with novel uploader info
+        const chapter = await db.chapter.findUnique({
+            where: { id: chapterId },
+            include: {
+                volume: {
+                    include: {
+                        novel: {
+                            select: { uploaderId: true },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!chapter) {
+            return { error: "Không tìm thấy chương" };
+        }
+
+        // Check permission
+        const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+        const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+
+        if (!isAdmin && !isUploader) {
+            return { error: "Không có quyền thực hiện" };
+        }
+
+        // Get the version to revert to
+        const version = await db.chapterVersion.findUnique({
+            where: { id: versionId },
+        });
+
+        if (!version || version.chapterId !== chapterId) {
+            return { error: "Không tìm thấy phiên bản" };
+        }
+
+        if (version.expiresAt && version.expiresAt < new Date()) {
+            return { error: "Phiên bản này đã hết hạn" };
+        }
+
+        // Save current version before reverting (so user can undo if needed)
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7);
+
+        await db.chapterVersion.create({
+            data: {
+                chapterId: chapter.id,
+                title: chapter.title,
+                content: chapter.content,
+                wordCount: chapter.wordCount,
+                expiresAt: expiresAt,
+            },
+        });
+
+        // Revert chapter to the selected version
+        await db.chapter.update({
+            where: { id: chapterId },
+            data: {
+                title: version.title,
+                content: version.content,
+                wordCount: version.wordCount,
+            },
+        });
+
+        revalidatePath(`/studio/novels/edit/${chapter.volume.novelId}`);
+        revalidatePath(`/truyen/${chapter.volume.novelId}/${chapter.slug}`);
+
+        return { success: "Đã khôi phục phiên bản thành công" };
+    } catch (error) {
+        console.error("Revert chapter error:", error);
+        return { error: "Lỗi khi khôi phục phiên bản" };
+    }
+}
+
+// Cleanup expired versions (to be called by a cron job)
+export async function cleanupExpiredVersions() {
+    try {
+        const result = await db.chapterVersion.deleteMany({
+            where: {
+                expiresAt: { lt: new Date() },
+            },
+        });
+
+        console.log(`Cleaned up ${result.count} expired chapter versions`);
+        return { success: `Deleted ${result.count} expired versions` };
+    } catch (error) {
+        console.error("Cleanup expired versions error:", error);
+        return { error: "Failed to cleanup expired versions" };
     }
 }

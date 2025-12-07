@@ -19,6 +19,7 @@ interface ChapterEditFormProps {
         order: number;
         price: number;
         isLocked: boolean;
+        isDraft: boolean;
     };
     volumes: {
         id: number;
@@ -34,6 +35,7 @@ interface FormData {
     order: number;
     price: number;
     isLocked: boolean;
+    isDraft: boolean;
 }
 
 export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }: ChapterEditFormProps) {
@@ -54,6 +56,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
             order: chapter.order,
             price: chapter.price,
             isLocked: chapter.isLocked,
+            isDraft: chapter.isDraft,
         },
     });
 
@@ -69,6 +72,7 @@ export default function ChapterEditForm({ novelId, novelSlug, chapter, volumes }
                     order: Number(data.order),
                     price: Number(data.price),
                     isLocked: data.isLocked,
+                    isDraft: data.isDraft,
                 });
 
                 if (result.error) {

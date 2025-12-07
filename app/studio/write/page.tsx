@@ -124,6 +124,7 @@ export default function WriteChapterPage() {
                     price,
                     isLocked,
                     order: parseInt(chapterNumber),
+                    isDraft: false, // Publish directly from this page
                 });
                 alert("Đăng chương thành công!");
                 // Reset form

@@ -90,14 +90,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return true;
         },
         async jwt({ token, user, trigger, session }) {
-            // Persist user data in JWT token
+            // On initial sign in, user object is present
             if (user) {
                 token.id = user.id;
-                token.role = user.role;
-                token.nickname = user.nickname;
-                token.username = user.username;
                 token.picture = user.image;
-                token.emailVerified = user.emailVerified;
+
+                // ALWAYS fetch the latest role from database on login
+                // This ensures role changes take effect immediately on re-login
+                const dbUser = await db.user.findUnique({
+                    where: { id: user.id },
+                    select: { role: true, nickname: true, username: true, emailVerified: true }
+                });
+
+                if (dbUser) {
+                    token.role = dbUser.role;
+                    token.nickname = dbUser.nickname;
+                    token.username = dbUser.username;
+                    token.emailVerified = dbUser.emailVerified;
+                } else {
+                    // Fallback for new users (shouldn't happen normally)
+                    token.role = user.role || "READER";
+                    token.nickname = user.nickname;
+                    token.username = user.username;
+                    token.emailVerified = user.emailVerified;
+                }
             }
 
             if (trigger === "update" && session) {

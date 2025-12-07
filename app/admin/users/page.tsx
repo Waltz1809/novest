@@ -1,20 +1,8 @@
-import { getUsers, banUser, unbanUser, updateUserRole } from "@/actions/admin";
+import { getUsers } from "@/actions/admin";
 import { DataTable } from "@/components/admin/data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, Shield, Ban, UserCheck } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    DropdownMenuSub,
-    DropdownMenuSubTrigger,
-    DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu";
+import { UserActionsDropdown } from "@/components/admin/user-actions-dropdown";
 
 // Role display names in Vietnamese
 const ROLE_LABELS: Record<string, string> = {
@@ -99,67 +87,7 @@ export default async function UsersPage({
                             {new Date(user.createdAt).toLocaleDateString("vi-VN")}
                         </td>
                         <td className="px-6 py-4 text-right">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white" suppressHydrationWarning>
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-[#1E293B] border-white/10 text-gray-200">
-                                    <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-white/10" />
-
-                                    <DropdownMenuSub>
-                                        <DropdownMenuSubTrigger className="hover:bg-white/5 focus:bg-white/5 cursor-pointer">
-                                            <Shield className="mr-2 h-4 w-4" />
-                                            <span>Đổi vai trò</span>
-                                        </DropdownMenuSubTrigger>
-                                        <DropdownMenuSubContent className="bg-[#1E293B] border-white/10 text-gray-200">
-                                            {(["READER", "MODERATOR", "ADMIN"] as const).map((role) => (
-                                                <form
-                                                    key={role}
-                                                    action={async () => {
-                                                        "use server";
-                                                        await updateUserRole(user.id, role);
-                                                    }}
-                                                >
-                                                    <DropdownMenuItem asChild>
-                                                        <button className="w-full cursor-pointer hover:bg-white/5 focus:bg-white/5 flex items-center px-2 py-1.5 text-sm outline-none">
-                                                            {ROLE_LABELS[role]}
-                                                        </button>
-                                                    </DropdownMenuItem>
-                                                </form>
-                                            ))}
-                                        </DropdownMenuSubContent>
-                                    </DropdownMenuSub>
-
-                                    {user.isBanned ? (
-                                        <form action={async () => {
-                                            "use server";
-                                            await unbanUser(user.id);
-                                        }}>
-                                            <DropdownMenuItem asChild>
-                                                <button className="w-full flex items-center text-green-500 hover:bg-green-500/10 focus:bg-green-500/10 cursor-pointer px-2 py-1.5 text-sm outline-none">
-                                                    <UserCheck className="mr-2 h-4 w-4" />
-                                                    <span>Bỏ cấm</span>
-                                                </button>
-                                            </DropdownMenuItem>
-                                        </form>
-                                    ) : (
-                                        <form action={async () => {
-                                            "use server";
-                                            await banUser(user.id, "Vi phạm quy định");
-                                        }}>
-                                            <DropdownMenuItem asChild>
-                                                <button className="w-full flex items-center text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 cursor-pointer px-2 py-1.5 text-sm outline-none">
-                                                    <Ban className="mr-2 h-4 w-4" />
-                                                    <span>Cấm người dùng</span>
-                                                </button>
-                                            </DropdownMenuItem>
-                                        </form>
-                                    )}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <UserActionsDropdown user={user} />
                         </td>
                     </tr>
                 ))}

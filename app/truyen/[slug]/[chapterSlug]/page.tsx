@@ -52,6 +52,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
             id: true,
             title: true,
             slug: true,
+            uploaderId: true, // For draft permission check
             volumes: {
                 orderBy: { order: "asc" },
                 select: {
@@ -63,6 +64,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
                             title: true,
                             order: true,
                             slug: true,
+                            isDraft: true, // For draft filtering
                         },
                     },
                 },
@@ -74,16 +76,30 @@ export default async function ChapterReadingPage({ params }: PageProps) {
         notFound();
     }
 
+    // Draft Protection - only uploader and admins can view draft chapters
+    const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
+    const isUploader = session?.user?.id === novel.uploaderId;
+    const canSeeDrafts = isAdmin || isUploader;
+
+    if (chapter.isDraft && !canSeeDrafts) {
+        notFound(); // Draft chapters are not publicly accessible
+    }
+
     // Update reading history (moved to client component)
     // if (session?.user) {
     //     updateReadingHistory(novel.id, chapter.id);
     // }
 
-    // Increment view count (fire and forget)
-    incrementView(novel.id).catch(() => { });
+    // Increment view count only for published chapters
+    if (!chapter.isDraft) {
+        incrementView(novel.id).catch(() => { });
+    }
 
     // Flatten chapters to a simple list for easy prev/next finding
-    const allChapters = novel.volumes.flatMap((vol) => vol.chapters);
+    // Filter out drafts for non-admin/non-uploader
+    const allChapters = novel.volumes
+        .flatMap((vol) => vol.chapters)
+        .filter((c) => canSeeDrafts || !c.isDraft);
     const currentIndex = allChapters.findIndex((c) => c.id === chapterId);
 
     const prevChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;

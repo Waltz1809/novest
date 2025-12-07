@@ -26,6 +26,8 @@ interface NovelFormProps {
         coverImage: string | null;
         alternativeTitles: string | null;
         genres: { id: number; name: string }[];
+        nation?: string | null;
+        novelFormat?: string | null;
     } | null;
     genres: Genre[];
 }
@@ -39,6 +41,8 @@ interface FormData {
     coverImage: string;
     alternativeTitles: string;
     genreIds: number[];
+    nation: string;
+    novelFormat: string;
 }
 
 export default function NovelForm({ initialData, genres }: NovelFormProps) {
@@ -61,6 +65,8 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
             coverImage: initialData?.coverImage || "",
             alternativeTitles: initialData?.alternativeTitles || "",
             genreIds: initialData?.genres.map((g) => g.id) || [],
+            nation: initialData?.nation || "CN",
+            novelFormat: initialData?.novelFormat || "WN",
         },
     });
 
@@ -175,6 +181,35 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                                     <option value="ONGOING">Đang ra (ONGOING)</option>
                                     <option value="COMPLETED">Hoàn thành (COMPLETED)</option>
                                     <option value="PAUSED">Tạm dừng (PAUSED)</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                    Quốc gia
+                                </label>
+                                <select
+                                    {...register("nation")}
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                >
+                                    <option value="CN">🇨🇳 Trung Quốc</option>
+                                    <option value="KR">🇰🇷 Hàn Quốc</option>
+                                    <option value="JP">🇯🇵 Nhật Bản</option>
+                                    <option value="VN">🇻🇳 Việt Nam</option>
+                                    <option value="OTHER">🌍 Khác</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                    Loại truyện
+                                </label>
+                                <select
+                                    {...register("novelFormat")}
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                >
+                                    <option value="WN">Web Novel (WN)</option>
+                                    <option value="LN">Light Novel (LN)</option>
                                 </select>
                             </div>
 

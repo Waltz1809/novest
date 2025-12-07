@@ -15,15 +15,18 @@ export async function createNovel(data: {
     coverImage: string;
     alternativeTitles?: string;
     genreIds?: number[];
+    nation?: string;
+    novelFormat?: string;
 }) {
     const session = await auth();
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
+    // Any logged-in user can submit a novel (will be pending approval)
+    if (!session?.user) {
         throw new Error("Unauthorized");
     }
 
     const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
-    await db.novel.create({
+    const novel = await db.novel.create({
         data: {
             title: data.title,
             slug: data.slug,
@@ -34,6 +37,9 @@ export async function createNovel(data: {
             alternativeTitles: data.alternativeTitles,
             searchIndex,
             uploaderId: session.user.id,
+            approvalStatus: "PENDING", // New novels require approval
+            nation: data.nation || "CN",
+            novelFormat: data.novelFormat || "WN",
             genres: {
                 connect: data.genreIds?.map((id) => ({ id: Number(id) })),
             },
@@ -42,6 +48,8 @@ export async function createNovel(data: {
 
     revalidatePath("/studio/novels");
     revalidatePath("/");
+
+    return { success: true, novelId: novel.id };
 }
 
 export async function updateNovel(id: number, data: {
@@ -53,24 +61,37 @@ export async function updateNovel(id: number, data: {
     coverImage: string;
     alternativeTitles?: string;
     genreIds?: number[];
+    nation?: string;
+    novelFormat?: string;
 }) {
     const session = await auth();
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
+    if (!session?.user) {
+        throw new Error("Unauthorized");
+    }
+
+    // Check if user is admin/mod or the uploader
+    const novel = await db.novel.findUnique({
+        where: { id: Number(id) },
+        select: { uploaderId: true, coverImage: true }
+    });
+
+    if (!novel) {
+        throw new Error("Novel not found");
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    const isUploader = novel.uploaderId === session.user.id;
+
+    if (!isAdmin && !isUploader) {
         throw new Error("Unauthorized");
     }
 
     const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
-    // Get current novel data to check for old cover image
-    const currentNovel = await db.novel.findUnique({
-        where: { id: Number(id) },
-        select: { coverImage: true }
-    });
-
     // Delete old cover image from R2 if it exists and is different
-    if (currentNovel?.coverImage && currentNovel.coverImage !== data.coverImage) {
+    if (novel.coverImage && novel.coverImage !== data.coverImage) {
         const { deleteFromR2 } = await import("./upload");
-        await deleteFromR2(currentNovel.coverImage);
+        await deleteFromR2(novel.coverImage);
     }
 
     await db.novel.update({
@@ -84,6 +105,8 @@ export async function updateNovel(id: number, data: {
             coverImage: data.coverImage,
             alternativeTitles: data.alternativeTitles,
             searchIndex,
+            nation: data.nation,
+            novelFormat: data.novelFormat,
             genres: {
                 set: [], // Clear old genres
                 connect: data.genreIds?.map((id) => ({ id: Number(id) })),
@@ -156,6 +179,7 @@ export async function getRelatedNovels(novelId: number, genreIds: number[], limi
         where: {
             id: { not: novelId },
             status: { not: "HIDDEN" },
+            approvalStatus: "APPROVED", // Only show approved novels
             genres: {
                 some: {
                     id: { in: genreIds }
@@ -199,7 +223,8 @@ export async function getRelatedNovels(novelId: number, genreIds: number[], limi
         const additional = await db.novel.findMany({
             where: {
                 id: { notIn: existingIds },
-                status: { not: "HIDDEN" }
+                status: { not: "HIDDEN" },
+                approvalStatus: "APPROVED", // Only show approved novels
             },
             orderBy: { viewCount: "desc" },
             take: limit - related.length,
@@ -236,4 +261,171 @@ export async function getRelatedNovels(novelId: number, genreIds: number[], limi
         author: n.author,
         genres: n.genres
     }));
+}
+
+/**
+ * Approve a novel submission (Admin/Moderator only)
+ */
+export async function approveNovel(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    if (!isAdmin) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                uploaderId: true,
+                approvalStatus: true
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        if (novel.approvalStatus === "APPROVED") {
+            return { error: "Truyện đã được duyệt" };
+        }
+
+        await db.novel.update({
+            where: { id: novelId },
+            data: {
+                approvalStatus: "APPROVED",
+                rejectionReason: null,
+            },
+        });
+
+        // Send notification to uploader
+        if (novel.uploaderId) {
+            const { createNotification } = await import("./notification");
+            await createNotification({
+                userId: novel.uploaderId,
+                actorId: session.user.id,
+                type: "NOVEL_APPROVED",
+                resourceId: String(novel.id),
+                resourceType: "NOVEL",
+                message: `Truyện "${novel.title}" của bạn đã được duyệt và công khai!`,
+            });
+        }
+
+        revalidatePath("/admin/novels");
+        revalidatePath(`/truyen/${novelId}`);
+        revalidatePath("/");
+
+        return { success: "Truyện đã được duyệt thành công" };
+    } catch (error) {
+        console.error("Approve novel error:", error);
+        return { error: "Lỗi khi duyệt truyện" };
+    }
+}
+
+/**
+ * Reject a novel submission (Admin/Moderator only)
+ */
+export async function rejectNovel(novelId: number, reason: string) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    if (!isAdmin) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    if (!reason || reason.trim().length < 10) {
+        return { error: "Lý do từ chối phải có ít nhất 10 ký tự" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                uploaderId: true,
+                approvalStatus: true
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        await db.novel.update({
+            where: { id: novelId },
+            data: {
+                approvalStatus: "REJECTED",
+                rejectionReason: reason.trim(),
+            },
+        });
+
+        // Send notification to uploader
+        if (novel.uploaderId) {
+            const { createNotification } = await import("./notification");
+            await createNotification({
+                userId: novel.uploaderId,
+                actorId: session.user.id,
+                type: "NOVEL_REJECTED",
+                resourceId: String(novel.id),
+                resourceType: "NOVEL",
+                message: `Truyện "${novel.title}" đã bị từ chối. Lý do: ${reason.trim()}`,
+            });
+        }
+
+        revalidatePath("/admin/novels");
+        revalidatePath(`/truyen/${novelId}`);
+
+        return { success: "Đã từ chối truyện" };
+    } catch (error) {
+        console.error("Reject novel error:", error);
+        return { error: "Lỗi khi từ chối truyện" };
+    }
+}
+
+/**
+ * Get pending novels for admin review
+ */
+export async function getPendingNovels() {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    if (!isAdmin) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const novels = await db.novel.findMany({
+            where: { approvalStatus: "PENDING" },
+            include: {
+                uploader: {
+                    select: { id: true, name: true, username: true, image: true }
+                },
+                genres: {
+                    select: { id: true, name: true }
+                },
+                _count: {
+                    select: { volumes: true }
+                }
+            },
+            orderBy: { createdAt: "asc" }, // Oldest first
+        });
+
+        return { novels };
+    } catch (error) {
+        console.error("Get pending novels error:", error);
+        return { error: "Lỗi khi tải danh sách truyện chờ duyệt" };
+    }
 }

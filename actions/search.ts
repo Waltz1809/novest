@@ -10,6 +10,7 @@ export async function searchNovels(query: string) {
 
     const novels = await db.novel.findMany({
         where: {
+            approvalStatus: "APPROVED", // Only show approved novels
             searchIndex: {
                 contains: normalizedQuery,
             },
@@ -54,8 +55,10 @@ export async function getAdvancedSearchResults({
     const pageSize = 24;
     const skip = (page - 1) * pageSize;
 
-    // Build where clause
-    const where: any = {};
+    // Build where clause - always filter by approved status
+    const where: any = {
+        approvalStatus: "APPROVED", // Only show approved novels
+    };
 
     // Text search
     if (query) {

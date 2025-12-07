@@ -80,8 +80,8 @@ export async function getUsers({
     }
 }
 
-// Valid roles for the system (TRANSLATOR removed)
-const VALID_ROLES = ['ADMIN', 'MODERATOR', 'READER'] as const;
+// Roles assignable via dashboard (ADMIN can only be assigned via database directly)
+const VALID_ROLES = ['MODERATOR', 'READER'] as const;
 type ValidRole = typeof VALID_ROLES[number];
 
 /**
@@ -312,21 +312,26 @@ export async function getNovels({
 }
 
 /**
- * Delete a novel
+ * Soft delete a novel (hide instead of deleting to avoid FK issues)
  */
 export async function deleteNovel(novelId: number) {
     await checkAdmin();
 
     try {
-        await db.novel.delete({
+        // Soft delete: set approval status to prevent visibility
+        await db.novel.update({
             where: { id: novelId },
+            data: {
+                approvalStatus: "REJECTED",
+                rejectionReason: "Đã bị xóa bởi quản trị viên"
+            },
         });
 
         revalidatePath("/admin/novels");
-        return { success: "Novel deleted successfully" };
+        return { success: "Đã ẩn truyện thành công" };
     } catch (error) {
         console.error("Delete novel error:", error);
-        return { error: "Failed to delete novel" };
+        return { error: "Lỗi khi ẩn truyện" };
     }
 }
 

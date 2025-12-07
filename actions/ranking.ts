@@ -27,6 +27,9 @@ export interface NovelWithRating {
  */
 export async function getTopViewed(limit: number = 10): Promise<NovelWithViewCount[]> {
     const novels = await db.novel.findMany({
+        where: {
+            approvalStatus: "APPROVED", // Only show approved novels
+        },
         select: {
             id: true,
             title: true,
@@ -49,8 +52,11 @@ export async function getTopViewed(limit: number = 10): Promise<NovelWithViewCou
  * @param limit Number of novels to return (default: 10)
  */
 export async function getTopRated(limit: number = 10): Promise<NovelWithRating[]> {
-    // Get all novels with their ratings
+    // Get all approved novels with their ratings
     const novelsWithRatings = await db.novel.findMany({
+        where: {
+            approvalStatus: "APPROVED", // Only show approved novels
+        },
         select: {
             id: true,
             title: true,

@@ -77,9 +77,26 @@ export async function PATCH(
         // Check authorization
         if (
             session.user.role !== "ADMIN" &&
+            session.user.role !== "MODERATOR" &&
             chapter.volume.novel.uploaderId !== session.user.id
         ) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+        }
+
+        // Create version if content has changed
+        if (content && content !== chapter.content) {
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 7);
+
+            await db.chapterVersion.create({
+                data: {
+                    chapterId: chapter.id,
+                    title: chapter.title,
+                    content: chapter.content,
+                    wordCount: chapter.wordCount,
+                    expiresAt: expiresAt,
+                },
+            });
         }
 
         const wordCount = calculateWordCount(content);

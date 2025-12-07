@@ -16,14 +16,12 @@ export default function UnlockButton({ chapterId, price }: UnlockButtonProps) {
     const handleUnlock = () => {
         setError(null);
         startTransition(async () => {
-            try {
-                await unlockChapter(chapterId, price);
-            } catch (e) {
-                if (e instanceof Error) {
-                    setError(e.message);
-                } else {
-                    setError("Có lỗi xảy ra");
-                }
+            const result = await unlockChapter(chapterId);
+            if (result.error) {
+                setError(result.error);
+            } else {
+                // Refresh the page to show the unlocked content
+                window.location.reload();
             }
         });
     };

@@ -149,6 +149,7 @@ export default async function NovelsPage({
                                     }}
                                 >
                                     <Button
+                                        type="submit"
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-gray-500 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100"
