@@ -9,13 +9,14 @@ export default async function PendingNovelsPage() {
     const session = await auth();
     if (!session?.user) return redirect("/");
 
-    // For admins/mods: show ALL pending novels
-    // For regular users: show only their own pending novels
+    // Show PENDING and REJECTED novels
+    // For admins/mods: show ALL pending/rejected novels
+    // For regular users: show only their own pending/rejected novels
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
 
     const where = isAdmin
-        ? { approvalStatus: "PENDING" }
-        : { uploaderId: session.user.id, approvalStatus: "PENDING" };
+        ? { approvalStatus: { in: ["PENDING", "REJECTED"] } }
+        : { uploaderId: session.user.id, approvalStatus: { in: ["PENDING", "REJECTED"] } };
 
     const novelsData = await db.novel.findMany({
         where,
@@ -46,5 +47,5 @@ export default async function PendingNovelsPage() {
         approvalStatus: novel.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
     }));
 
-    return <NovelsPageClient novels={novels} pageTitle="Truyện chờ duyệt" />;
+    return <NovelsPageClient novels={novels} pageTitle="Truyện chờ duyệt / bị từ chối" />;
 }

@@ -251,27 +251,34 @@ export async function unbanUser(userId: string) {
 }
 
 /**
- * Get paginated novels with search
+ * Get paginated novels with search and status filter
  */
 export async function getNovels({
     page = 1,
     limit = 10,
     search = "",
+    status = "", // PENDING, APPROVED, REJECTED, or "" for all
 }: {
     page?: number;
     limit?: number;
     search?: string;
+    status?: string;
 }) {
     await checkAdmin();
 
     const skip = (page - 1) * limit;
 
     try {
-        const where = search
-            ? {
-                title: { contains: search },
-            }
-            : {};
+        // Build where clause with optional search and status
+        const where: Record<string, unknown> = {};
+
+        if (search) {
+            where.title = { contains: search };
+        }
+
+        if (status && ["PENDING", "APPROVED", "REJECTED"].includes(status)) {
+            where.approvalStatus = status;
+        }
 
         const [novels, total] = await Promise.all([
             db.novel.findMany({

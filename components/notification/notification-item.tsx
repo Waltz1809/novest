@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, MessageSquare } from "lucide-react";
+import { BookOpen, MessageSquare, CheckCircle, XCircle, Bell } from "lucide-react";
 import { formatRelativeTime } from "@/lib/format-time";
 import { markAsRead } from "@/actions/notification";
 import Link from "next/link";
@@ -33,13 +33,45 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
     };
 
     // Determine icon based on type
-    const Icon = notification.type === "NEW_CHAPTER" ? BookOpen : MessageSquare;
-
-    // Construct link based on resource type
-    const getLink = () => {
-        if (notification.type === "NEW_CHAPTER") {
-            return notification.resourceId;
+    const getIcon = () => {
+        switch (notification.type) {
+            case "NEW_CHAPTER":
+                return BookOpen;
+            case "NOVEL_APPROVED":
+                return CheckCircle;
+            case "NOVEL_REJECTED":
+            case "NOVEL_PERMANENTLY_DELETED":
+                return XCircle;
+            default:
+                return MessageSquare;
         }
+    };
+    const Icon = getIcon();
+
+    // Construct link based on resource type and notification type
+    const getLink = () => {
+        // For novel-related notifications
+        if (notification.resourceType === "NOVEL" && notification.resourceId) {
+            const novelId = notification.resourceId;
+            // For approved novels, link to public page
+            if (notification.type === "NOVEL_APPROVED") {
+                return `/studio/novels`; // Go to studio novels to see approved
+            }
+            // For rejected/pending, link to preview page
+            if (notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PENDING") {
+                return `/studio/novels/pending`; // Go to pending page
+            }
+            // For new chapter notifications, the resourceId is the chapter URL
+            if (notification.type === "NEW_CHAPTER") {
+                return notification.resourceId;
+            }
+        }
+
+        // For comment replies
+        if (notification.resourceType === "COMMENT" && notification.resourceId) {
+            return notification.resourceId; // Should be the chapter URL
+        }
+
         return "/";
     };
 
@@ -53,9 +85,13 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
             <div className="flex gap-3">
                 {/* Icon */}
                 <div className="shrink-0 mt-1">
-                    <div className={`p-2 rounded-full ${notification.type === "NEW_CHAPTER"
-                        ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-                        : "bg-[#34D399]/20 text-[#34D399]"
+                    <div className={`p-2 rounded-full ${notification.type === "NOVEL_APPROVED"
+                            ? "bg-green-500/20 text-green-500"
+                            : notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PERMANENTLY_DELETED"
+                                ? "bg-red-500/20 text-red-500"
+                                : notification.type === "NEW_CHAPTER"
+                                    ? "bg-[#F59E0B]/20 text-[#F59E0B]"
+                                    : "bg-[#34D399]/20 text-[#34D399]"
                         }`}>
                         <Icon className="w-4 h-4" />
                     </div>

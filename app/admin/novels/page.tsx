@@ -2,9 +2,10 @@ import { getNovels, deleteNovel } from "@/actions/admin";
 import { DataTable } from "@/components/admin/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, MessageSquare, Eye } from "lucide-react";
+import { MessageSquare, Eye } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NovelActionsDropdown } from "@/components/admin/novel-actions-dropdown";
 
 // Status labels in Vietnamese
 const STATUS_LABELS: Record<string, string> = {
@@ -21,22 +22,24 @@ const APPROVAL_LABELS: Record<string, string> = {
     REJECTED: "Từ chối",
 };
 
-// Nation labels
-const NATION_LABELS: Record<string, string> = {
-    CN: "Trung Quốc",
-    JP: "Nhật Bản",
-    KR: "Hàn Quốc",
-};
+// Filter tabs config
+const STATUS_TABS = [
+    { value: "", label: "Tất cả", color: "text-white" },
+    { value: "PENDING", label: "Chờ duyệt", color: "text-amber-400" },
+    { value: "APPROVED", label: "Đã duyệt", color: "text-green-400" },
+    { value: "REJECTED", label: "Từ chối", color: "text-red-400" },
+];
 
 export default async function NovelsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ page?: string; search?: string }>;
+    searchParams: Promise<{ page?: string; search?: string; status?: string }>;
 }) {
     const params = await searchParams;
     const page = Number(params.page) || 1;
     const search = params.search || "";
-    const { novels, metadata, error } = await getNovels({ page, search });
+    const status = params.status || "";
+    const { novels, metadata, error } = await getNovels({ page, search, status });
 
     if (error || !novels) {
         return <div className="text-red-500">Không thể tải danh sách truyện</div>;
@@ -47,6 +50,22 @@ export default async function NovelsPage({
             <div>
                 <h1 className="text-3xl font-bold text-white font-family-name:var(--font-be-vietnam-pro)">Truyện</h1>
                 <p className="text-gray-400 font-family-name:var(--font-be-vietnam-pro)">Quản lý nội dung trên nền tảng.</p>
+            </div>
+
+            {/* Status Filter Tabs */}
+            <div className="flex gap-2 border-b border-white/10 pb-4">
+                {STATUS_TABS.map((tab) => (
+                    <Link
+                        key={tab.value}
+                        href={`/admin/novels${tab.value ? `?status=${tab.value}` : ""}${search ? `&search=${search}` : ""}`}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${status === tab.value
+                                ? `bg-white/10 ${tab.color} border border-white/20`
+                                : "text-gray-400 hover:text-white hover:bg-white/5"
+                            }`}
+                    >
+                        {tab.label}
+                    </Link>
+                ))}
             </div>
 
             <DataTable
@@ -131,34 +150,12 @@ export default async function NovelsPage({
                             {new Date(novel.createdAt).toLocaleDateString("vi-VN")}
                         </td>
                         <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                                <Link href={novel.approvalStatus === "APPROVED" ? `/truyen/${novel.slug}` : `/truyen/${novel.slug}/cho-duyet`} target="_blank">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-500 hover:bg-white/5 hover:text-white"
-                                        title="Xem truyện"
-                                    >
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                </Link>
-                                <form
-                                    action={async () => {
-                                        "use server";
-                                        await deleteNovel(novel.id);
-                                    }}
-                                >
-                                    <Button
-                                        type="submit"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-500 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100"
-                                        title="Xóa truyện"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </form>
-                            </div>
+                            <NovelActionsDropdown
+                                novelId={novel.id}
+                                novelSlug={novel.slug}
+                                novelTitle={novel.title}
+                                approvalStatus={novel.approvalStatus}
+                            />
                         </td>
                     </tr>
                 ))}
@@ -166,3 +163,4 @@ export default async function NovelsPage({
         </div>
     );
 }
+

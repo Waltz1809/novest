@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Plus, Search, ChevronDown, User, Users } from "lucide-react";
 import NovelGridCard from "@/components/studio/novel-grid-card";
 import ReindexButton from "@/components/novel/reindex-button";
 
@@ -25,11 +26,20 @@ interface Novel {
 interface NovelsPageProps {
     novels: Novel[];
     pageTitle?: string;
+    isAdmin?: boolean;
+    currentOwnerFilter?: string;
 }
 
-export default function NovelsPageClient({ novels, pageTitle }: NovelsPageProps) {
+export default function NovelsPageClient({
+    novels,
+    pageTitle,
+    isAdmin = false,
+    currentOwnerFilter = "self"
+}: NovelsPageProps) {
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredNovels, setFilteredNovels] = useState(novels);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     // Client-side search filtering
     useEffect(() => {
@@ -47,20 +57,81 @@ export default function NovelsPageClient({ novels, pageTitle }: NovelsPageProps)
         setFilteredNovels(filtered);
     }, [searchQuery, novels]);
 
+    // Handle owner filter change
+    const handleOwnerFilterChange = (value: string) => {
+        setIsDropdownOpen(false);
+        if (value === "self") {
+            router.push("/studio/novels");
+        } else {
+            router.push(`/studio/novels?owner=${value}`);
+        }
+    };
+
+    const ownerOptions = [
+        { value: "self", label: "Truyện của tôi", icon: User },
+        { value: "all", label: "Tất cả truyện", icon: Users },
+    ];
+
+    const currentOption = ownerOptions.find(o => o.value === currentOwnerFilter) || ownerOptions[0];
+
     return (
         <div className="space-y-6">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                {/* Search Bar (Left) */}
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-[#1E293B] text-white rounded-lg border border-[#34D399]/20 focus-within:border-[#F59E0B] transition-all w-full md:w-[400px]">
-                    <Search className="w-5 h-5 text-[#9CA3AF]" />
-                    <input
-                        type="text"
-                        placeholder="Nhập tên truyện..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="flex-1 bg-transparent outline-none text-white placeholder:text-[#9CA3AF]"
-                    />
+                {/* Left side: Search + Owner Filter */}
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    {/* Search Bar */}
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-[#1E293B] text-white rounded-lg border border-[#34D399]/20 focus-within:border-[#F59E0B] transition-all flex-1 md:w-[300px]">
+                        <Search className="w-5 h-5 text-[#9CA3AF]" />
+                        <input
+                            type="text"
+                            placeholder="Nhập tên truyện..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="flex-1 bg-transparent outline-none text-white placeholder:text-[#9CA3AF]"
+                        />
+                    </div>
+
+                    {/* Owner Filter Dropdown - Admin/Mod only */}
+                    {isAdmin && (
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-[#1E293B] text-white rounded-lg border border-[#34D399]/20 hover:border-[#F59E0B] transition-all whitespace-nowrap"
+                            >
+                                <currentOption.icon className="w-4 h-4 text-[#F59E0B]" />
+                                <span className="text-sm">{currentOption.label}</span>
+                                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {isDropdownOpen && (
+                                <>
+                                    {/* Backdrop */}
+                                    <div
+                                        className="fixed inset-0 z-40"
+                                        onClick={() => setIsDropdownOpen(false)}
+                                    />
+                                    {/* Menu */}
+                                    <div className="absolute top-full left-0 mt-2 w-48 bg-[#1E293B] border border-[#34D399]/20 rounded-lg shadow-xl z-50 overflow-hidden">
+                                        {ownerOptions.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => handleOwnerFilterChange(option.value)}
+                                                className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${currentOwnerFilter === option.value
+                                                        ? "bg-[#F59E0B]/20 text-[#F59E0B]"
+                                                        : "text-gray-300 hover:bg-[#0B0C10] hover:text-white"
+                                                    }`}
+                                            >
+                                                <option.icon className="w-4 h-4" />
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Action Buttons (Right) */}
