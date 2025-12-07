@@ -49,6 +49,4 @@ next-env.d.ts
 
 #cf
 cloudflared.exe
-/.agent
-/.shared
 /.cursor
