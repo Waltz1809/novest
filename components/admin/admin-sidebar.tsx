@@ -9,6 +9,7 @@ import {
     MessageSquare,
     BookOpen,
     Ticket,
+    Megaphone,
     LogOut,
     Menu,
     X
@@ -41,6 +42,11 @@ const sidebarItems = [
         title: "Tickets",
         href: "/admin/tickets",
         icon: Ticket,
+    },
+    {
+        title: "Thông báo",
+        href: "/admin/announcements",
+        icon: Megaphone,
     },
 ];
 

@@ -375,3 +375,17 @@ model ChapterVersion {
   @@index([chapterId])
   @@index([expiresAt])
 }
+
+// ================= 6. SITE ANNOUNCEMENTS =================
+// Banner notifications shown to users once per day
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String // Short title for admin reference
+  content   String // HTML content (supports images, emoji, formatting)
+  isActive  Boolean   @default(true)
+  startDate DateTime  @default(now())
+  endDate   DateTime? // null = no expiration
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
