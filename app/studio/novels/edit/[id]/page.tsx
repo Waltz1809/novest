@@ -40,7 +40,11 @@ export default async function EditNovelPage({ params }: PageProps) {
         redirect("/studio/novels");
     }
 
-    if (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR") {
+    // Only uploader or admin/mod can edit
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    const isUploader = session.user.id === novel.uploaderId;
+
+    if (!isAdmin && !isUploader) {
         redirect("/studio/novels");
     }
 

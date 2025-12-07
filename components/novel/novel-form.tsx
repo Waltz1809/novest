@@ -84,11 +84,20 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                 if (initialData) {
                     await updateNovel(initialData.id, data);
                     alert("Cập nhật truyện thành công!");
+                    router.push("/studio/novels");
                 } else {
-                    await createNovel(data);
-                    alert("Tạo truyện thành công!");
+                    const result = await createNovel(data);
+
+                    // Check for error (e.g., duplicate slug)
+                    if (result && 'error' in result) {
+                        alert(result.error);
+                        return;
+                    }
+
+                    // Success - redirect to preview page
+                    alert("Tạo truyện thành công! Đang chờ duyệt.");
+                    router.push(`/truyen/${data.slug}/cho-duyet`);
                 }
-                router.push("/studio/novels");
                 router.refresh();
             } catch (error) {
                 console.error(error);

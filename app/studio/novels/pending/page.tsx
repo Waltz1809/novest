@@ -1,15 +1,21 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import NovelsPageClient from "./novels-client";
+import NovelsPageClient from "../novels-client";
 
 export const revalidate = 0; // Dynamic
 
-export default async function NovelsPage() {
+export default async function PendingNovelsPage() {
     const session = await auth();
     if (!session?.user) return redirect("/");
 
-    const where = session.user.role === "ADMIN" ? {} : { uploaderId: session.user.id };
+    // For admins/mods: show ALL pending novels
+    // For regular users: show only their own pending novels
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+
+    const where = isAdmin
+        ? { approvalStatus: "PENDING" }
+        : { uploaderId: session.user.id, approvalStatus: "PENDING" };
 
     const novelsData = await db.novel.findMany({
         where,
@@ -40,5 +46,5 @@ export default async function NovelsPage() {
         approvalStatus: novel.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
     }));
 
-    return <NovelsPageClient novels={novels} />;
+    return <NovelsPageClient novels={novels} pageTitle="Truyện chờ duyệt" />;
 }

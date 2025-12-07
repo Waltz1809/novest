@@ -24,6 +24,17 @@ export async function createNovel(data: {
         throw new Error("Unauthorized");
     }
 
+    // Check if slug already exists - return user-friendly error
+    const existingNovel = await db.novel.findUnique({
+        where: { slug: data.slug },
+        select: { id: true, title: true },
+    });
+    if (existingNovel) {
+        return {
+            error: `Truyện này có lẽ đã có tại Novest rồi. Bạn thử tìm kiếm "${existingNovel.title}" xem nhé!`
+        };
+    }
+
     const searchIndex = generateSearchIndex(data.title, data.author, data.alternativeTitles || "");
 
     const novel = await db.novel.create({
@@ -46,7 +57,38 @@ export async function createNovel(data: {
         },
     });
 
+    // Notify all admins and moderators about new novel submission
+    try {
+        const admins = await db.user.findMany({
+            where: {
+                role: { in: ["ADMIN", "MODERATOR"] },
+            },
+            select: { id: true },
+        });
+
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+
+        await Promise.all(
+            admins.map((admin) =>
+                db.notification.create({
+                    data: {
+                        userId: admin.id,
+                        actorId: session.user.id,
+                        type: "NEW_NOVEL_SUBMISSION",
+                        resourceId: String(novel.id),
+                        resourceType: "NOVEL",
+                        message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
+                    },
+                })
+            )
+        );
+    } catch (notifyError) {
+        console.error("Failed to notify admins:", notifyError);
+        // Don't fail the main action if notification fails
+    }
+
     revalidatePath("/studio/novels");
+    revalidatePath("/admin/novels/pending");
     revalidatePath("/");
 
     return { success: true, novelId: novel.id };
@@ -353,7 +395,8 @@ export async function rejectNovel(novelId: number, reason: string) {
                 id: true,
                 title: true,
                 uploaderId: true,
-                approvalStatus: true
+                approvalStatus: true,
+                rejectionCount: true,
             }
         });
 
@@ -361,11 +404,42 @@ export async function rejectNovel(novelId: number, reason: string) {
             return { error: "Không tìm thấy truyện" };
         }
 
+        const newRejectionCount = (novel.rejectionCount || 0) + 1;
+
+        // 3 strikes = permanent delete
+        if (newRejectionCount >= 3) {
+            // Hard delete the novel (cascade will handle related records)
+            await db.novel.delete({
+                where: { id: novelId },
+            });
+
+            // Notify uploader about permanent deletion
+            if (novel.uploaderId) {
+                const { createNotification } = await import("./notification");
+                await createNotification({
+                    userId: novel.uploaderId,
+                    actorId: session.user.id,
+                    type: "NOVEL_PERMANENTLY_DELETED",
+                    resourceId: String(novel.id),
+                    resourceType: "NOVEL",
+                    message: `Truyện "${novel.title}" đã bị xóa vĩnh viễn do bị từ chối lần thứ 3. Lý do: ${reason.trim()}`,
+                });
+            }
+
+            revalidatePath("/admin/novels");
+            revalidatePath("/studio/novels");
+            revalidatePath("/");
+
+            return { success: "Truyện đã bị xóa vĩnh viễn (lần từ chối thứ 3)", deleted: true };
+        }
+
+        // Otherwise, just reject and increment counter
         await db.novel.update({
             where: { id: novelId },
             data: {
                 approvalStatus: "REJECTED",
                 rejectionReason: reason.trim(),
+                rejectionCount: newRejectionCount,
             },
         });
 
@@ -378,17 +452,89 @@ export async function rejectNovel(novelId: number, reason: string) {
                 type: "NOVEL_REJECTED",
                 resourceId: String(novel.id),
                 resourceType: "NOVEL",
-                message: `Truyện "${novel.title}" đã bị từ chối. Lý do: ${reason.trim()}`,
+                message: `Truyện "${novel.title}" đã bị từ chối (${newRejectionCount}/3). Lý do: ${reason.trim()}`,
             });
         }
 
         revalidatePath("/admin/novels");
         revalidatePath(`/truyen/${novelId}`);
+        revalidatePath("/studio/novels");
 
-        return { success: "Đã từ chối truyện" };
+        return { success: `Đã từ chối truyện (${newRejectionCount}/3)` };
     } catch (error) {
         console.error("Reject novel error:", error);
         return { error: "Lỗi khi từ chối truyện" };
+    }
+}
+
+/**
+ * Resubmit a rejected novel for approval (Uploader only)
+ * Creates a ticket instead of notification to reduce admin notification noise
+ */
+export async function resubmitNovel(novelId: number, message?: string) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                uploaderId: true,
+                approvalStatus: true,
+                rejectionCount: true,
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        // Only the uploader can resubmit
+        if (novel.uploaderId !== session.user.id) {
+            return { error: "Chỉ người đăng mới có thể gửi lại yêu cầu duyệt" };
+        }
+
+        // Can only resubmit if rejected
+        if (novel.approvalStatus !== "REJECTED") {
+            return { error: "Chỉ có thể gửi lại truyện đã bị từ chối" };
+        }
+
+        // Update novel to pending
+        await db.novel.update({
+            where: { id: novelId },
+            data: {
+                approvalStatus: "PENDING",
+                // Keep rejection reason for reference
+            },
+        });
+
+        // Create a ticket for admin review (instead of notification)
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+        await db.ticket.create({
+            data: {
+                userId: session.user.id,
+                mainType: "APPROVAL_REQUEST",
+                title: `Xin duyệt lại: ${novel.title}`,
+                description: message || `${uploaderName} xin duyệt lại truyện "${novel.title}" sau khi đã chỉnh sửa. Đây là lần gửi thứ ${(novel.rejectionCount || 0) + 1}.`,
+                novelId: novel.id,
+                status: "OPEN",
+            },
+        });
+
+        revalidatePath("/admin/tickets");
+        revalidatePath("/admin/novels");
+        revalidatePath(`/truyen/${novel.slug}/cho-duyet`);
+        revalidatePath("/studio/novels");
+
+        return { success: "Đã gửi yêu cầu duyệt lại. Admin sẽ xem xét trong thời gian sớm nhất." };
+    } catch (error) {
+        console.error("Resubmit novel error:", error);
+        return { error: "Lỗi khi gửi lại yêu cầu duyệt" };
     }
 }
 

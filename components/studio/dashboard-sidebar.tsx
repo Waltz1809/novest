@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, BookOpen, Menu, X } from "lucide-react";
+import { LayoutDashboard, BookOpen, Menu, X, Clock } from "lucide-react";
 import UserMenu from "@/components/auth/user-menu";
 
 interface DashboardSidebarProps {
@@ -90,6 +90,15 @@ export default function DashboardSidebar({
                     >
                         <BookOpen className="w-5 h-5 shrink-0" />
                         {(!isCollapsed && !isMobile) && <span>Quản lý Truyện</span>}
+                    </Link>
+                    <Link
+                        href="/studio/novels/pending"
+                        className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
+                            } text-amber-400 hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
+                        title="Chờ duyệt"
+                    >
+                        <Clock className="w-5 h-5 shrink-0" />
+                        {(!isCollapsed && !isMobile) && <span>Chờ duyệt</span>}
                     </Link>
                 </nav>
             </aside>

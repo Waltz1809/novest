@@ -132,7 +132,7 @@ export default async function NovelsPage({
                         </td>
                         <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                                <Link href={`/truyen/${novel.slug}`} target="_blank">
+                                <Link href={novel.approvalStatus === "APPROVED" ? `/truyen/${novel.slug}` : `/truyen/${novel.slug}/cho-duyet`} target="_blank">
                                     <Button
                                         variant="ghost"
                                         size="icon"

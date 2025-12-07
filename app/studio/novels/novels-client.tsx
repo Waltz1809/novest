@@ -9,9 +9,11 @@ import ReindexButton from "@/components/novel/reindex-button";
 interface Novel {
     id: number;
     title: string;
+    slug: string;
     author: string;
     coverImage: string | null;
     status: "ONGOING" | "COMPLETED" | "HIATUS";
+    approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
     viewCount: number;
     volumes: {
         _count: {
@@ -22,9 +24,10 @@ interface Novel {
 
 interface NovelsPageProps {
     novels: Novel[];
+    pageTitle?: string;
 }
 
-export default function NovelsPageClient({ novels }: NovelsPageProps) {
+export default function NovelsPageClient({ novels, pageTitle }: NovelsPageProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredNovels, setFilteredNovels] = useState(novels);
 
@@ -87,8 +90,10 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                                 key={novel.id}
                                 id={novel.id}
                                 title={novel.title}
+                                slug={novel.slug}
                                 coverImage={novel.coverImage}
                                 status={novel.status as "ONGOING" | "COMPLETED" | "HIATUS"}
+                                approvalStatus={novel.approvalStatus as "PENDING" | "APPROVED" | "REJECTED"}
                                 viewCount={novel.viewCount}
                                 chapterCount={chapterCount}
                             />
@@ -101,12 +106,12 @@ export default function NovelsPageClient({ novels }: NovelsPageProps) {
                         <Search className="w-10 h-10 text-[#9CA3AF]" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">
-                        {searchQuery ? "No novels found" : "No novels yet"}
+                        {searchQuery ? "No novels found" : "Chưa có truyện nào nè"}
                     </h3>
                     <p className="text-[#9CA3AF] mb-6">
                         {searchQuery
                             ? `No results for "${searchQuery}"`
-                            : "Create your first masterpiece!"}
+                            : "Bắt đầu đăng tải siêu phẩm của bạn tại Novest thôi!"}
                     </p>
                     {!searchQuery && (
                         <Link

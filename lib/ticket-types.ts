@@ -10,6 +10,7 @@ export const TICKET_MAIN_TYPES = {
     SUPPORT: "SUPPORT",
     FIX_CHAPTER: "FIX_CHAPTER",
     STATUS_CHANGE: "STATUS_CHANGE",
+    APPROVAL_REQUEST: "APPROVAL_REQUEST", // Novel resubmission for approval
 } as const;
 
 // Ticket sub types
@@ -40,6 +41,7 @@ export const TICKET_TYPE_LABELS: Record<string, string> = {
     SUPPORT: "Hỗ trợ",
     FIX_CHAPTER: "Sửa chương",
     STATUS_CHANGE: "Yêu cầu đổi trạng thái",
+    APPROVAL_REQUEST: "Xin duyệt truyện",
 };
 
 export const TICKET_SUBTYPE_LABELS: Record<string, string> = {

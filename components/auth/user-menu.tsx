@@ -103,6 +103,16 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                         <span>Cài đặt tài khoản</span>
                     </Link>
 
+                    {/* Creator Studio - Available to all users */}
+                    <Link
+                        href="/studio"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span>Creator Studio</span>
+                    </Link>
+
                     {/* Library Link */}
                     <Link
                         href="/tu-truyen"
@@ -113,27 +123,15 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                         <span>Tủ truyện</span>
                     </Link>
 
-                    {/* Admin Dashboard Link - Only for ADMIN */}
-                    {user.role === "ADMIN" && (
+                    {/* Admin Dashboard Link - Only for ADMIN or MODERATOR */}
+                    {(user.role === "ADMIN" || user.role === "MODERATOR") && (
                         <Link
                             href="/admin"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#34D399] hover:bg-[#1F2937] hover:text-[#10B981] transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
-                            <LayoutDashboard className="w-4 h-4" />
+                            <Settings className="w-4 h-4" />
                             <span>Admin Dashboard</span>
-                        </Link>
-                    )}
-
-                    {/* Dashboard Link - Only for TRANSLATOR (and ADMIN if they want to see translator view) */}
-                    {(user.role === "TRANSLATOR" || user.role === "ADMIN") && (
-                        <Link
-                            href="/studio"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <Book className="w-4 h-4" />
-                            <span>Creator Studio</span>
                         </Link>
                     )}
 

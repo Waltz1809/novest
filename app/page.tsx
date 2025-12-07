@@ -24,6 +24,9 @@ export default async function Home() {
   ] = await Promise.all([
     // Get 5 top-rated novels for carousel
     db.novel.findMany({
+      where: {
+        approvalStatus: "APPROVED",
+      },
       select: {
         id: true,
         title: true,
@@ -54,6 +57,9 @@ export default async function Home() {
 
     // Get latest updated novels
     db.novel.findMany({
+      where: {
+        approvalStatus: "APPROVED",
+      },
       orderBy: {
         updatedAt: "desc",
       },

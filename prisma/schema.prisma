@@ -201,6 +201,7 @@ model Novel {
   // Approval workflow
   approvalStatus  String  @default("PENDING") // PENDING, APPROVED, REJECTED
   rejectionReason String?
+  rejectionCount  Int     @default(0) // 3 rejections = permanent delete
 
   // Discount for completed novels (uploader can set 10-100%)
   discountPercent Int @default(0)

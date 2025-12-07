@@ -12,9 +12,9 @@ export default async function DashboardLayout({
 }) {
     const session = await auth();
 
-    // Protect route
-    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TRANSLATOR")) {
-        redirect("/");
+    // Protect route - require login only (all users can create content)
+    if (!session?.user) {
+        redirect("/login");
     }
 
     // Fetch wallet balance

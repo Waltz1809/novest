@@ -26,10 +26,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                         <Shield className="w-3 h-3" /> Quản Trị Viên
                     </span>
                 );
-            case "TRANSLATOR":
+            case "MODERATOR":
                 return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                        <PenTool className="w-3 h-3" /> Dịch Giả
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <Shield className="w-3 h-3" /> Điều Hành Viên
                     </span>
                 );
             default:

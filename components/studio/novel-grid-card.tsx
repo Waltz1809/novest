@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, BookOpen } from "lucide-react";
+import { Eye, BookOpen, Clock, AlertTriangle, ExternalLink } from "lucide-react";
 
 interface NovelGridCardProps {
     id: number;
     title: string;
+    slug: string;
     coverImage: string | null;
     status: "ONGOING" | "COMPLETED" | "HIATUS";
+    approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
     viewCount: number;
     chapterCount: number;
 }
@@ -16,8 +18,10 @@ interface NovelGridCardProps {
 export default function NovelGridCard({
     id,
     title,
+    slug,
     coverImage,
     status,
+    approvalStatus,
     viewCount,
     chapterCount,
 }: NovelGridCardProps) {
@@ -42,6 +46,15 @@ export default function NovelGridCard({
         HIATUS: "Tạm dừng",
     };
 
+    // Approval status styles
+    const approvalStyles = {
+        PENDING: { bg: "bg-amber-500/20 border-amber-500/30", text: "text-amber-400", icon: Clock, label: "Chờ duyệt" },
+        REJECTED: { bg: "bg-red-500/20 border-red-500/30", text: "text-red-400", icon: AlertTriangle, label: "Bị từ chối" },
+        APPROVED: null, // Don't show badge for approved
+    };
+
+    const approval = approvalStyles[approvalStatus];
+
     return (
         <div className="group relative aspect-2/3 rounded-xl overflow-hidden bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 cursor-pointer">
             {/* Cover Image or Gradient Fallback */}
@@ -61,24 +74,40 @@ export default function NovelGridCard({
                 </div>
             )}
 
-            {/* Status Badge (Top-Right) */}
+            {/* Status Badge (Top-Right) - Show approval status if not approved, else show novel status */}
             <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
-                <span
-                    className={`px-2 py-0.5 text-[10px] md:px-3 md:py-1 md:text-xs font-bold rounded-full uppercase ${statusStyles[status]}`}
-                >
-                    {statusLabels[status]}
-                </span>
+                {approval ? (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] md:px-3 md:py-1 md:text-xs font-bold rounded-full border ${approval.bg} ${approval.text}`}>
+                        <approval.icon className="w-3 h-3" />
+                        {approval.label}
+                    </span>
+                ) : (
+                    <span className={`px-2 py-0.5 text-[10px] md:px-3 md:py-1 md:text-xs font-bold rounded-full uppercase ${statusStyles[status]}`}>
+                        {statusLabels[status]}
+                    </span>
+                )}
             </div>
 
-            {/* Hover Overlay with Manage Button */}
-            <Link
-                href={`/studio/novels/edit/${id}`}
-                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
-            >
-                <button className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg shadow-lg glow-amber-strong hover:scale-105 transition-transform">
+            {/* Hover Overlay with Action Buttons */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 p-4">
+                <Link
+                    href={`/studio/novels/edit/${id}`}
+                    className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg shadow-lg hover:scale-105 transition-transform text-sm"
+                >
                     Quản lý & Viết
-                </button>
-            </Link>
+                </Link>
+
+                {/* Preview link for pending/rejected novels */}
+                {approvalStatus !== "APPROVED" && (
+                    <Link
+                        href={`/truyen/${slug}/cho-duyet`}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-xs font-medium"
+                    >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Xem trước
+                    </Link>
+                )}
+            </div>
 
             {/* Stats Footer */}
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-[#0B0C10]/80 backdrop-blur-sm z-10">
@@ -96,3 +125,4 @@ export default function NovelGridCard({
         </div>
     );
 }
+
