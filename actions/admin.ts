@@ -4,10 +4,11 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-// Helper to check admin role
+// Helper to check admin or moderator role
 async function checkAdmin() {
     const session = await auth();
-    if (session?.user?.role !== "ADMIN") {
+    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
+    if (!isAdminOrMod) {
         throw new Error("Unauthorized");
     }
     return session;

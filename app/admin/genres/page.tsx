@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 export default async function GenresPage() {
     const session = await auth();
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
+    if (!session?.user || !isAdminOrMod) {
         redirect("/");
     }
 
