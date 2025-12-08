@@ -15,9 +15,9 @@ export function requireEmailVerification(session: Session | null): { error: stri
     }
 
     // Check if email is verified
-    if (!session.user.emailVerified) {
-        return { error: REQUIRE_VERIFICATION };
-    }
+    // if (!session.user.emailVerified) {
+    //     return { error: REQUIRE_VERIFICATION };
+    // }
 
     return null;
 }
