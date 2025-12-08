@@ -10,7 +10,7 @@ import { toSlug } from "@/lib/utils";
  */
 export async function createGenre(name: string) {
     const session = await auth();
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user || !["ADMIN", "MODERATOR"].includes(session.user.role as string)) {
         return { error: "Không có quyền thực hiện" };
     }
 
@@ -57,7 +57,7 @@ export async function createGenre(name: string) {
  */
 export async function updateGenre(id: number, name: string) {
     const session = await auth();
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user || !["ADMIN", "MODERATOR"].includes(session.user.role as string)) {
         return { error: "Không có quyền thực hiện" };
     }
 
