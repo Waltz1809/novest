@@ -349,9 +349,6 @@ export default function SettingsPage() {
                                 <p className="text-sm text-amber-400 flex items-center gap-2">
                                     🎁 Novest sẽ gửi quà vào ngày sinh nhật của bạn!
                                 </p>
-                                <p className="text-xs text-slate-500 mt-2">
-                                    Ngày sinh cũng được dùng để xác minh tuổi cho nội dung người lớn.
-                                </p>
                             </div>
                         </div>
 

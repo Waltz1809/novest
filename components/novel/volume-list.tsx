@@ -72,9 +72,6 @@ export default function VolumeList({ volumes, novelSlug }: VolumeListProps) {
                                         className="group/chapter flex items-center gap-2 py-2.5 border-b border-dashed border-[#34D399]/10 hover:bg-[#34D399]/5 px-2 rounded transition-colors"
                                         title={chapter.title}
                                     >
-                                        <span className="text-xs font-sans text-gray-500 group-hover/chapter:text-[#F59E0B] transition-colors w-16 shrink-0">
-                                            Chương {chapter.order}
-                                        </span>
                                         <span className="text-sm text-gray-300 group-hover/chapter:text-[#F59E0B] transition-colors truncate">
                                             {chapter.title}
                                         </span>
