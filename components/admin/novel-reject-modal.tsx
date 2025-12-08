@@ -95,6 +95,9 @@ export default function NovelRejectModal({ novelId, novelTitle }: NovelRejectMod
                                 <p className="text-xs text-[#9CA3AF]">
                                     Người đăng sẽ nhận được thông báo với lý do này
                                 </p>
+                                <p className={`text-xs ${reason.length >= 10 ? 'text-green-400' : 'text-amber-400'}`}>
+                                    {reason.length}/10 ký tự {reason.length >= 10 ? '✓' : '(tối thiểu 10)'}
+                                </p>
                             </div>
 
                             {error && (

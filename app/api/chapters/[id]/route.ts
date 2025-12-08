@@ -57,7 +57,7 @@ export async function PATCH(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { title, content } = await request.json();
+        const { title, content, isDraft, publishAt } = await request.json();
 
         const chapter = await db.chapter.findUnique({
             where: { id: parseInt(id) },
@@ -106,6 +106,8 @@ export async function PATCH(
                 title,
                 content,
                 wordCount,
+                ...(isDraft !== undefined && { isDraft }),
+                ...(publishAt !== undefined && { publishAt: publishAt ? new Date(publishAt) : null }),
             },
         });
 

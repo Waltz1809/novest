@@ -11,7 +11,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { title, content, novelId, volumeId } = await request.json();
+        const { title, content, novelId, volumeId, isDraft = true, publishAt } = await request.json();
 
         // Verify user owns the novel
         const novel = await db.novel.findUnique({
@@ -56,6 +56,8 @@ export async function POST(request: Request) {
                     order: newOrder,
                     wordCount,
                     slug: `temp-ch-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}`, // Temporary unique slug
+                    isDraft,
+                    publishAt: isDraft && publishAt ? new Date(publishAt) : null,
                 },
             });
 
@@ -71,28 +73,30 @@ export async function POST(request: Request) {
             return updatedChapter;
         });
 
-        // Create notifications for users who have this novel in their library
-        try {
-            const libraryUsers = await db.library.findMany({
-                where: { novelId: novel.id },
-                select: { userId: true },
-            });
-
-            // Create notification for each library user
-            for (const libraryUser of libraryUsers) {
-                await db.notification.create({
-                    data: {
-                        userId: libraryUser.userId,
-                        type: "NEW_CHAPTER",
-                        resourceId: `/truyen/${novel.slug}/${chapter.slug}`,
-                        resourceType: "chapter",
-                        message: `Truyện bạn thích vừa cập nhật chương [${novel.title} - ${chapter.title}] mới toanh luôn nè`,
-                    },
+        // Create notifications only for published (non-draft) chapters
+        if (!isDraft) {
+            try {
+                const libraryUsers = await db.library.findMany({
+                    where: { novelId: novel.id },
+                    select: { userId: true },
                 });
+
+                // Create notification for each library user
+                for (const libraryUser of libraryUsers) {
+                    await db.notification.create({
+                        data: {
+                            userId: libraryUser.userId,
+                            type: "NEW_CHAPTER",
+                            resourceId: `/truyen/${novel.slug}/${chapter.slug}`,
+                            resourceType: "chapter",
+                            message: `Truyện bạn thích vừa cập nhật chương [${novel.title} - ${chapter.title}] mới toanh luôn nè`,
+                        },
+                    });
+                }
+            } catch (notifError) {
+                console.error("Error creating chapter notifications:", notifError);
+                // Don't fail the chapter creation if notification fails
             }
-        } catch (notifError) {
-            console.error("Error creating chapter notifications:", notifError);
-            // Don't fail the chapter creation if notification fails
         }
 
         return NextResponse.json(chapter);

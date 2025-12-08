@@ -74,9 +74,12 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
     const title = watch("title");
     const genreIds = watch("genreIds");
 
-    const generateSlug = () => {
-        setValue("slug", toSlug(title));
-    };
+    // Auto-generate slug when title changes (only for new novels)
+    useEffect(() => {
+        if (!initialData && title) {
+            setValue("slug", toSlug(title));
+        }
+    }, [title, initialData, setValue]);
 
     const onSubmit = (data: FormData) => {
         startTransition(async () => {
@@ -143,26 +146,16 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
 
                             <div className="space-y-2">
                                 <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
-                                    Slug (URL)
+                                    Slug (URL) - Tự động tạo
                                 </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        {...register("slug", { required: "Vui lòng nhập slug" })}
-                                        className="flex-1 px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
-                                        placeholder="ten-truyen-slug"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={generateSlug}
-                                        className="p-3 bg-white/5 text-gray-400 rounded-lg hover:bg-[#F59E0B]/10 hover:text-[#F59E0B] transition-colors"
-                                        title="Tự động tạo từ tên truyện"
-                                    >
-                                        <Wand2 className="w-5 h-5" />
-                                    </button>
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-[#020617]/50 border border-white/5 text-gray-400">
+                                    <span className="text-sm">/truyen/</span>
+                                    <span className="text-gray-200 font-mono">{watch("slug") || "..."}</span>
                                 </div>
-                                {errors.slug && (
-                                    <p className="text-xs text-red-500">{errors.slug.message}</p>
-                                )}
+                                <input type="hidden" {...register("slug")} />
+                                <p className="text-xs text-[#9CA3AF]/70">
+                                    Slug được tạo tự động từ tên truyện và không thể chỉnh sửa
+                                </p>
                             </div>
 
                             <div className="space-y-2">

@@ -101,6 +101,9 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
                     {error && (
                         <p className="text-red-400 text-sm mt-2">{error}</p>
                     )}
+                    <p className={`text-xs mt-1 ${reason.length >= 10 ? 'text-green-400' : 'text-amber-400'}`}>
+                        {reason.length}/10 ký tự {reason.length >= 10 ? '✓' : '(tối thiểu 10)'}
+                    </p>
                     <div className="flex justify-end gap-3 mt-3">
                         <button
                             onClick={() => {

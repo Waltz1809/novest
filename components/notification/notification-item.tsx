@@ -61,6 +61,10 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
             if (notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PENDING") {
                 return `/studio/novels/pending`; // Go to pending page
             }
+            // For new novel submission (admin notification), link to admin pending page
+            if (notification.type === "NEW_NOVEL_SUBMISSION") {
+                return `/admin/novels/pending`; // Admin reviews pending novels
+            }
             // For new chapter notifications, the resourceId is the chapter URL
             if (notification.type === "NEW_CHAPTER") {
                 return notification.resourceId;
@@ -86,12 +90,12 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
                 {/* Icon */}
                 <div className="shrink-0 mt-1">
                     <div className={`p-2 rounded-full ${notification.type === "NOVEL_APPROVED"
-                            ? "bg-green-500/20 text-green-500"
-                            : notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PERMANENTLY_DELETED"
-                                ? "bg-red-500/20 text-red-500"
-                                : notification.type === "NEW_CHAPTER"
-                                    ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                    : "bg-[#34D399]/20 text-[#34D399]"
+                        ? "bg-green-500/20 text-green-500"
+                        : notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PERMANENTLY_DELETED"
+                            ? "bg-red-500/20 text-red-500"
+                            : notification.type === "NEW_CHAPTER"
+                                ? "bg-[#F59E0B]/20 text-[#F59E0B]"
+                                : "bg-[#34D399]/20 text-[#34D399]"
                         }`}>
                         <Icon className="w-4 h-4" />
                     </div>

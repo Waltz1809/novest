@@ -110,8 +110,20 @@ export default function SettingsPage() {
         } else if (result.success) {
             setSuccess(result.success);
             setIsLoading(false);
-            await update();
-            router.refresh();
+            // Pass updated data to trigger JWT callback to refresh session
+            await update({
+                user: {
+                    nickname,
+                    username,
+                    image,
+                }
+            });
+            // Redirect to new username path if username changed
+            if (username !== session?.user?.username) {
+                router.push(`/u/${username}/settings`);
+            } else {
+                router.refresh();
+            }
         }
     }
 

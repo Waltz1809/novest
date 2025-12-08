@@ -116,12 +116,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
             }
 
-            if (trigger === "update" && session) {
-                token.nickname = session.user.nickname;
-                token.username = session.user.username;
-                token.picture = session.user.image;
-                if (session.user.emailVerified !== undefined) {
-                    token.emailVerified = session.user.emailVerified;
+            // When session.update() is called, fetch fresh data from DB
+            if (trigger === "update" && token.id) {
+                const freshUser = await db.user.findUnique({
+                    where: { id: token.id as string },
+                    select: { nickname: true, username: true, image: true, emailVerified: true }
+                });
+
+                if (freshUser) {
+                    token.nickname = freshUser.nickname;
+                    token.username = freshUser.username;
+                    token.picture = freshUser.image;
+                    token.emailVerified = freshUser.emailVerified;
                 }
             }
 

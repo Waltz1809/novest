@@ -202,8 +202,10 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                 </div>
             </div>
 
-            {/* Editor Content */}
-            <EditorContent editor={editor} />
+            {/* Editor Content with Scroll */}
+            <div className="max-h-[60vh] overflow-y-auto">
+                <EditorContent editor={editor} />
+            </div>
 
             {/* Image URL Dialog */}
             {showImageDialog && (
