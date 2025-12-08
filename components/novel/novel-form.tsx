@@ -21,6 +21,7 @@ interface NovelFormProps {
         title: string;
         slug: string;
         author: string;
+        artist?: string | null;
         description: string | null;
         status: string;
         coverImage: string | null;
@@ -36,6 +37,7 @@ interface FormData {
     title: string;
     slug: string;
     author: string;
+    artist: string;
     description: string;
     status: string;
     coverImage: string;
@@ -60,6 +62,7 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
             title: initialData?.title || "",
             slug: initialData?.slug || "",
             author: initialData?.author || "",
+            artist: initialData?.artist || "",
             description: initialData?.description || "",
             status: initialData?.status || "ONGOING",
             coverImage: initialData?.coverImage || "",
@@ -170,6 +173,17 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                                 {errors.author && (
                                     <p className="text-xs text-red-500">{errors.author.message}</p>
                                 )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                    Họa sĩ (tùy chọn)
+                                </label>
+                                <input
+                                    {...register("artist")}
+                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                    placeholder="Tên họa sĩ (nếu có)..."
+                                />
                             </div>
 
                             <div className="space-y-2">

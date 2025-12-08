@@ -9,8 +9,9 @@ export default async function AdminLayout({
 }) {
     const session = await auth();
 
-    // Strict Role Check
-    if (!session || session.user.role !== "ADMIN") {
+    // Allow ADMIN and MODERATOR to access admin panel
+    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
+    if (!session || !isAdminOrMod) {
         redirect("/");
     }
 

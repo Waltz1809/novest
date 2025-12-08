@@ -10,6 +10,7 @@ export async function createNovel(data: {
     title: string;
     slug: string;
     author: string;
+    artist?: string;
     description: string;
     status: string;
     coverImage: string;
@@ -42,6 +43,7 @@ export async function createNovel(data: {
             title: data.title,
             slug: data.slug,
             author: data.author,
+            artist: data.artist || null,
             description: data.description,
             status: data.status,
             coverImage: data.coverImage,
@@ -98,6 +100,7 @@ export async function updateNovel(id: number, data: {
     title: string;
     slug: string;
     author: string;
+    artist?: string;
     description: string;
     status: string;
     coverImage: string;
@@ -142,6 +145,7 @@ export async function updateNovel(id: number, data: {
             title: data.title,
             slug: data.slug,
             author: data.author,
+            artist: data.artist || null,
             description: data.description,
             status: data.status,
             coverImage: data.coverImage,

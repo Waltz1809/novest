@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
@@ -43,6 +44,7 @@ const sidebarItems = [
         title: "Thể loại",
         href: "/admin/genres",
         icon: Tag,
+        adminOnly: true, // Only ADMIN can manage genres
     },
     {
         title: "Tickets",
@@ -53,11 +55,17 @@ const sidebarItems = [
         title: "Thông báo",
         href: "/admin/announcements",
         icon: Megaphone,
+        adminOnly: true, // Only ADMIN can manage announcements
     },
 ];
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const { data: session } = useSession();
+    const isAdmin = session?.user?.role === "ADMIN";
+
+    // Filter items based on role
+    const visibleItems = sidebarItems.filter(item => !item.adminOnly || isAdmin);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
@@ -91,7 +99,7 @@ export function AdminSidebar() {
 
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1 px-3 py-4">
-                    {sidebarItems.map((item) => {
+                    {visibleItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
                             <Link

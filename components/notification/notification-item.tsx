@@ -50,9 +50,13 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
 
     // Construct link based on resource type and notification type
     const getLink = () => {
+        // For new chapter notifications - resourceType is "chapter", resourceId is the chapter URL
+        if (notification.type === "NEW_CHAPTER" && notification.resourceId) {
+            return notification.resourceId;
+        }
+
         // For novel-related notifications
         if (notification.resourceType === "NOVEL" && notification.resourceId) {
-            const novelId = notification.resourceId;
             // For approved novels, link to public page
             if (notification.type === "NOVEL_APPROVED") {
                 return `/studio/novels`; // Go to studio novels to see approved
@@ -65,15 +69,11 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
             if (notification.type === "NEW_NOVEL_SUBMISSION") {
                 return `/admin/novels/pending`; // Admin reviews pending novels
             }
-            // For new chapter notifications, the resourceId is the chapter URL
-            if (notification.type === "NEW_CHAPTER") {
-                return notification.resourceId;
-            }
         }
 
-        // For comment replies
-        if (notification.resourceType === "COMMENT" && notification.resourceId) {
-            return notification.resourceId; // Should be the chapter URL
+        // For comment replies - resourceId is the chapter URL
+        if ((notification.resourceType === "COMMENT" || notification.resourceType === "comment") && notification.resourceId) {
+            return notification.resourceId;
         }
 
         return "/";

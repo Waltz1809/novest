@@ -206,11 +206,39 @@ export async function updateUserRole(userId: string, role: string) {
 
 /**
  * Ban user (soft ban - user can't login but account remains)
+ * ADMIN can ban anyone except other ADMINs
+ * MODERATOR can only ban READERs
  */
 export async function banUser(userId: string, reason: string) {
-    await checkAdmin();
+    const session = await auth();
+    const currentRole = session?.user?.role;
+
+    // Only ADMIN or MODERATOR can ban
+    if (!currentRole || (currentRole !== "ADMIN" && currentRole !== "MODERATOR")) {
+        return { error: "Không có quyền thực hiện" };
+    }
 
     try {
+        // Get target user's role
+        const targetUser = await db.user.findUnique({
+            where: { id: userId },
+            select: { role: true, name: true }
+        });
+
+        if (!targetUser) {
+            return { error: "Không tìm thấy người dùng" };
+        }
+
+        // ADMIN cannot be banned
+        if (targetUser.role === "ADMIN") {
+            return { error: "Không thể cấm Admin" };
+        }
+
+        // MODERATOR can only ban READER
+        if (currentRole === "MODERATOR" && targetUser.role !== "READER") {
+            return { error: "Moderator chỉ có thể cấm người dùng thường" };
+        }
+
         await db.user.update({
             where: { id: userId },
             data: {
@@ -229,11 +257,34 @@ export async function banUser(userId: string, reason: string) {
 
 /**
  * Unban user
+ * ADMIN can unban anyone
+ * MODERATOR can only unban READERs
  */
 export async function unbanUser(userId: string) {
-    await checkAdmin();
+    const session = await auth();
+    const currentRole = session?.user?.role;
+
+    // Only ADMIN or MODERATOR can unban
+    if (!currentRole || (currentRole !== "ADMIN" && currentRole !== "MODERATOR")) {
+        return { error: "Không có quyền thực hiện" };
+    }
 
     try {
+        // Get target user's role
+        const targetUser = await db.user.findUnique({
+            where: { id: userId },
+            select: { role: true }
+        });
+
+        if (!targetUser) {
+            return { error: "Không tìm thấy người dùng" };
+        }
+
+        // MODERATOR can only unban READER
+        if (currentRole === "MODERATOR" && targetUser.role !== "READER") {
+            return { error: "Moderator chỉ có thể bỏ cấm người dùng thường" };
+        }
+
         await db.user.update({
             where: { id: userId },
             data: {
