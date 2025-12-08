@@ -26,6 +26,7 @@ const updateProfileSchema = z.object({
         .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
         .optional()
         .or(z.literal("")),
+    birthday: z.string().optional(), // ISO date string (YYYY-MM-DD)
 });
 
 /**
@@ -117,7 +118,7 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
         };
     }
 
-    const { nickname, image, username } = validatedFields.data;
+    const { nickname, image, username, birthday } = validatedFields.data;
 
     try {
         // Get current user data to check for old image
@@ -131,7 +132,7 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
         });
 
         // Build update data object (only include fields that were provided)
-        const updateData: { nickname?: string | null; image?: string | null; username?: string } = {};
+        const updateData: { nickname?: string | null; image?: string | null; username?: string; birthday?: Date | null } = {};
 
         if (nickname !== undefined) {
             updateData.nickname = nickname === "" ? null : nickname;
@@ -178,6 +179,11 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
             }
 
             updateData.username = username;
+        }
+
+        // Handle birthday update
+        if (birthday !== undefined) {
+            updateData.birthday = birthday ? new Date(birthday) : null;
         }
 
         // Update user profile

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Check, Edit, ImageIcon, ChevronDown, X } from "lucide-react";
 import { updateNovel } from "@/actions/novel";
+import { getGenres } from "@/actions/search";
 import ImageUpload from "@/components/novel/image-upload";
+import GenreSelector from "@/components/novel/genre-selector";
 
 
 interface Genre {
@@ -19,11 +21,13 @@ interface NovelInfoEditorProps {
         title: string;
         slug: string;
         author: string;
+        artist?: string | null;
         description: string | null;
         status: string;
         coverImage: string | null;
         alternativeTitles: string | null;
         genres: Genre[];
+        isR18?: boolean;
     };
 }
 
@@ -31,20 +35,34 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
     const [formData, setFormData] = useState({
         title: novel.title,
         author: novel.author,
+        artist: novel.artist || "",
         description: novel.description || "",
         status: novel.status,
+        isR18: novel.isR18 ?? false,
     });
+    const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(
+        novel.genres.map(g => g.id)
+    );
+    const [allGenres, setAllGenres] = useState<Genre[]>([]);
 
     const [isSaving, setIsSaving] = useState(false);
     const [showSaved, setShowSaved] = useState(false);
     const [coverPreview, setCoverPreview] = useState<string | null>(novel.coverImage);
 
+    // Fetch all genres on mount
+    useEffect(() => {
+        getGenres().then(setAllGenres);
+    }, []);
+
     const hasChanges =
         formData.title !== novel.title ||
         formData.author !== novel.author ||
+        formData.artist !== (novel.artist || "") ||
         formData.description !== (novel.description || "") ||
         formData.status !== novel.status ||
-        coverPreview !== novel.coverImage;
+        formData.isR18 !== (novel.isR18 ?? false) ||
+        coverPreview !== novel.coverImage ||
+        JSON.stringify(selectedGenreIds.sort()) !== JSON.stringify(novel.genres.map(g => g.id).sort());
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -55,7 +73,7 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                 slug: novel.slug,
                 coverImage: coverPreview || "",
                 alternativeTitles: novel.alternativeTitles || "",
-                genreIds: novel.genres.map(g => g.id),
+                genreIds: selectedGenreIds,
             });
             setIsSaving(false);
             setShowSaved(true);
@@ -111,6 +129,17 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                         </div>
 
                         <div>
+                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Họa sĩ (tùy chọn)</label>
+                            <input
+                                type="text"
+                                value={formData.artist}
+                                onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
+                                className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                placeholder="Tên họa sĩ (nếu có)"
+                            />
+                        </div>
+
+                        <div>
                             <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Tóm tắt</label>
                             <textarea
                                 rows={4}
@@ -119,6 +148,29 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                                 className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all resize-none"
                                 placeholder="Tóm tắt"
                             />
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Thể loại</label>
+                            <GenreSelector
+                                genres={allGenres}
+                                selectedValues={selectedGenreIds}
+                                onChange={setSelectedGenreIds}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isR18}
+                                    onChange={(e) => setFormData({ ...formData, isR18: e.target.checked })}
+                                    className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#0f172a] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
+                                />
+                                <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                    Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
+                                </span>
+                            </label>
                         </div>
 
                         <div>
@@ -164,3 +216,4 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
         </div>
     );
 }
+

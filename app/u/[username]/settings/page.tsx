@@ -25,6 +25,11 @@ export default function SettingsPage() {
     const [showWelcome, setShowWelcome] = useState(false);
     const [isUsernameLocked, setIsUsernameLocked] = useState(false);
 
+    // Birthday state
+    const [birthDay, setBirthDay] = useState<string>("");
+    const [birthMonth, setBirthMonth] = useState<string>("");
+    const [birthYear, setBirthYear] = useState<string>("");
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login");
@@ -102,7 +107,12 @@ export default function SettingsPage() {
             return;
         }
 
-        const result = await updateProfile({ nickname, image, username });
+        // Build birthday string if all parts are selected
+        const birthday = birthYear && birthMonth && birthDay
+            ? `${birthYear}-${birthMonth}-${birthDay}`
+            : undefined;
+
+        const result = await updateProfile({ nickname, image, username, birthday });
 
         if (result.error) {
             setError(result.error);
@@ -292,6 +302,56 @@ export default function SettingsPage() {
                                         </div>
                                     </>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Birthday Section */}
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400">Ngày Sinh</h2>
+                            <div className="bg-slate-950/50 backdrop-blur-xs rounded-xl border border-white/10 p-6">
+                                <div className="flex flex-wrap gap-3 mb-4">
+                                    <select
+                                        value={birthDay}
+                                        onChange={(e) => setBirthDay(e.target.value)}
+                                        className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                    >
+                                        <option value="">Ngày</option>
+                                        {Array.from({ length: 31 }, (_, i) => (
+                                            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{i + 1}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={birthMonth}
+                                        onChange={(e) => setBirthMonth(e.target.value)}
+                                        className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                    >
+                                        <option value="">Tháng</option>
+                                        {[
+                                            "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+                                            "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+                                            "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+                                        ].map((month, i) => (
+                                            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{month}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={birthYear}
+                                        onChange={(e) => setBirthYear(e.target.value)}
+                                        className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                    >
+                                        <option value="">Năm</option>
+                                        {Array.from({ length: 100 }, (_, i) => {
+                                            const year = new Date().getFullYear() - i;
+                                            return <option key={year} value={year}>{year}</option>;
+                                        })}
+                                    </select>
+                                </div>
+                                <p className="text-sm text-amber-400 flex items-center gap-2">
+                                    🎁 Novest sẽ gửi quà vào ngày sinh nhật của bạn!
+                                </p>
+                                <p className="text-xs text-slate-500 mt-2">
+                                    Ngày sinh cũng được dùng để xác minh tuổi cho nội dung người lớn.
+                                </p>
                             </div>
                         </div>
 

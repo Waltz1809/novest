@@ -26,6 +26,7 @@ export default async function Home() {
     db.novel.findMany({
       where: {
         approvalStatus: "APPROVED",
+        isR18: false, // Hide R18 from public listings
       },
       select: {
         id: true,
@@ -59,6 +60,7 @@ export default async function Home() {
     db.novel.findMany({
       where: {
         approvalStatus: "APPROVED",
+        isR18: false, // Hide R18 from public listings
       },
       orderBy: {
         updatedAt: "desc",

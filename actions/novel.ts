@@ -18,6 +18,7 @@ export async function createNovel(data: {
     genreIds?: number[];
     nation?: string;
     novelFormat?: string;
+    isR18?: boolean;
 }) {
     const session = await auth();
     // Any logged-in user can submit a novel (will be pending approval)
@@ -53,6 +54,7 @@ export async function createNovel(data: {
             approvalStatus: "PENDING", // New novels require approval
             nation: data.nation || "CN",
             novelFormat: data.novelFormat || "WN",
+            isR18: data.isR18 ?? false,
             genres: {
                 connect: data.genreIds?.map((id) => ({ id: Number(id) })),
             },
@@ -108,6 +110,7 @@ export async function updateNovel(id: number, data: {
     genreIds?: number[];
     nation?: string;
     novelFormat?: string;
+    isR18?: boolean;
 }) {
     const session = await auth();
     if (!session?.user) {
@@ -153,6 +156,7 @@ export async function updateNovel(id: number, data: {
             searchIndex,
             nation: data.nation,
             novelFormat: data.novelFormat,
+            isR18: data.isR18 ?? false,
             genres: {
                 set: [], // Clear old genres
                 connect: data.genreIds?.map((id) => ({ id: Number(id) })),

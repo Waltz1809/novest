@@ -45,6 +45,7 @@ interface FormData {
     genreIds: number[];
     nation: string;
     novelFormat: string;
+    isR18: boolean;
 }
 
 export default function NovelForm({ initialData, genres }: NovelFormProps) {
@@ -70,6 +71,7 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
             genreIds: initialData?.genres.map((g) => g.id) || [],
             nation: initialData?.nation || "CN",
             novelFormat: initialData?.novelFormat || "WN",
+            isR18: false,
         },
     });
 
@@ -249,6 +251,19 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                                     selectedValues={genreIds}
                                     onChange={(values) => setValue("genreIds", values)}
                                 />
+                            </div>
+
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        {...register("isR18")}
+                                        className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#020617] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
+                                    />
+                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                        Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
+                                    </span>
+                                </label>
                             </div>
                         </div>
 

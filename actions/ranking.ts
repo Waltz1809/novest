@@ -29,6 +29,7 @@ export async function getTopViewed(limit: number = 10): Promise<NovelWithViewCou
     const novels = await db.novel.findMany({
         where: {
             approvalStatus: "APPROVED", // Only show approved novels
+            isR18: false, // Hide R18 from public listings
         },
         select: {
             id: true,
@@ -56,6 +57,7 @@ export async function getTopRated(limit: number = 10): Promise<NovelWithRating[]
     const novelsWithRatings = await db.novel.findMany({
         where: {
             approvalStatus: "APPROVED", // Only show approved novels
+            isR18: false, // Hide R18 from public listings
         },
         select: {
             id: true,

@@ -76,6 +76,9 @@ model User {
   isBanned  Boolean  @default(false)
   banReason String?
   tickets   Ticket[]
+
+  // Age verification for R18 content
+  birthday DateTime?
 }
 
 model Ticket {
@@ -205,6 +208,9 @@ model Novel {
 
   // Discount for completed novels (uploader can set 10-100%)
   discountPercent Int @default(0)
+
+  // R18/Adult content flag
+  isR18 Boolean @default(false)
 
   volumes        Volume[]
   genres         Genre[]

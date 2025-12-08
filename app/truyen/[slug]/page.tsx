@@ -12,6 +12,8 @@ import { getUserRating } from "@/actions/interaction";
 import { getRelatedNovels } from "@/actions/novel";
 import NovelDescription from "@/components/novel/novel-description";
 import VolumeList from "@/components/novel/volume-list";
+import { incrementView } from "@/actions/view";
+import { canViewR18 } from "@/lib/r18";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -94,6 +96,22 @@ export default async function NovelDetailPage({ params }: PageProps) {
     if (novel.approvalStatus === "PENDING" && !canSeeDrafts) {
         notFound();
     }
+
+    // R18 Content Protection: Block access for ineligible users
+    if (novel.isR18) {
+        // Get user's birthday for R18 check
+        const userData = session?.user?.id ? await db.user.findUnique({
+            where: { id: session.user.id },
+            select: { birthday: true }
+        }) : null;
+
+        if (!canViewR18(session, userData?.birthday)) {
+            notFound(); // Show 404 for non-logged-in, no birthday, or under 18
+        }
+    }
+
+    // Increment view count (server-side, spam-protected)
+    await incrementView(novel.id);
 
     let isInLibrary = false;
     if (session?.user) {
