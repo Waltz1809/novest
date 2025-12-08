@@ -1,5 +1,4 @@
 import { auth } from "@/auth"
-import { db } from "@/lib/db"
 import { User } from "lucide-react"
 import UserMenu from "./user-menu"
 import Link from "next/link"
@@ -19,11 +18,5 @@ export default async function UserButton() {
         )
     }
 
-    const wallet = await db.wallet.findUnique({
-        where: { userId: session.user.id },
-    });
-
-    const balance = wallet?.balance || 0;
-
-    return <UserMenu user={session.user} balance={balance} />
+    return <UserMenu user={session.user} />
 }

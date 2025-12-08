@@ -3,9 +3,8 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { User, LogOut, Book, LayoutDashboard, Settings, Coins, PlusCircle } from "lucide-react";
+import { User, LogOut, Book, LayoutDashboard, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { addMockBalance } from "@/actions/wallet";
 
 interface UserMenuProps {
     user: {
@@ -16,7 +15,7 @@ interface UserMenuProps {
     };
 }
 
-export default function UserMenu({ user, balance }: UserMenuProps & { balance: number }) {
+export default function UserMenu({ user }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -60,27 +59,6 @@ export default function UserMenu({ user, balance }: UserMenuProps & { balance: n
                 <div className="absolute right-0 mt-2 w-64 bg-[#0B0C10] rounded-xl shadow-2xl border border-[#1F2937] py-2 z-50 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-white/5">
                     <div className="px-4 py-3 border-b border-[#1F2937] mb-2">
                         <p className="text-sm font-medium text-gray-200">Tài khoản của tôi</p>
-
-                        {/* Wallet Section */}
-                        <div className="mt-3 flex items-center justify-between bg-[#1F2937]/50 p-2 rounded-lg border border-[#F59E0B]/20">
-                            <div className="flex items-center gap-2 text-[#F59E0B]">
-                                <Coins className="w-4 h-4" />
-                                <span className="font-bold text-sm">{balance.toLocaleString()} Xu</span>
-                            </div>
-                            <form
-                                action={async () => {
-                                    await addMockBalance();
-                                }}
-                            >
-                                <button
-                                    type="submit"
-                                    className="flex items-center gap-1 text-xs font-bold text-[#34D399] hover:text-[#10B981] hover:underline transition-colors"
-                                >
-                                    <PlusCircle className="w-3 h-3" />
-                                    +1000
-                                </button>
-                            </form>
-                        </div>
                     </div>
 
                     {/* Profile Link */}
