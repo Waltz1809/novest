@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch: # Manual trigger
 
 jobs:
@@ -17,8 +17,13 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            # Load NVM
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
             cd ~/novest
-            git pull origin main
+            git fetch --all
+            git reset --hard origin/master
             npm install
             npx prisma generate
             npx prisma migrate deploy

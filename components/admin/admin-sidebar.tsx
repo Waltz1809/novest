@@ -8,6 +8,7 @@ import {
     Users,
     MessageSquare,
     BookOpen,
+    Tag,
     Ticket,
     Megaphone,
     LogOut,
@@ -37,6 +38,11 @@ const sidebarItems = [
         title: "Novels",
         href: "/admin/novels",
         icon: BookOpen,
+    },
+    {
+        title: "Thể loại",
+        href: "/admin/genres",
+        icon: Tag,
     },
     {
         title: "Tickets",
