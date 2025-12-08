@@ -46,3 +46,27 @@ export function getR18Filter(session: Session | null, userBirthday?: Date | stri
     }
     return { isR18: false }; // Only show non-R18 content
 }
+
+/**
+ * Get the specific reason why user cannot view R18 content
+ * Used for displaying appropriate gate messages
+ */
+export function getR18BlockReason(session: Session | null, userBirthday?: Date | string | null): "not_logged_in" | "no_birthday" | "under_18" | null {
+    // Can view - no block reason
+    if (canViewR18(session, userBirthday)) {
+        return null;
+    }
+
+    // Not logged in
+    if (!session?.user) {
+        return "not_logged_in";
+    }
+
+    // No birthday set
+    if (!userBirthday) {
+        return "no_birthday";
+    }
+
+    // Under 18
+    return "under_18";
+}

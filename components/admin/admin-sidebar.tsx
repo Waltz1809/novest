@@ -44,7 +44,6 @@ const sidebarItems = [
         title: "Thể loại",
         href: "/admin/genres",
         icon: Tag,
-        adminOnly: true, // Only ADMIN can manage genres
     },
     {
         title: "Tickets",

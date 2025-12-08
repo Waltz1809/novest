@@ -1,9 +1,11 @@
 "use client";
 
-import { BookOpen, MessageSquare, CheckCircle, XCircle, Bell } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, MessageSquare, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { formatRelativeTime } from "@/lib/format-time";
 import { markAsRead } from "@/actions/notification";
-import Link from "next/link";
+import { getNovelApprovalStatus } from "@/actions/novel";
+import { useRouter } from "next/navigation";
 
 interface NotificationItemProps {
     notification: {
@@ -25,11 +27,38 @@ interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification, onClose, onUpdate }: NotificationItemProps) {
-    const handleClick = async () => {
-        // Mark as read
+    const router = useRouter();
+    const [isNavigating, setIsNavigating] = useState(false);
+
+    const handleClick = async (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        // Mark as read first
         await markAsRead(notification.id);
-        onUpdate(); // Update unread count
-        onClose(); // Close dropdown
+        onUpdate();
+
+        // Smart routing for NEW_NOVEL_SUBMISSION
+        if (notification.type === "NEW_NOVEL_SUBMISSION" && notification.resourceId) {
+            setIsNavigating(true);
+            const approvalStatus = await getNovelApprovalStatus(notification.resourceId);
+
+            if (approvalStatus === "APPROVED") {
+                // Novel is already approved, go to normal page
+                router.push(`/truyen/${notification.resourceId}`);
+            } else {
+                // Novel is pending/rejected, go to review page
+                router.push(`/truyen/${notification.resourceId}/cho-duyet`);
+            }
+            onClose();
+            return;
+        }
+
+        // For other notification types, use static routing
+        const link = getLink();
+        if (link !== "/") {
+            router.push(link);
+        }
+        onClose();
     };
 
     // Determine icon based on type
@@ -48,7 +77,7 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
     };
     const Icon = getIcon();
 
-    // Construct link based on resource type and notification type
+    // Construct link based on resource type and notification type (for non-dynamic cases)
     const getLink = () => {
         // For new chapter notifications - resourceType is "chapter", resourceId is the chapter URL
         if (notification.type === "NEW_CHAPTER" && notification.resourceId) {
@@ -65,10 +94,7 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
             if (notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PENDING") {
                 return `/studio/novels/pending`; // Go to pending page
             }
-            // For new novel submission (admin notification), link to admin pending page
-            if (notification.type === "NEW_NOVEL_SUBMISSION") {
-                return `/admin/novels/pending`; // Admin reviews pending novels
-            }
+            // NEW_NOVEL_SUBMISSION is handled dynamically in handleClick
         }
 
         // For comment replies - resourceId is the chapter URL
@@ -80,11 +106,11 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
     };
 
     return (
-        <Link
-            href={getLink()}
+        <button
             onClick={handleClick}
-            className={`block px-4 py-3 hover:bg-[#1E293B] transition-colors border-b border-[#34D399]/10 last:border-b-0 ${!notification.isRead ? "bg-[#1E293B]/50" : ""
-                }`}
+            disabled={isNavigating}
+            className={`block w-full text-left px-4 py-3 hover:bg-[#1E293B] transition-colors border-b border-[#34D399]/10 last:border-b-0 ${!notification.isRead ? "bg-[#1E293B]/50" : ""
+                } ${isNavigating ? "opacity-50 cursor-wait" : ""}`}
         >
             <div className="flex gap-3">
                 {/* Icon */}
@@ -97,7 +123,11 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
                                 ? "bg-[#F59E0B]/20 text-[#F59E0B]"
                                 : "bg-[#34D399]/20 text-[#34D399]"
                         }`}>
-                        <Icon className="w-4 h-4" />
+                        {isNavigating ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <Icon className="w-4 h-4" />
+                        )}
                     </div>
                 </div>
 
@@ -119,6 +149,6 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
                     </div>
                 )}
             </div>
-        </Link>
+        </button>
     );
 }

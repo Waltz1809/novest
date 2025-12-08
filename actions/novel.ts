@@ -6,6 +6,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateSearchIndex } from "@/lib/utils";
 
+/**
+ * Get novel approval status by slug (for smart notification routing)
+ */
+export async function getNovelApprovalStatus(slug: string): Promise<string | null> {
+    try {
+        const novel = await db.novel.findUnique({
+            where: { slug },
+            select: { approvalStatus: true },
+        });
+        return novel?.approvalStatus || null;
+    } catch {
+        return null;
+    }
+}
+
 export async function createNovel(data: {
     title: string;
     slug: string;
@@ -79,7 +94,7 @@ export async function createNovel(data: {
                         userId: admin.id,
                         actorId: session.user.id,
                         type: "NEW_NOVEL_SUBMISSION",
-                        resourceId: String(novel.id),
+                        resourceId: novel.slug, // Store slug for direct navigation
                         resourceType: "NOVEL",
                         message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
                     },

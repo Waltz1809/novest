@@ -121,13 +121,14 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
     const { nickname, image, username, birthday } = validatedFields.data;
 
     try {
-        // Get current user data to check for old image
+        // Get current user data to check for old image and locked fields
         const currentUser = await db.user.findUnique({
             where: { id: session.user.id },
             select: {
                 image: true,
                 username: true,
-                email: true
+                email: true,
+                birthday: true // Check if already set
             }
         });
 
@@ -181,9 +182,13 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
             updateData.username = username;
         }
 
-        // Handle birthday update
-        if (birthday !== undefined) {
-            updateData.birthday = birthday ? new Date(birthday) : null;
+        // Handle birthday update - one-time set only (like username)
+        if (birthday !== undefined && birthday !== "") {
+            // Check if birthday is already set
+            if (currentUser?.birthday) {
+                return { error: "Bạn chỉ có thể đặt ngày sinh một lần duy nhất." };
+            }
+            updateData.birthday = new Date(birthday);
         }
 
         // Update user profile
@@ -213,6 +218,24 @@ export async function checkUsernameAvailability(username: string) {
     } catch (error) {
         console.error("Check username error:", error);
         return false;
+    }
+}
+
+/**
+ * Get current user's birthday (to check if locked)
+ */
+export async function getUserBirthday(): Promise<Date | null> {
+    const session = await auth();
+    if (!session?.user?.id) return null;
+
+    try {
+        const user = await db.user.findUnique({
+            where: { id: session.user.id },
+            select: { birthday: true }
+        });
+        return user?.birthday || null;
+    } catch {
+        return null;
     }
 }
 

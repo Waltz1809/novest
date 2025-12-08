@@ -75,7 +75,7 @@ export default function RichTextEditor({
                                 return prop === "font-weight" || prop === "font-style" || prop === "text-decoration";
                             })
                             .join(";");
-                        
+
                         if (cleanStyle) {
                             element.setAttribute("style", cleanStyle);
                         } else {
@@ -128,7 +128,7 @@ export default function RichTextEditor({
     );
 
     return (
-        <div className="bg-card shadow-md focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all rounded-xl overflow-hidden">
+        <div className="bg-card shadow-md focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all rounded-xl overflow-hidden resize-y" style={{ minHeight: '400px' }}>
             {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-1 p-2 bg-muted/50">
                 {/* Text Formatting */}

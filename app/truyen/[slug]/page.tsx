@@ -13,7 +13,9 @@ import { getRelatedNovels } from "@/actions/novel";
 import NovelDescription from "@/components/novel/novel-description";
 import VolumeList from "@/components/novel/volume-list";
 import { incrementView } from "@/actions/view";
-import { canViewR18 } from "@/lib/r18";
+import { ViewTracker } from "@/components/novel/view-tracker";
+import { canViewR18, getR18BlockReason } from "@/lib/r18";
+import { R18Gate } from "@/components/novel/r18-gate";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -105,8 +107,9 @@ export default async function NovelDetailPage({ params }: PageProps) {
             select: { birthday: true }
         }) : null;
 
-        if (!canViewR18(session, userData?.birthday)) {
-            notFound(); // Show 404 for non-logged-in, no birthday, or under 18
+        const blockReason = getR18BlockReason(session, userData?.birthday);
+        if (blockReason) {
+            return <R18Gate novelTitle={novel.title} novelSlug={novel.slug} reason={blockReason} />;
         }
     }
 
@@ -181,6 +184,9 @@ export default async function NovelDetailPage({ params }: PageProps) {
         <div className="min-h-screen bg-background font-sans text-foreground">
             {/* Header */}
             <MainHeader />
+
+            {/* Track view with cookie (client-side) */}
+            <ViewTracker novelId={novel.id} />
 
             <main>
                 {/* Hero Section - Dark Ink & Neon */}
