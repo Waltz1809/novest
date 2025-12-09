@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { AlignLeft, AlignJustify, AlignCenter, Minus, Plus, RotateCcw } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { AlignLeft, AlignJustify, AlignCenter, Minus, Plus, RotateCcw, ChevronDown } from "lucide-react"
 import { clsx } from "clsx"
 
 export interface ReadingConfig {
@@ -42,6 +42,8 @@ export function ReadingSettings({
     onConfigChange: (config: ReadingConfig) => void
 }) {
     const [config, setConfig] = useState<ReadingConfig>(DEFAULT_CONFIG)
+    const [fontDropdownOpen, setFontDropdownOpen] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
 
     // Load config from localStorage on mount
     useEffect(() => {
@@ -62,6 +64,17 @@ export function ReadingSettings({
             }
         }
     }, [onConfigChange])
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setFontDropdownOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
 
     const updateConfig = (newConfig: Partial<ReadingConfig>) => {
         const updated = { ...config, ...newConfig }
@@ -89,60 +102,91 @@ export function ReadingSettings({
         { id: "nunito", name: "Nunito" },
     ]
 
+    const selectedFont = fontOptions.find(f => f.id === config.font)
+
     return (
         <div className={clsx(
-            "w-[320px] rounded-2xl p-5 shadow-2xl border backdrop-blur-md transition-colors duration-300",
+            "w-full max-w-[340px] rounded-2xl p-5 shadow-2xl border backdrop-blur-md transition-colors duration-300",
             isDarkPanel
                 ? "bg-[#1a1a1a]/95 border-white/10 text-gray-200"
                 : "bg-white/95 border-gray-200 text-gray-800"
         )}>
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-lg">Cài đặt hiển thị</h3>
                 <button
                     onClick={resetConfig}
-                    className="text-xs text-amber-500 hover:text-amber-600 font-medium flex items-center gap-1"
+                    className="text-sm text-amber-500 hover:text-amber-600 font-medium flex items-center gap-1"
                 >
-                    <RotateCcw className="w-3 h-3" /> Mặc định
+                    <RotateCcw className="w-3.5 h-3.5" /> Mặc định
                 </button>
             </div>
 
             {/* Typography Section */}
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-5">
                 <h4 className="text-xs font-bold uppercase opacity-50 tracking-wider">Phông chữ</h4>
 
-                {/* Font Family - 2 rows of 3 */}
-                <div className="grid grid-cols-3 gap-2">
-                    {fontOptions.map((fontOpt) => (
-                        <button
-                            key={fontOpt.id}
-                            onClick={() => updateConfig({ font: fontOpt.id })}
-                            className={clsx(
-                                "px-2 py-2 rounded-lg text-xs border transition-all",
-                                config.font === fontOpt.id
-                                    ? "border-amber-500 bg-amber-500/10 text-amber-500"
-                                    : isDarkPanel
-                                        ? "border-transparent bg-white/5 hover:bg-white/10"
-                                        : "border-transparent bg-black/5 hover:bg-black/10"
-                            )}
-                            style={{ fontFamily: FONT_FAMILIES[fontOpt.id] }}
-                        >
-                            {fontOpt.name}
-                        </button>
-                    ))}
+                {/* Custom Font Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <button
+                        type="button"
+                        onClick={() => setFontDropdownOpen(!fontDropdownOpen)}
+                        className={clsx(
+                            "w-full px-4 py-3 rounded-lg text-sm border transition-colors cursor-pointer flex items-center justify-between",
+                            isDarkPanel
+                                ? "bg-[#2a2a2a] border-white/10 text-gray-200 hover:bg-[#333]"
+                                : "bg-white border-black/10 text-gray-800 hover:bg-gray-50"
+                        )}
+                        style={{ fontFamily: FONT_FAMILIES[config.font] }}
+                    >
+                        <span>{selectedFont?.name}</span>
+                        <ChevronDown className={clsx("w-4 h-4 transition-transform", fontDropdownOpen && "rotate-180")} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {fontDropdownOpen && (
+                        <div className={clsx(
+                            "absolute top-full left-0 right-0 mt-1 rounded-lg border shadow-lg overflow-hidden z-10",
+                            isDarkPanel
+                                ? "bg-[#2a2a2a] border-white/10"
+                                : "bg-white border-black/10"
+                        )}>
+                            {fontOptions.map((fontOpt) => (
+                                <button
+                                    key={fontOpt.id}
+                                    type="button"
+                                    onClick={() => {
+                                        updateConfig({ font: fontOpt.id })
+                                        setFontDropdownOpen(false)
+                                    }}
+                                    className={clsx(
+                                        "w-full px-4 py-2.5 text-left text-sm transition-colors",
+                                        config.font === fontOpt.id
+                                            ? "bg-amber-500/20 text-amber-500"
+                                            : isDarkPanel
+                                                ? "text-gray-200 hover:bg-white/10"
+                                                : "text-gray-800 hover:bg-black/5"
+                                    )}
+                                    style={{ fontFamily: FONT_FAMILIES[fontOpt.id] }}
+                                >
+                                    {fontOpt.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Font Size */}
                 <div className="flex items-center justify-between">
                     <span className="text-sm opacity-80">Cỡ chữ</span>
                     <div className={clsx(
-                        "flex items-center gap-3 rounded-lg p-1",
+                        "flex items-center gap-3 rounded-lg p-1.5",
                         isDarkPanel ? "bg-white/5" : "bg-black/5"
                     )}>
                         <button
                             onClick={() => updateConfig({ fontSize: Math.max(14, config.fontSize - 1) })}
                             className={clsx(
-                                "p-1.5 rounded transition-colors",
+                                "p-2 rounded transition-colors",
                                 isDarkPanel ? "hover:bg-white/10" : "hover:bg-black/10"
                             )}
                         >
@@ -152,7 +196,7 @@ export function ReadingSettings({
                         <button
                             onClick={() => updateConfig({ fontSize: Math.min(32, config.fontSize + 1) })}
                             className={clsx(
-                                "p-1.5 rounded transition-colors",
+                                "p-2 rounded transition-colors",
                                 isDarkPanel ? "hover:bg-white/10" : "hover:bg-black/10"
                             )}
                         >
@@ -165,13 +209,13 @@ export function ReadingSettings({
                 <div className="flex items-center justify-between">
                     <span className="text-sm opacity-80">Dãn dòng</span>
                     <div className={clsx(
-                        "flex items-center gap-3 rounded-lg p-1",
+                        "flex items-center gap-3 rounded-lg p-1.5",
                         isDarkPanel ? "bg-white/5" : "bg-black/5"
                     )}>
                         <button
                             onClick={() => updateConfig({ lineHeight: Math.max(1.2, Number((config.lineHeight - 0.1).toFixed(1))) })}
                             className={clsx(
-                                "p-1.5 rounded transition-colors",
+                                "p-2 rounded transition-colors",
                                 isDarkPanel ? "hover:bg-white/10" : "hover:bg-black/10"
                             )}
                         >
@@ -181,7 +225,7 @@ export function ReadingSettings({
                         <button
                             onClick={() => updateConfig({ lineHeight: Math.min(2.5, Number((config.lineHeight + 0.1).toFixed(1))) })}
                             className={clsx(
-                                "p-1.5 rounded transition-colors",
+                                "p-2 rounded transition-colors",
                                 isDarkPanel ? "hover:bg-white/10" : "hover:bg-black/10"
                             )}
                         >
@@ -192,7 +236,7 @@ export function ReadingSettings({
             </div>
 
             {/* Layout Section */}
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-5">
                 <h4 className="text-xs font-bold uppercase opacity-50 tracking-wider">Bố cục</h4>
 
                 <div className="flex items-center justify-between">
@@ -204,35 +248,35 @@ export function ReadingSettings({
                         <button
                             onClick={() => updateConfig({ textAlign: "left" })}
                             className={clsx(
-                                "p-2 rounded transition-colors",
+                                "p-2.5 rounded transition-colors",
                                 config.textAlign === "left"
                                     ? isDarkPanel ? "bg-gray-700 shadow-sm text-amber-500" : "bg-white shadow-sm text-amber-500"
                                     : "hover:text-amber-500"
                             )}
                         >
-                            <AlignLeft className="w-4 h-4" />
+                            <AlignLeft className="w-5 h-5" />
                         </button>
                         <button
                             onClick={() => updateConfig({ textAlign: "center" })}
                             className={clsx(
-                                "p-2 rounded transition-colors",
+                                "p-2.5 rounded transition-colors",
                                 config.textAlign === "center"
                                     ? isDarkPanel ? "bg-gray-700 shadow-sm text-amber-500" : "bg-white shadow-sm text-amber-500"
                                     : "hover:text-amber-500"
                             )}
                         >
-                            <AlignCenter className="w-4 h-4" />
+                            <AlignCenter className="w-5 h-5" />
                         </button>
                         <button
                             onClick={() => updateConfig({ textAlign: "justify" })}
                             className={clsx(
-                                "p-2 rounded transition-colors",
+                                "p-2.5 rounded transition-colors",
                                 config.textAlign === "justify"
                                     ? isDarkPanel ? "bg-gray-700 shadow-sm text-amber-500" : "bg-white shadow-sm text-amber-500"
                                     : "hover:text-amber-500"
                             )}
                         >
-                            <AlignJustify className="w-4 h-4" />
+                            <AlignJustify className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
@@ -241,7 +285,7 @@ export function ReadingSettings({
             {/* Theme Section */}
             <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase opacity-50 tracking-wider">Giao diện</h4>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-5 gap-3">
                     {[
                         { id: "light", name: "Light", color: "#ffffff", text: "#000" },
                         { id: "sepia", name: "Sepia", color: "#f4ecd8", text: "#5b4636" },
@@ -264,10 +308,11 @@ export function ReadingSettings({
                                 updateConfig({ theme: themeOption.id as ReadingConfig["theme"] })
                             }}
                             className="flex flex-col items-center gap-1 group cursor-pointer"
+                            title={themeOption.name}
                         >
                             <div
                                 className={clsx(
-                                    "w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transition-all pointer-events-none",
+                                    "w-9 h-9 rounded-full border-2 flex items-center justify-center shadow-sm transition-all pointer-events-none",
                                     config.theme === themeOption.id
                                         ? "border-amber-500 scale-110"
                                         : isDarkPanel
@@ -283,7 +328,6 @@ export function ReadingSettings({
                                     A
                                 </span>
                             </div>
-                            <span className="text-[10px] opacity-70 pointer-events-none">{themeOption.name}</span>
                         </button>
                     ))}
                 </div>

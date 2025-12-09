@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { User, LogOut, Book, LayoutDashboard, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useRealUsername } from "@/hooks/use-real-username";
 
 interface UserMenuProps {
     user: {
@@ -19,6 +20,9 @@ export default function UserMenu({ user }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Fetch real username from DB to bypass stale JWT session
+    const { username: realUsername } = useRealUsername(user.username);
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -30,6 +34,9 @@ export default function UserMenu({ user }: UserMenuProps) {
     }, []);
 
     const isAdminOrTranslator = user.role === "ADMIN" || user.role === "TRANSLATOR";
+
+    // Use real username from DB, fallback to session username
+    const displayUsername = realUsername || user.username;
 
     return (
         <div className="relative" ref={menuRef}>
@@ -63,7 +70,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                     {/* Profile Link */}
                     <Link
-                        href={`/u/${user.username}`}
+                        href={`/u/${displayUsername}`}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
@@ -73,7 +80,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
                     {/* Settings Link - For all users */}
                     <Link
-                        href={`/u/${user.username}/settings`}
+                        href={`/u/${displayUsername}/settings`}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
                         onClick={() => setIsOpen(false)}
                     >

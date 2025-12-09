@@ -133,7 +133,7 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                    <p className={`text-sm text-gray-200 ${!notification.isRead ? "font-semibold" : "font-normal"
+                    <p className={`text-sm text-gray-200 line-clamp-2 wrap-break-word ${!notification.isRead ? "font-semibold" : "font-normal"
                         }`}>
                         {notification.message}
                     </p>

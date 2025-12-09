@@ -226,14 +226,24 @@ export function ChapterPageClient({
                 style={{ width: `${progress}%` }}
             />
 
-            {/* Settings Panel (Conditional Render) */}
+            {/* Settings Panel (Centered Modal) */}
             {showSettings && (
-                <div
-                    ref={settingsRef}
-                    className="fixed bottom-24 right-8 z-50 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-200"
-                >
-                    <ReadingSettings onConfigChange={setConfig} />
-                </div>
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+                        onClick={() => setShowSettings(false)}
+                    />
+                    {/* Modal Container */}
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                        <div
+                            ref={settingsRef}
+                            className="pointer-events-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-200"
+                        >
+                            <ReadingSettings onConfigChange={setConfig} />
+                        </div>
+                    </div>
+                </>
             )}
 
             <main className="pt-12 pb-20 container mx-auto px-4 max-w-4xl">

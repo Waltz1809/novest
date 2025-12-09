@@ -39,21 +39,48 @@ interface Comment {
     replyCount?: number
 }
 
-// Build tree from flat list
+// Utility to build FLAT comment structure (max 1 level of nesting)
+// All replies go directly under root comment, no deep nesting
+// Thread context is shown via reply context tag (@user · parent_content)
 function buildCommentTree(flatComments: Comment[]): Comment[] {
     const commentMap = new Map<number, Comment>()
     const roots: Comment[] = []
 
+    // First pass: create map and initialize children array
     flatComments.forEach((c) => {
         commentMap.set(c.id, { ...c, children: [] })
     })
 
+    // Find root ancestor for each comment
+    const findRootId = (comment: Comment): number | null => {
+        if (!comment.parentId) return null // Already a root
+
+        let current = comment
+        while (current.parentId && commentMap.has(current.parentId)) {
+            current = commentMap.get(current.parentId)!
+        }
+        // current is now the root, return its id if current is different from original
+        return current.id !== comment.id ? current.id : null
+    }
+
+    // Second pass: link ALL replies directly to their root (flat structure)
     flatComments.forEach((c) => {
         const comment = commentMap.get(c.id)!
-        if (c.parentId && commentMap.has(c.parentId)) {
-            commentMap.get(c.parentId)!.children!.push(comment)
-        } else {
+        if (!c.parentId) {
+            // Root comment
             roots.push(comment)
+        } else {
+            // Find the root ancestor and attach there
+            const rootId = findRootId(c)
+            if (rootId && commentMap.has(rootId)) {
+                commentMap.get(rootId)!.children!.push(comment)
+            } else if (commentMap.has(c.parentId)) {
+                // Direct parent is root
+                commentMap.get(c.parentId)!.children!.push(comment)
+            } else {
+                // Orphan - treat as root
+                roots.push(comment)
+            }
         }
     })
 
@@ -91,6 +118,17 @@ export function DiscussionDrawer({
     const [subThreadRoot, setSubThreadRoot] = useState<Comment | null>(null)
     const [subThreadComments, setSubThreadComments] = useState<Comment[]>([])
     const [subThreadLoading, setSubThreadLoading] = useState(false)
+
+    // Form key and cooldown for CommentFormDrawer
+    const [formKey, setFormKey] = useState(0)
+    const [cooldown, setCooldown] = useState(0)
+
+    // Countdown effect
+    useEffect(() => {
+        if (cooldown <= 0) return
+        const timer = setTimeout(() => setCooldown(prev => prev - 1), 1000)
+        return () => clearTimeout(timer)
+    }, [cooldown])
 
     // Get theme
     const theme: ReadingTheme = READING_THEMES[themeId] || READING_THEMES["night"]
@@ -130,6 +168,9 @@ export function DiscussionDrawer({
     const handleCommentAdded = () => {
         fetchComments(1, true)
         setPage(1)
+        // Force form remount and start cooldown
+        setFormKey(prev => prev + 1)
+        setCooldown(10)
         // Notify parent to refresh comment counts
         if (onCommentAdded) {
             onCommentAdded()
@@ -305,11 +346,13 @@ export function DiscussionDrawer({
                 >
                     {session ? (
                         <CommentFormDrawer
+                            key={formKey}
                             novelId={novelId}
                             chapterId={chapterId}
                             paragraphId={paragraphId}
                             onSuccess={handleCommentAdded}
                             theme={theme}
+                            cooldown={cooldown}
                         />
                     ) : (
                         <div className="text-center py-2">
@@ -337,22 +380,30 @@ function CommentFormDrawer({
     paragraphId,
     onSuccess,
     theme,
+    cooldown,
 }: {
     novelId: number
     chapterId?: number
     paragraphId?: number | null
     onSuccess: () => void
     theme: ReadingTheme
+    cooldown?: number  // External cooldown from parent
 }) {
-    const { register, handleSubmit, reset } = useForm<{ content: string }>()
+    const { register, handleSubmit, reset } = useForm<{ content: string }>({
+        defaultValues: { content: "" }
+    })
     const [isPending, startTransition] = useTransition()
     const { data: session } = useSession()
 
     const onSubmit = (data: { content: string }) => {
-        if (!data.content.trim()) return
+        // Check if content exists and is not empty
+        if (!data.content || !data.content.trim()) return
+        // Check cooldown
+        if (cooldown && cooldown > 0) return
+
         startTransition(async () => {
             const res = await addComment({
-                content: data.content,
+                content: data.content.trim(),
                 novelId,
                 chapterId,
                 paragraphId: paragraphId ?? undefined,
@@ -361,7 +412,7 @@ function CommentFormDrawer({
             if ('error' in res) {
                 alert(res.error)
             } else {
-                reset()
+                reset({ content: "" })
                 onSuccess()
             }
         })
@@ -369,6 +420,7 @@ function CommentFormDrawer({
 
     // Determine if this is a dark theme
     const isDark = ["dark", "night", "onyx", "dusk"].includes(theme.id)
+    const isDisabled = isPending || (cooldown ?? 0) > 0
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 items-center">
@@ -393,7 +445,7 @@ function CommentFormDrawer({
             <div className="flex-1 flex items-center gap-2">
                 <input
                     {...register("content", { required: true })}
-                    placeholder="Viết bình luận..."
+                    placeholder={(cooldown ?? 0) > 0 ? `Chờ ${cooldown}s...` : "Viết bình luận..."}
                     className="flex-1 px-4 py-2.5 text-sm rounded-full focus:outline-none transition-colors"
                     style={{
                         backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
@@ -402,11 +454,11 @@ function CommentFormDrawer({
                         borderStyle: "solid",
                         color: theme.foreground,
                     }}
-                    disabled={isPending}
+                    disabled={isDisabled}
                 />
                 <button
                     type="submit"
-                    disabled={isPending}
+                    disabled={isDisabled}
                     className="p-2.5 text-amber-500 hover:text-amber-400 disabled:opacity-50 transition-colors shrink-0"
                 >
                     {isPending ? (

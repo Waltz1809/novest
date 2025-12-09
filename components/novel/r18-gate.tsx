@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ShieldAlert, Lock, Calendar, ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRealUsername } from "@/hooks/use-real-username";
 
 interface R18GateProps {
     novelTitle: string;
@@ -12,6 +13,7 @@ interface R18GateProps {
 
 export function R18Gate({ novelTitle, novelSlug, reason }: R18GateProps) {
     const { data: session } = useSession();
+    const { username: realUsername } = useRealUsername(session?.user?.username);
 
     return (
         <div className="min-h-screen bg-[#0B0C10] flex items-center justify-center p-4">
@@ -81,9 +83,9 @@ export function R18Gate({ novelTitle, novelSlug, reason }: R18GateProps) {
                         </Link>
                     )}
 
-                    {reason === "no_birthday" && session?.user?.username && (
+                    {reason === "no_birthday" && realUsername && (
                         <Link
-                            href={`/u/${session.user.username}/settings`}
+                            href={`/u/${realUsername}/settings`}
                             className="block w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-lg transition-colors"
                         >
                             Cập nhật ngày sinh

@@ -51,7 +51,9 @@ interface CommentSectionProps {
     themeId?: string
 }
 
-// Utility to build tree from flat list
+// Utility to build FLAT comment structure (max 1 level of nesting)
+// All replies go directly under root comment, no deep nesting
+// Thread context is shown via reply context tag (@user · parent_content)
 function buildCommentTree(flatComments: Comment[]): Comment[] {
     const commentMap = new Map<number, Comment>()
     const roots: Comment[] = []
@@ -61,13 +63,36 @@ function buildCommentTree(flatComments: Comment[]): Comment[] {
         commentMap.set(c.id, { ...c, children: [] })
     })
 
-    // Second pass: link children to parents
+    // Find root ancestor for each comment
+    const findRootId = (comment: Comment): number | null => {
+        if (!comment.parentId) return null // Already a root
+
+        let current = comment
+        while (current.parentId && commentMap.has(current.parentId)) {
+            current = commentMap.get(current.parentId)!
+        }
+        // current is now the root, return its id if current is different from original
+        return current.id !== comment.id ? current.id : null
+    }
+
+    // Second pass: link ALL replies directly to their root (flat structure)
     flatComments.forEach((c) => {
         const comment = commentMap.get(c.id)!
-        if (c.parentId && commentMap.has(c.parentId)) {
-            commentMap.get(c.parentId)!.children!.push(comment)
-        } else {
+        if (!c.parentId) {
+            // Root comment
             roots.push(comment)
+        } else {
+            // Find the root ancestor and attach there
+            const rootId = findRootId(c)
+            if (rootId && commentMap.has(rootId)) {
+                commentMap.get(rootId)!.children!.push(comment)
+            } else if (commentMap.has(c.parentId)) {
+                // Direct parent is root
+                commentMap.get(c.parentId)!.children!.push(comment)
+            } else {
+                // Orphan - treat as root
+                roots.push(comment)
+            }
         }
     })
 
@@ -80,30 +105,34 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
     const [hasMore, setHasMore] = useState(true)
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState(0)
+    // Track expanded comment IDs to preserve state after updates
+    const [expandedCommentIds, setExpandedCommentIds] = useState<Set<number>>(new Set())
+    // Form key to force remount and reset form
+    const [formKey, setFormKey] = useState(0)
+    // Cooldown timer state (lifted from CommentForm to persist through remount)
+    const [cooldown, setCooldown] = useState(0)
     const { data: session } = useSession()
     const router = useRouter()
 
-    const fetchComments = async (pageNum: number, reset = false) => {
+    // Countdown effect
+    useEffect(() => {
+        if (cooldown <= 0) return
+        const timer = setTimeout(() => setCooldown(prev => prev - 1), 1000)
+        return () => clearTimeout(timer)
+    }, [cooldown])
+
+    const fetchComments = async (pageNum: number) => {
         setLoading(true)
         const res = await getComments(novelId, chapterId, pageNum)
-        if (reset) {
-            setFlatComments(res.comments as any)
-        } else {
-            // Merge and deduplicate based on ID
-            setFlatComments((prev) => {
-                const newComments = res.comments as any
-                const existingIds = new Set(prev.map((c) => c.id))
-                const uniqueNewComments = newComments.filter((c: Comment) => !existingIds.has(c.id))
-                return [...prev, ...uniqueNewComments]
-            })
-        }
+        // Page-based: always replace comments
+        setFlatComments(res.comments as any)
         setHasMore(res.hasMore)
         setTotal(res.total)
         setLoading(false)
     }
 
     useEffect(() => {
-        fetchComments(1, true)
+        fetchComments(1)
     }, [novelId, chapterId])
 
     const handleLoadMore = () => {
@@ -112,12 +141,43 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
         fetchComments(nextPage)
     }
 
-    const handleCommentAdded = () => {
-        // Ideally we should just fetch the new comment or optimistically add it.
-        // For simplicity, re-fetch the first page to see the new comment (if it's recent).
-        // Or fetch everything again.
-        fetchComments(1, true)
+    const handleLoadPrevious = () => {
+        if (page > 1) {
+            const prevPage = page - 1
+            setPage(prevPage)
+            fetchComments(prevPage)
+        }
+    }
+
+    // Handle new top-level comment - refetch to show at top
+    const handleCommentAdded = (newComment?: Comment) => {
+        // Ignore the newComment param, just refetch for top-level comments
         setPage(1)
+        fetchComments(1)
+        // Force form remount to reset
+        setFormKey(prev => prev + 1)
+        // Start 30s cooldown
+        setCooldown(10)
+    }
+
+    // Handle reply added - simple refetch approach (like DiscussionDrawer)
+    const handleReplyAdded = (newComment: Comment, parentId: number) => {
+        // Just refetch current page - simple and reliable
+        fetchComments(page)
+        setTotal(prev => prev + 1)
+    }
+
+    // Toggle expanded state
+    const toggleExpanded = (commentId: number) => {
+        setExpandedCommentIds(prev => {
+            const newSet = new Set(prev)
+            if (newSet.has(commentId)) {
+                newSet.delete(commentId)
+            } else {
+                newSet.add(commentId)
+            }
+            return newSet
+        })
     }
 
     const commentTree = useMemo(() => buildCommentTree(flatComments), [flatComments])
@@ -131,9 +191,11 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
 
             {session ? (
                 <CommentForm
+                    key={formKey}
                     novelId={novelId}
                     chapterId={chapterId}
                     onSuccess={handleCommentAdded}
+                    cooldown={cooldown}
                 />
             ) : (
                 <div className="rounded-lg bg-[#0B0C10]/50 p-4 text-center border border-gray-800">
@@ -156,7 +218,9 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
                         comment={comment}
                         novelId={novelId}
                         chapterId={chapterId}
-                        onReplySuccess={handleCommentAdded}
+                        onReplySuccess={handleReplyAdded}
+                        expandedCommentIds={expandedCommentIds}
+                        toggleExpanded={toggleExpanded}
                     />
                 ))}
             </div>
@@ -167,14 +231,25 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
                 </div>
             )}
 
-            {!loading && hasMore && (
-                <div className="flex justify-center">
-                    <button
-                        onClick={handleLoadMore}
-                        className="text-sm font-medium text-[#F59E0B] hover:underline"
-                    >
-                        Xem thêm bình luận
-                    </button>
+            {/* Page-based navigation */}
+            {!loading && (
+                <div className="flex justify-center gap-4">
+                    {page > 1 && (
+                        <button
+                            onClick={handleLoadPrevious}
+                            className="text-sm font-medium text-[#F59E0B] hover:underline"
+                        >
+                            ← Bình luận mới hơn
+                        </button>
+                    )}
+                    {hasMore && (
+                        <button
+                            onClick={handleLoadMore}
+                            className="text-sm font-medium text-[#F59E0B] hover:underline"
+                        >
+                            Bình luận cũ hơn →
+                        </button>
+                    )}
                 </div>
             )}
         </div>
@@ -186,6 +261,8 @@ export function CommentItem({
     novelId,
     chapterId,
     onReplySuccess,
+    expandedCommentIds,
+    toggleExpanded,
     level = 0,
     theme,
     onDrillDown,
@@ -193,13 +270,19 @@ export function CommentItem({
     comment: Comment
     novelId: number
     chapterId?: number
-    onReplySuccess: () => void
+    onReplySuccess: (newComment: Comment, parentId: number) => void
+    expandedCommentIds?: Set<number>
+    toggleExpanded?: (commentId: number) => void
     level?: number
     theme?: ReadingTheme
     onDrillDown?: (comment: Comment) => void
 }) {
     const [isReplying, setIsReplying] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false) // For inline expansion
+    // Use controlled expansion from parent if available, otherwise use local state
+    const isExpandedControlled = expandedCommentIds?.has(comment.id)
+    const [isExpandedLocal, setIsExpandedLocal] = useState(false)
+    const isExpanded = toggleExpanded ? isExpandedControlled : isExpandedLocal
+
     const [fetchedChildren, setFetchedChildren] = useState<Comment[]>([])
     const [loadingChildren, setLoadingChildren] = useState(false)
     const { data: session } = useSession()
@@ -245,15 +328,40 @@ export function CommentItem({
 
     // Handle inline expansion (when no drawer available)
     const handleExpandChildren = async () => {
+        // Use controlled expansion if available
+        if (toggleExpanded) {
+            if (isExpanded) {
+                toggleExpanded(comment.id)
+                return
+            }
+            // Fetch children first if needed
+            if (!comment.children || comment.children.length === 0) {
+                setLoadingChildren(true)
+                try {
+                    const { getCommentReplies } = await import("@/actions/interaction")
+                    const res = await getCommentReplies(comment.id)
+                    setFetchedChildren(res.comments as Comment[])
+                } catch (error) {
+                    console.error("Failed to fetch replies:", error)
+                }
+                setLoadingChildren(false)
+            } else {
+                setFetchedChildren(comment.children)
+            }
+            toggleExpanded(comment.id)
+            return
+        }
+
+        // Fallback to local state
         if (isExpanded) {
-            setIsExpanded(false)
+            setIsExpandedLocal(false)
             return
         }
 
         // If children are already in comment, use them
         if (comment.children && comment.children.length > 0) {
             setFetchedChildren(comment.children)
-            setIsExpanded(true)
+            setIsExpandedLocal(true)
             return
         }
 
@@ -263,7 +371,7 @@ export function CommentItem({
             const { getCommentReplies } = await import("@/actions/interaction")
             const res = await getCommentReplies(comment.id)
             setFetchedChildren(res.comments as Comment[])
-            setIsExpanded(true)
+            setIsExpandedLocal(true)
         } catch (error) {
             console.error("Failed to fetch replies:", error)
         }
@@ -357,7 +465,7 @@ export function CommentItem({
                     )}
 
                     {/* Comment content */}
-                    <p className="text-sm whitespace-pre-wrap break-words" style={{ color: t.foreground, opacity: 0.9 }}>
+                    <p className="text-sm whitespace-pre-wrap wrap-break-word" style={{ color: t.foreground, opacity: 0.9 }}>
                         {comment.content}
                     </p>
 
@@ -418,9 +526,11 @@ export function CommentItem({
                                 chapterId={chapterId}
                                 parentId={comment.id}
                                 paragraphId={comment.paragraphId}
-                                onSuccess={() => {
+                                onSuccess={(newComment) => {
                                     setIsReplying(false)
-                                    onReplySuccess()
+                                    if (newComment) {
+                                        onReplySuccess(newComment, comment.id)
+                                    }
                                 }}
                                 autoFocus
                                 theme={theme}
@@ -430,70 +540,28 @@ export function CommentItem({
                 </div>
             </div>
 
-            {/* Children comments - indented, no border line */}
-            {level < 1 ? (
-                comment.children && comment.children.length > 0 && (
-                    <div className="mt-3 space-y-3">
-                        {comment.children.map((child) => (
-                            <CommentItem
-                                key={child.id}
-                                comment={child}
-                                novelId={novelId}
-                                chapterId={chapterId}
-                                onReplySuccess={onReplySuccess}
-                                level={level + 1}
-                                theme={theme}
-                                onDrillDown={onDrillDown}
-                            />
-                        ))}
-                    </div>
-                )
-            ) : (
-                // At depth 1+, use drawer if available, otherwise expand inline
-                hasReplies && (
-                    <div className="mt-2 ml-9 sm:ml-11">
-                        <button
-                            onClick={() => {
-                                if (onDrillDown) {
-                                    onDrillDown(comment)
-                                } else {
-                                    handleExpandChildren()
-                                }
-                            }}
-                            disabled={loadingChildren}
-                            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition-colors"
-                            style={{
-                                backgroundColor: isDark ? "rgba(245,158,11,0.15)" : "rgba(245,158,11,0.1)",
-                                color: "#f59e0b",
-                            }}
-                        >
-                            {loadingChildren ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                                <MessageCircle className="w-3 h-3" />
-                            )}
-                            {isExpanded ? "Ẩn trả lời" : `Xem ${replyCount} trả lời`}
-                        </button>
-
-                        {/* Inline expanded children */}
-                        {isExpanded && !onDrillDown && fetchedChildren.length > 0 && (
-                            <div className="mt-3 space-y-3">
-                                {fetchedChildren.map((child) => (
-                                    <CommentItem
-                                        key={child.id}
-                                        comment={child}
-                                        novelId={novelId}
-                                        chapterId={chapterId}
-                                        onReplySuccess={onReplySuccess}
-                                        level={level + 1}
-                                        theme={theme}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )
+            {/* Children comments - only show first level directly */}
+            {level < 1 && comment.children && comment.children.length > 0 && (
+                <div className="mt-3 space-y-3">
+                    {comment.children.map((child) => (
+                        <CommentItem
+                            key={child.id}
+                            comment={child}
+                            novelId={novelId}
+                            chapterId={chapterId}
+                            onReplySuccess={onReplySuccess}
+                            expandedCommentIds={expandedCommentIds}
+                            toggleExpanded={toggleExpanded}
+                            level={level + 1}
+                            theme={theme}
+                            onDrillDown={onDrillDown}
+                        />
+                    ))}
+                </div>
             )}
+
+            {/* Flat structure: All replies shown directly under root (level 0) */}
+            {/* No "View replies" button needed - all children are siblings at level 1 */}
         </div>
     )
 }
@@ -506,26 +574,52 @@ function CommentForm({
     onSuccess,
     autoFocus = false,
     theme,
+    cooldown: externalCooldown,
 }: {
     novelId: number
     chapterId?: number
     parentId?: number
     paragraphId?: number | null
-    onSuccess: () => void
+    onSuccess: (newComment?: Comment) => void
     autoFocus?: boolean
     theme?: ReadingTheme
+    cooldown?: number  // Optional external cooldown (from parent)
 }) {
-    const { register, handleSubmit, reset } = useForm<{ content: string }>()
+    const { register, handleSubmit, reset } = useForm<{ content: string }>({
+        defaultValues: { content: "" }
+    })
     const [isPending, startTransition] = useTransition()
+    // Local cooldown for reply forms
+    const [localCooldown, setLocalCooldown] = useState(0)
+
+    // Use external cooldown if provided, otherwise local
+    const cooldown = externalCooldown ?? localCooldown
+
+    // Countdown effect (only for local cooldown)
+    useEffect(() => {
+        if (externalCooldown !== undefined || localCooldown <= 0) return
+        const timer = setTimeout(() => setLocalCooldown(prev => prev - 1), 1000)
+        return () => clearTimeout(timer)
+    }, [localCooldown, externalCooldown])
 
     // Default theme fallback
     const t = theme || READING_THEMES["night"]
     const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
 
     const onSubmit = (data: { content: string }) => {
+        // Early return if content is empty (extra safety)
+        if (!data.content || !data.content.trim()) {
+            return
+        }
+
+        // Check cooldown
+        if (cooldown > 0) {
+            return
+        }
+
         startTransition(async () => {
             const res = await addComment({
-                content: data.content,
+                content: data.content.trim(),
                 novelId,
                 chapterId,
                 parentId,
@@ -535,11 +629,20 @@ function CommentForm({
             if ('error' in res) {
                 alert(res.error)
             } else {
-                reset()
-                onSuccess()
+                // Explicitly reset with empty content
+                reset({ content: "" })
+                // Start 30s cooldown (only for local/reply forms without external cooldown)
+                if (externalCooldown === undefined) {
+                    setLocalCooldown(30)
+                }
+                // Pass the new comment to parent if available
+                const newComment = 'comment' in res ? res.comment as unknown as Comment : undefined
+                onSuccess(newComment)
             }
         })
     }
+
+    const isDisabled = isPending || cooldown > 0
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -560,11 +663,11 @@ function CommentForm({
             <div className="flex justify-end">
                 <button
                     type="submit"
-                    disabled={isPending}
+                    disabled={isDisabled}
                     className="flex items-center gap-2 rounded-md bg-[#F59E0B] px-4 py-2 text-sm font-medium text-[#0B0C10] hover:bg-[#D97706] disabled:opacity-50"
                 >
                     {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    {parentId ? "Trả lời" : "Gửi bình luận"}
+                    {cooldown > 0 ? `Chờ ${cooldown}s` : (parentId ? "Trả lời" : "Gửi bình luận")}
                 </button>
             </div>
         </form>

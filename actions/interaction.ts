@@ -92,8 +92,38 @@ export async function addComment(data: {
             }
         }
 
+        // Fetch the complete comment with user data for client-side use
+        const completeComment = await db.comment.findUnique({
+            where: { id: comment.id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nickname: true,
+                        username: true,
+                        image: true,
+                    }
+                },
+                parent: {
+                    select: {
+                        id: true,
+                        content: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                nickname: true,
+                                username: true,
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
         revalidatePath(`/truyen/${novel.slug}`)
-        return { success: true }
+        return { success: true, comment: completeComment }
     } catch (error) {
         console.error("Error adding comment:", error)
         return { error: "Có lỗi xảy ra khi gửi bình luận." }
@@ -106,7 +136,7 @@ export async function getComments(
     page: number = 1,
     paragraphId?: number | null // Filter by specific paragraph
 ) {
-    const TAKE = 20
+    const TAKE = 10
     const SKIP = (page - 1) * TAKE
     const session = await auth()
 
@@ -158,7 +188,7 @@ export async function getComments(
                 }
             },
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
             take: TAKE,
             skip: SKIP,
