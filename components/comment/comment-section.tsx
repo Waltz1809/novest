@@ -3,13 +3,13 @@
 import { useState, useEffect, useTransition, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { addComment, getComments } from "@/actions/interaction"
-import { Loader2, MessageCircle, MessageSquare, Reply, Send, User } from "lucide-react"
+import { Loader2, MessageCircle, MessageSquare, Reply, Send, User, Pencil, Trash2, Pin, X, Check, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { clsx } from "clsx"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-import { voteComment } from "@/actions/comment"
+import { voteComment, editComment, deleteUserComment, pinComment } from "@/actions/comment"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
 import Link from "next/link"
 import { ReadingTheme, READING_THEMES } from "@/lib/reading-themes"
@@ -26,9 +26,11 @@ interface Comment {
     id: number
     content: string
     createdAt: Date
+    updatedAt?: Date
     user: CommentUser
     parentId: number | null
     paragraphId?: number | null // For paragraph-based comments
+    isPinned?: boolean
     parent?: {
         id: number
         content: string
@@ -121,6 +123,9 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
     const [formKey, setFormKey] = useState(0)
     // Cooldown timer state (lifted from CommentForm to persist through remount)
     const [cooldown, setCooldown] = useState(0)
+    // Sorting state
+    const [sortBy, setSortBy] = useState<'newest' | 'votes' | 'replies'>('newest')
+    const [showSortDropdown, setShowSortDropdown] = useState(false)
     const { data: session } = useSession()
     const router = useRouter()
 
@@ -131,9 +136,9 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
         return () => clearTimeout(timer)
     }, [cooldown])
 
-    const fetchComments = async (pageNum: number) => {
+    const fetchComments = async (pageNum: number, sort: 'newest' | 'votes' | 'replies' = sortBy) => {
         setLoading(true)
-        const res = await getComments(novelId, chapterId, pageNum)
+        const res = await getComments(novelId, chapterId, pageNum, undefined, sort)
         // Page-based: always replace comments
         setFlatComments(res.comments as any)
         setHasMore(res.hasMore)
@@ -142,8 +147,8 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
     }
 
     useEffect(() => {
-        fetchComments(1)
-    }, [novelId, chapterId])
+        fetchComments(1, sortBy)
+    }, [novelId, chapterId, sortBy])
 
     const handleLoadMore = () => {
         const nextPage = page + 1
@@ -194,9 +199,52 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-2 text-xl font-bold text-gray-200">
-                <MessageSquare className="h-6 w-6 text-[#F59E0B]" />
-                <h3>Bình luận ({total})</h3>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xl font-bold text-gray-200">
+                    <MessageSquare className="h-6 w-6 text-[#F59E0B]" />
+                    <h3>Bình luận ({total})</h3>
+                </div>
+
+                {/* Sorting Dropdown */}
+                <div className="relative">
+                    <button
+                        onClick={() => setShowSortDropdown(!showSortDropdown)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                    >
+                        <span>{
+                            sortBy === 'newest' ? 'Mới nhất' :
+                                sortBy === 'votes' ? 'Votes cao' : 'Nhiều phản hồi'
+                        }</span>
+                        <ChevronDown className={clsx("w-4 h-4 transition-transform", showSortDropdown && "rotate-180")} />
+                    </button>
+
+                    {showSortDropdown && (
+                        <div className="absolute right-0 top-full mt-1 z-20 bg-[#1E293B] border border-white/10 rounded-lg shadow-lg overflow-hidden min-w-[140px]">
+                            {[
+                                { value: 'newest', label: 'Mới nhất' },
+                                { value: 'votes', label: 'Votes cao' },
+                                { value: 'replies', label: 'Nhiều phản hồi' },
+                            ].map((option) => (
+                                <button
+                                    key={option.value}
+                                    onClick={() => {
+                                        setSortBy(option.value as any)
+                                        setPage(1)
+                                        setShowSortDropdown(false)
+                                    }}
+                                    className={clsx(
+                                        "w-full px-4 py-2 text-left text-sm transition-colors",
+                                        sortBy === option.value
+                                            ? "bg-amber-500/10 text-amber-500"
+                                            : "text-gray-300 hover:bg-white/5"
+                                    )}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {session ? (
@@ -288,6 +336,11 @@ export function CommentItem({
     onDrillDown?: (comment: Comment) => void
 }) {
     const [isReplying, setIsReplying] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
+    const [editContent, setEditContent] = useState(comment.content)
+    const [isPending, startTransition] = useTransition()
+    const [localContent, setLocalContent] = useState(comment.content)
+    const [localIsPinned, setLocalIsPinned] = useState(comment.isPinned || false)
     // Use controlled expansion from parent if available, otherwise use local state
     const isExpandedControlled = expandedCommentIds?.has(comment.id)
     const [isExpandedLocal, setIsExpandedLocal] = useState(false)
@@ -300,6 +353,60 @@ export function CommentItem({
 
     const [score, setScore] = useState(comment.score || 0)
     const [userVote, setUserVote] = useState(comment.userVote)
+
+    // Check if edit is allowed (within 10 minutes of creation)
+    const isEditAllowed = session?.user?.id === comment.user.id &&
+        (Date.now() - new Date(comment.createdAt).getTime()) < 10 * 60 * 1000
+
+    // Check if delete is allowed (own comment, admin, mod, or uploader)
+    const canDelete = session?.user?.id === comment.user.id ||
+        session?.user?.role === "ADMIN" ||
+        session?.user?.role === "MODERATOR"
+
+    // Check if pin is allowed (admin, mod only - uploader check done server-side)
+    const canPin = session?.user?.role === "ADMIN" ||
+        session?.user?.role === "MODERATOR"
+
+    // Check if comment was edited
+    const isEdited = comment.updatedAt &&
+        new Date(comment.updatedAt).getTime() > new Date(comment.createdAt).getTime() + 1000
+
+    const handleEdit = () => {
+        if (!editContent.trim()) return
+        startTransition(async () => {
+            const res = await editComment(comment.id, editContent)
+            if ('error' in res) {
+                alert(res.error)
+            } else {
+                setLocalContent(editContent)
+                setIsEditing(false)
+            }
+        })
+    }
+
+    const handleDelete = () => {
+        if (!confirm("Bạn có chắc muốn xóa bình luận này?")) return
+        startTransition(async () => {
+            const res = await deleteUserComment(comment.id)
+            if ('error' in res) {
+                alert(res.error)
+            } else {
+                // Refresh page to show updated comments
+                router.refresh()
+            }
+        })
+    }
+
+    const handlePin = () => {
+        startTransition(async () => {
+            const res = await pinComment(comment.id, novelId)
+            if ('error' in res) {
+                alert(res.error)
+            } else if ('pinned' in res) {
+                setLocalIsPinned(res.pinned)
+            }
+        })
+    }
 
     const handleVote = async (type: "UPVOTE" | "DOWNVOTE") => {
         if (!session) {
@@ -399,7 +506,20 @@ export function CommentItem({
     const indentPx = level > 0 ? Math.min(level * 16, 48) : 0
 
     return (
-        <div className="min-w-0" style={{ marginLeft: indentPx }}>
+        <div
+            className={clsx(
+                "min-w-0",
+                localIsPinned && "relative p-3 rounded-lg border-2 border-amber-500/50 bg-amber-500/5"
+            )}
+            style={{ marginLeft: indentPx }}
+        >
+            {/* Pin indicator */}
+            {localIsPinned && (
+                <div className="absolute top-2 right-2 flex items-center gap-1 text-xs text-amber-500">
+                    <Pin className="h-3 w-3 fill-current" />
+                    <span className="font-medium">Đã ghim</span>
+                </div>
+            )}
             <div className="flex gap-2 sm:gap-3">
                 {/* Avatar */}
                 <div className="shrink-0">
@@ -440,6 +560,11 @@ export function CommentItem({
                         <span className="text-xs" style={{ color: t.ui.text, opacity: 0.6 }}>
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </span>
+                        {isEdited && (
+                            <span className="text-xs italic" style={{ color: t.ui.text, opacity: 0.5 }}>
+                                (đã chỉnh sửa)
+                            </span>
+                        )}
                         {/* Paragraph hashtag */}
                         {comment.paragraphId !== null && comment.paragraphId !== undefined && (
                             <span
@@ -474,10 +599,46 @@ export function CommentItem({
                         </div>
                     )}
 
-                    {/* Comment content */}
-                    <p className="text-sm whitespace-pre-wrap wrap-break-word" style={{ color: t.foreground, opacity: 0.9 }}>
-                        {comment.content}
-                    </p>
+                    {/* Comment content - either editing or display */}
+                    {isEditing ? (
+                        <div className="space-y-2">
+                            <textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                className="w-full rounded-md p-2 text-sm"
+                                style={{
+                                    backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                                    borderWidth: 1,
+                                    borderStyle: "solid",
+                                    borderColor: t.ui.border,
+                                    color: t.foreground,
+                                }}
+                                rows={3}
+                                autoFocus
+                            />
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleEdit}
+                                    disabled={isPending}
+                                    className="flex items-center gap-1 text-xs font-medium text-green-500 hover:text-green-400"
+                                >
+                                    <Check className="h-3 w-3" />
+                                    Lưu
+                                </button>
+                                <button
+                                    onClick={() => { setIsEditing(false); setEditContent(localContent); }}
+                                    className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-300"
+                                >
+                                    <X className="h-3 w-3" />
+                                    Hủy
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-sm whitespace-pre-wrap wrap-break-word" style={{ color: t.foreground, opacity: 0.9 }}>
+                            {localContent}
+                        </p>
+                    )}
 
                     {/* Actions: Vote + Reply */}
                     <div className="flex items-center gap-3 pt-1">
@@ -524,6 +685,47 @@ export function CommentItem({
                             >
                                 <Reply className="h-3 w-3" />
                                 Trả lời
+                            </button>
+                        )}
+
+                        {/* Edit button - visible within 10 min */}
+                        {isEditAllowed && !isEditing && (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center gap-1 text-xs font-medium hover:text-blue-400 transition-colors"
+                                style={{ color: t.ui.text }}
+                            >
+                                <Pencil className="h-3 w-3" />
+                                Sửa
+                            </button>
+                        )}
+
+                        {/* Delete button */}
+                        {canDelete && (
+                            <button
+                                onClick={handleDelete}
+                                disabled={isPending}
+                                className="flex items-center gap-1 text-xs font-medium hover:text-red-400 transition-colors"
+                                style={{ color: t.ui.text }}
+                            >
+                                <Trash2 className="h-3 w-3" />
+                                Xóa
+                            </button>
+                        )}
+
+                        {/* Pin button - admin/mod/uploader */}
+                        {canPin && (
+                            <button
+                                onClick={handlePin}
+                                disabled={isPending}
+                                className={clsx(
+                                    "flex items-center gap-1 text-xs font-medium transition-colors",
+                                    localIsPinned ? "text-amber-500" : "hover:text-amber-500"
+                                )}
+                                style={{ color: localIsPinned ? undefined : t.ui.text }}
+                            >
+                                <Pin className={clsx("h-3 w-3", localIsPinned && "fill-current")} />
+                                {localIsPinned ? "Bỏ ghim" : "Ghim"}
                             </button>
                         )}
                     </div>

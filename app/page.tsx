@@ -5,6 +5,7 @@ import MainHeader from "@/components/layout/main-header";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { ContinueReading } from "@/components/home/continue-reading";
 import { NovelShelf } from "@/components/novel/novel-shelf";
+import { RecommendedNovelShelf } from "@/components/recommendation/recommended-novel-shelf";
 import { getTopViewed, getTopRated } from "@/actions/ranking";
 import { getHistory } from "@/actions/library";
 
@@ -89,6 +90,9 @@ export default async function Home() {
         <div className="mb-8">
           <HeroCarousel novels={carouselNovels} />
         </div>
+
+        {/* Personalized Recommendations - Only for logged in users */}
+        {session?.user && <RecommendedNovelShelf />}
 
         {/* Shelves Stack */}
         <div className="flex flex-col gap-4">

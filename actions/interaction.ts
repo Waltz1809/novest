@@ -134,7 +134,8 @@ export async function getComments(
     novelId: number,
     chapterId?: number,
     page: number = 1,
-    paragraphId?: number | null // Filter by specific paragraph
+    paragraphId?: number | null, // Filter by specific paragraph
+    sortBy: 'newest' | 'votes' | 'replies' = 'newest'
 ) {
     const TAKE = 10
     const SKIP = (page - 1) * TAKE
@@ -155,7 +156,25 @@ export async function getComments(
             whereCondition.chapterId = null
         }
 
-        // Fetch flat list of comments, sorted by createdAt ASC
+        // Build orderBy based on sortBy parameter
+        let orderByClause: any[] = [{ isPinned: 'desc' }] // Always pinned first
+
+        switch (sortBy) {
+            case 'votes':
+                // For votes, we need to sort after fetching since it's computed
+                orderByClause.push({ createdAt: 'desc' })
+                break
+            case 'replies':
+                // Sort by reply count
+                orderByClause.push({ createdAt: 'desc' })
+                break
+            case 'newest':
+            default:
+                orderByClause.push({ createdAt: 'desc' })
+                break
+        }
+
+        // Fetch flat list of comments
         const comments = await db.comment.findMany({
             where: whereCondition,
             include: {
@@ -187,15 +206,13 @@ export async function getComments(
                     select: { children: true }
                 }
             },
-            orderBy: {
-                createdAt: "desc",
-            },
+            orderBy: orderByClause,
             take: TAKE,
             skip: SKIP,
         })
 
         // Process comments to add score and userVote
-        const processedComments = comments.map(comment => {
+        let processedComments = comments.map(comment => {
             const upvotes = comment.reactions.filter(r => r.type === "UPVOTE").length
             const downvotes = comment.reactions.filter(r => r.type === "DOWNVOTE").length
             const score = upvotes - downvotes
@@ -210,6 +227,25 @@ export async function getComments(
                 replyCount: _count?.children || 0,
             }
         })
+
+        // Apply post-fetch sorting for votes and replies (keeping pinned first)
+        if (sortBy === 'votes') {
+            processedComments = processedComments.sort((a, b) => {
+                // Pinned comments always first
+                if (a.isPinned && !b.isPinned) return -1
+                if (!a.isPinned && b.isPinned) return 1
+                // Then sort by score
+                return b.score - a.score
+            })
+        } else if (sortBy === 'replies') {
+            processedComments = processedComments.sort((a, b) => {
+                // Pinned comments always first
+                if (a.isPinned && !b.isPinned) return -1
+                if (!a.isPinned && b.isPinned) return 1
+                // Then sort by reply count
+                return b.replyCount - a.replyCount
+            })
+        }
 
         // Count total comments (flat)
         const total = await db.comment.count({ where: whereCondition })
@@ -248,6 +284,74 @@ export async function getChapterParagraphCommentCounts(chapterId: number) {
     } catch (error) {
         console.error("Error fetching paragraph comment counts:", error)
         return {}
+    }
+}
+
+// Get 10 newest comments from ANY chapter of a novel (for Tab 1: Chapter Discussion)
+export async function getChapterDiscussions(novelId: number, limit: number = 10) {
+    const session = await auth()
+
+    try {
+        const comments = await db.comment.findMany({
+            where: {
+                novelId,
+                chapterId: { not: null }, // Only chapter comments
+                parentId: null, // Only root comments
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nickname: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+                chapter: {
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        order: true,
+                        volume: {
+                            select: {
+                                novelId: true,
+                                novel: {
+                                    select: {
+                                        slug: true,
+                                    }
+                                }
+                            }
+                        }
+                    },
+                },
+                reactions: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+        })
+
+        // Process comments with score and userVote
+        const processedComments = comments.map(comment => {
+            const upvotes = comment.reactions.filter(r => r.type === "UPVOTE").length
+            const downvotes = comment.reactions.filter(r => r.type === "DOWNVOTE").length
+            const score = upvotes - downvotes
+            const userVote = session?.user?.id ? comment.reactions.find(r => r.userId === session.user.id)?.type : null
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { reactions, ...rest } = comment
+            return {
+                ...rest,
+                score,
+                userVote,
+            }
+        })
+
+        return { comments: processedComments }
+    } catch (error) {
+        console.error("Error fetching chapter discussions:", error)
+        return { comments: [] }
     }
 }
 
@@ -421,5 +525,43 @@ export async function getUserRating(novelId: number) {
         return rating
     } catch (error) {
         return null
+    }
+}
+
+// Get paginated ratings with user info for display
+export async function getNovelRatings(novelId: number, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit
+
+    try {
+        const [ratings, total] = await Promise.all([
+            db.rating.findMany({
+                where: { novelId },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            nickname: true,
+                            username: true,
+                            image: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip,
+            }),
+            db.rating.count({ where: { novelId } }),
+        ])
+
+        return {
+            ratings,
+            total,
+            hasMore: skip + limit < total,
+            page,
+        }
+    } catch (error) {
+        console.error("Error fetching novel ratings:", error)
+        return { ratings: [], total: 0, hasMore: false, page }
     }
 }

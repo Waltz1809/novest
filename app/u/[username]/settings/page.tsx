@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { updateProfile, checkUsernameAvailability, getUserBirthday, getUsernameStatus } from "@/actions/user";
+import { getUserPreferences, saveUserPreferences, getAllGenres } from "@/actions/recommendation";
 import ImageUpload from "@/components/novel/image-upload";
 import Link from "next/link";
-import { ArrowLeft, Save, User, AtSign, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Save, User, AtSign, Loader2, CheckCircle2, XCircle, Sparkles, Globe, BookOpen } from "lucide-react";
+import { clsx } from "clsx";
 
 export default function SettingsPage() {
     const { data: session, status, update } = useSession();
@@ -31,6 +33,13 @@ export default function SettingsPage() {
     const [birthYear, setBirthYear] = useState<string>("");
     const [isBirthdayLocked, setIsBirthdayLocked] = useState(false);
     const [savedBirthday, setSavedBirthday] = useState<Date | null>(null);
+
+    // Recommendation preferences state
+    const [selectedNations, setSelectedNations] = useState<string[]>([]);
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+    const [allGenres, setAllGenres] = useState<{ id: number; name: string; slug: string }[]>([]);
+    const [loadingPreferences, setLoadingPreferences] = useState(false);
+    const [preferencesSaved, setPreferencesSaved] = useState(false);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -63,6 +72,17 @@ export default function SettingsPage() {
                     setBirthMonth(String(bd.getMonth() + 1).padStart(2, '0'));
                     setBirthYear(String(bd.getFullYear()));
                 }
+            });
+
+            // Fetch recommendation preferences
+            setLoadingPreferences(true);
+            Promise.all([getUserPreferences(), getAllGenres()]).then(([prefs, genresRes]) => {
+                if (prefs) {
+                    setSelectedNations(prefs.nations);
+                    setSelectedGenres(prefs.genreIds);
+                }
+                setAllGenres(genresRes.genres);
+                setLoadingPreferences(false);
             });
         }
 
@@ -117,8 +137,8 @@ export default function SettingsPage() {
             return;
         }
 
-        // Build birthday string if all parts are selected
-        const birthday = birthYear && birthMonth && birthDay
+        // Build birthday string if all parts are selected AND not already locked
+        const birthday = !isBirthdayLocked && birthYear && birthMonth && birthDay
             ? `${birthYear}-${birthMonth}-${birthDay}`
             : undefined;
 
@@ -383,6 +403,109 @@ export default function SettingsPage() {
                                         </p>
                                     </>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Recommendation Preferences Section */}
+                        <div id="preferences" className="space-y-4">
+                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400 flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-amber-500" />
+                                Sở Thích Đề Xuất
+                            </h2>
+                            <div className="bg-slate-950/50 backdrop-blur-xs rounded-xl border border-white/10 p-6 space-y-6">
+                                {/* Nations */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-amber-500" />
+                                        Nguồn gốc truyện
+                                    </h3>
+                                    <div className="flex gap-3 flex-wrap">
+                                        {[
+                                            { code: "CN", label: "Trung Quốc", emoji: "🇨🇳" },
+                                            { code: "JP", label: "Nhật Bản", emoji: "🇯🇵" },
+                                            { code: "KR", label: "Hàn Quốc", emoji: "🇰🇷" },
+                                        ].map((nation) => (
+                                            <button
+                                                key={nation.code}
+                                                type="button"
+                                                onClick={() => setSelectedNations(prev =>
+                                                    prev.includes(nation.code)
+                                                        ? prev.filter(n => n !== nation.code)
+                                                        : [...prev, nation.code]
+                                                )}
+                                                className={clsx(
+                                                    "flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all",
+                                                    selectedNations.includes(nation.code)
+                                                        ? "border-amber-500 bg-amber-500/10 text-amber-500"
+                                                        : "border-white/10 hover:border-white/20 text-gray-300"
+                                                )}
+                                            >
+                                                <span>{nation.emoji}</span>
+                                                <span className="text-sm font-medium">{nation.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Genres */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
+                                        <BookOpen className="w-4 h-4 text-amber-500" />
+                                        Thể loại yêu thích
+                                    </h3>
+                                    {loadingPreferences ? (
+                                        <div className="flex justify-center py-4">
+                                            <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {allGenres.map((genre) => (
+                                                <button
+                                                    key={genre.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedGenres(prev =>
+                                                        prev.includes(genre.id)
+                                                            ? prev.filter(g => g !== genre.id)
+                                                            : [...prev, genre.id]
+                                                    )}
+                                                    className={clsx(
+                                                        "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                                                        selectedGenres.includes(genre.id)
+                                                            ? "bg-amber-500 text-slate-900"
+                                                            : "bg-white/5 text-gray-300 hover:bg-white/10"
+                                                    )}
+                                                >
+                                                    {genre.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Save Preferences Button */}
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        const res = await saveUserPreferences(selectedNations, selectedGenres);
+                                        if (!('error' in res)) {
+                                            setPreferencesSaved(true);
+                                            setTimeout(() => setPreferencesSaved(false), 2000);
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20 transition-colors"
+                                >
+                                    {preferencesSaved ? (
+                                        <>
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            Đã lưu!
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="w-4 h-4" />
+                                            Lưu sở thích
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </div>
 

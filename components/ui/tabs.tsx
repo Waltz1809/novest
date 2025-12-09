@@ -29,7 +29,7 @@ export function Tabs({ defaultValue, className, children }: TabsProps) {
 
 export function TabsList({ className, children }: { className?: string; children: React.ReactNode }) {
     return (
-        <div className={cn("inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500", className)}>
+        <div className={cn("inline-flex items-center justify-center rounded-lg bg-[#0B0C10] p-1 text-gray-400", className)}>
             {children}
         </div>
     );
@@ -44,8 +44,10 @@ export function TabsTrigger({ value, className, children }: { value: string; cla
     return (
         <button
             className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-                isActive ? "bg-white text-gray-900 shadow-sm" : "hover:bg-gray-200/50 hover:text-gray-900",
+                "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+                isActive
+                    ? "bg-[#F59E0B] text-[#0B0C10] shadow-lg"
+                    : "text-gray-400 hover:bg-white/5 hover:text-gray-200",
                 className
             )}
             onClick={() => context.setActiveTab(value)}

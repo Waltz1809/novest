@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { updateProfile, checkUsernameAvailability } from "@/actions/user";
 import ImageUpload from "@/components/novel/image-upload";
 import { Save, User, AtSign, Loader2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { RecommendationModal } from "@/components/recommendation/recommendation-modal";
 
 export default function WelcomePage() {
     const { data: session, status, update } = useSession();
@@ -21,6 +22,7 @@ export default function WelcomePage() {
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
     const [usernameMessage, setUsernameMessage] = useState("");
+    const [showRecommendationModal, setShowRecommendationModal] = useState(false);
 
     // Redirect if not authenticated or already has custom username
     useEffect(() => {
@@ -112,12 +114,21 @@ export default function WelcomePage() {
         } else if (result.success) {
             setSuccess("Chào mừng bạn đến với Novest!");
             await update(); // Refresh session with new data
+            setIsLoading(false);
 
-            // Redirect to home after a brief delay
-            setTimeout(() => {
-                router.push("/");
-            }, 1500);
+            // Show recommendation modal after profile save
+            setShowRecommendationModal(true);
         }
+    }
+
+    const handleRecommendationComplete = () => {
+        setShowRecommendationModal(false);
+        router.push("/");
+    }
+
+    const handleRecommendationClose = () => {
+        setShowRecommendationModal(false);
+        router.push("/");
     }
 
     if (status === "loading") {
@@ -276,6 +287,13 @@ export default function WelcomePage() {
                     </form>
                 </div>
             </div>
+
+            {/* Recommendation Modal */}
+            <RecommendationModal
+                isOpen={showRecommendationModal}
+                onClose={handleRecommendationClose}
+                onComplete={handleRecommendationComplete}
+            />
         </div>
     );
 }

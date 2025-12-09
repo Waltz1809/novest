@@ -79,6 +79,9 @@ model User {
 
   // Age verification for R18 content
   birthday DateTime?
+
+  // Recommendation preferences
+  preference UserPreference?
 }
 
 model Ticket {
@@ -108,6 +111,24 @@ model Ticket {
   novel   Novel?   @relation(fields: [novelId], references: [id], onDelete: SetNull)
 
   @@index([mainType, status])
+}
+
+// User recommendation preferences
+model UserPreference {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Comma-separated values for nations: "CN", "JP", "KR"
+  nations  String @default("")
+  // Comma-separated genre IDs
+  genreIds String @default("")
+
+  // Onboarding status
+  skipped Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Badge {
@@ -318,6 +339,11 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Pin functionality - max 3 pins per novel
+  isPinned Boolean   @default(false)
+  pinnedAt DateTime?
+  pinnedBy String? // userId who pinned
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -335,6 +361,7 @@ model Comment {
   reactions CommentReaction[]
 
   @@index([chapterId, paragraphId])
+  @@index([novelId, isPinned])
 }
 
 model CommentReaction {

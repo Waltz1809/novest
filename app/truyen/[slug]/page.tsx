@@ -6,10 +6,11 @@ import { Book, User, Calendar, Eye, Star, List, ChevronRight, BookOpen, Heart, M
 import MainHeader from "@/components/layout/main-header";
 import { auth } from "@/auth";
 import LibraryButton from "@/components/novel/library-button";
-import { CommentSection } from "@/components/comment/comment-section";
+import { TabbedCommentSection } from "@/components/comment/tabbed-comment-section";
 import { RatingButton } from "@/components/rating/rating-button";
-import { getUserRating } from "@/actions/interaction";
+import { getUserRating, getNovelRatings } from "@/actions/interaction";
 import { getRelatedNovels } from "@/actions/novel";
+import { RatingDisplaySection } from "@/components/rating/rating-display-section";
 import NovelDescription from "@/components/novel/novel-description";
 import VolumeList from "@/components/novel/volume-list";
 import { incrementView } from "@/actions/view";
@@ -180,6 +181,9 @@ export default async function NovelDetailPage({ params }: PageProps) {
     const averageRating = ratingsData._avg.score ? ratingsData._avg.score.toFixed(1) : "0";
     const ratingCount = ratingsData._count.score;
 
+    // Fetch ratings for display section
+    const ratingsResult = await getNovelRatings(novel.id, 1, 3);
+
     return (
         <div className="min-h-screen bg-background font-sans text-foreground">
             {/* Header */}
@@ -338,24 +342,6 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                 <div className="w-10 h-10 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center text-sm" title="Popular">⭐</div>
                                             </div>
                                         </div>
-
-                                        {/* Mobile Stats - Only visible on smaller screens */}
-                                        <div className="lg:hidden bg-[#0B0C10] rounded-xl p-4 border border-[#374151] flex-1">
-                                            <div className="grid grid-cols-3 gap-2 text-center">
-                                                <div>
-                                                    <div className="font-bold text-white">{totalChapters}</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Chương</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-white">4.9</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Đánh giá</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-white">{wordCount}</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Chữ</div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -418,6 +404,14 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                     </button>
                                 </div>
 
+                                {/* Rating Display Section */}
+                                <RatingDisplaySection
+                                    ratings={ratingsResult.ratings}
+                                    totalCount={ratingsResult.total}
+                                    novelSlug={novel.slug}
+                                    averageRating={averageRating}
+                                />
+
                                 {/* Related Novels */}
                                 <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
                                     <h3 className="font-bold text-sm mb-3 flex items-center gap-2 text-[#F59E0B]">
@@ -476,7 +470,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                 <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-white/10">
                                     <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-l-4 border-[#F59E0B]">
                                         <div className="p-6 md:p-8">
-                                            <CommentSection novelId={novel.id} />
+                                            <TabbedCommentSection novelId={novel.id} novelSlug={novel.slug} />
                                         </div>
                                     </div>
                                 </div>
