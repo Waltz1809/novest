@@ -84,6 +84,16 @@ function buildCommentTree(flatComments: Comment[]): Comment[] {
         }
     })
 
+    // Sort children (replies) by createdAt ASC (oldest first, like Facebook)
+    // Root comments are already sorted DESC from server
+    roots.forEach(root => {
+        if (root.children && root.children.length > 0) {
+            root.children.sort((a, b) =>
+                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            )
+        }
+    })
+
     return roots
 }
 
