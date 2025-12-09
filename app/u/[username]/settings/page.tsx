@@ -487,7 +487,9 @@ export default function SettingsPage() {
                                     type="button"
                                     onClick={async () => {
                                         const res = await saveUserPreferences(selectedNations, selectedGenres);
-                                        if (!('error' in res)) {
+                                        if ('error' in res) {
+                                            alert(res.error || 'Có lỗi xảy ra. Vui lòng thử lại.');
+                                        } else {
                                             setPreferencesSaved(true);
                                             setTimeout(() => setPreferencesSaved(false), 2000);
                                         }
