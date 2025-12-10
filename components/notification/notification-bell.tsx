@@ -49,7 +49,7 @@ export function NotificationBell() {
                     />
 
                     {/* Dropdown */}
-                    <div className="absolute right-0 mt-2 z-50">
+                    <div className="fixed sm:absolute right-4 sm:right-0 mt-2 z-50 left-4 sm:left-auto">
                         <NotificationDropdown
                             onClose={() => setIsOpen(false)}
                             onUpdate={loadUnreadCount}

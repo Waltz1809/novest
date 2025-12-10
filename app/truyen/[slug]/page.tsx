@@ -470,7 +470,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                 <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-white/10">
                                     <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-l-4 border-[#F59E0B]">
                                         <div className="p-6 md:p-8">
-                                            <TabbedCommentSection novelId={novel.id} novelSlug={novel.slug} />
+                                            <TabbedCommentSection novelId={novel.id} novelSlug={novel.slug} uploaderId={novelBasic.uploaderId ?? undefined} />
                                         </div>
                                     </div>
                                 </div>

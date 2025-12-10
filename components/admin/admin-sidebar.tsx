@@ -12,6 +12,7 @@ import {
     Tag,
     Ticket,
     Megaphone,
+    Shield,
     LogOut,
     Menu,
     X
@@ -54,7 +55,13 @@ const sidebarItems = [
         title: "Thông báo",
         href: "/admin/announcements",
         icon: Megaphone,
-        adminOnly: true, // Only ADMIN can manage announcements
+        adminOnly: true,
+    },
+    {
+        title: "Nhật ký",
+        href: "/admin/logs",
+        icon: Shield,
+        adminOnly: true,
     },
 ];
 

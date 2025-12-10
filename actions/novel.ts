@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateSearchIndex } from "@/lib/utils";
+import { logAdminAction } from "./admin-log";
 
 /**
  * Get novel approval status by slug (for smart notification routing)
@@ -386,6 +387,14 @@ export async function approveNovel(novelId: number) {
         revalidatePath(`/truyen/${novelId}`);
         revalidatePath("/");
 
+        // Log admin action
+        await logAdminAction(
+            "APPROVE_NOVEL",
+            String(novelId),
+            "NOVEL",
+            `Duyệt truyện "${novel.title}"`
+        );
+
         return { success: "Truyện đã được duyệt thành công" };
     } catch (error) {
         console.error("Approve novel error:", error);
@@ -453,6 +462,14 @@ export async function rejectNovel(novelId: number, reason: string) {
             revalidatePath("/studio/novels");
             revalidatePath("/");
 
+            // Log admin action
+            await logAdminAction(
+                "DELETE_NOVEL",
+                String(novelId),
+                "NOVEL",
+                `Xóa vĩnh viễn truyện "${novel.title}" (từ chối lần 3)`
+            );
+
             return { success: "Truyện đã bị xóa vĩnh viễn (lần từ chối thứ 3)", deleted: true };
         }
 
@@ -482,6 +499,14 @@ export async function rejectNovel(novelId: number, reason: string) {
         revalidatePath("/admin/novels");
         revalidatePath(`/truyen/${novelId}`);
         revalidatePath("/studio/novels");
+
+        // Log admin action
+        await logAdminAction(
+            "REJECT_NOVEL",
+            String(novelId),
+            "NOVEL",
+            `Từ chối truyện "${novel.title}" (${newRejectionCount}/3). Lý do: ${reason.trim()}`
+        );
 
         return { success: `Đã từ chối truyện (${newRejectionCount}/3)` };
     } catch (error) {

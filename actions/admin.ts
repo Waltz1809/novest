@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { logAdminAction } from "./admin-log";
 
 // Helper to check admin or moderator role
 async function checkAdmin() {
@@ -167,9 +168,25 @@ export async function deleteComment(commentId: number) {
     await checkAdmin();
 
     try {
+        // Get comment details for logging
+        const comment = await db.comment.findUnique({
+            where: { id: commentId },
+            select: { content: true, userId: true }
+        });
+
         await db.comment.delete({
             where: { id: commentId },
         });
+
+        // Log admin action
+        if (comment) {
+            await logAdminAction(
+                "DELETE_COMMENT",
+                String(commentId),
+                "COMMENT",
+                `Xóa bình luận: "${comment.content.substring(0, 50)}..."`
+            );
+        }
 
         revalidatePath("/admin/comments");
         return { success: "Comment deleted successfully" };
@@ -248,6 +265,14 @@ export async function banUser(userId: string, reason: string) {
             },
         });
 
+        // Log admin action
+        await logAdminAction(
+            "BAN_USER",
+            userId,
+            "USER",
+            `Cấm người dùng "${targetUser.name || 'Unknown'}". Lý do: ${reason || "Vi phạm quy định"}`
+        );
+
         revalidatePath("/admin/users");
         return { success: "Đã cấm người dùng" };
     } catch (error) {
@@ -293,6 +318,14 @@ export async function unbanUser(userId: string) {
                 banReason: null,
             },
         });
+
+        // Log admin action
+        await logAdminAction(
+            "UNBAN_USER",
+            userId,
+            "USER",
+            `Bỏ cấm người dùng`
+        );
 
         revalidatePath("/admin/users");
         return { success: "Đã bỏ cấm người dùng" };
@@ -377,6 +410,12 @@ export async function deleteNovel(novelId: number) {
     await checkAdmin();
 
     try {
+        // Get novel details for logging
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { title: true }
+        });
+
         // Soft delete: set approval status to prevent visibility
         await db.novel.update({
             where: { id: novelId },
@@ -385,6 +424,16 @@ export async function deleteNovel(novelId: number) {
                 rejectionReason: "Đã bị xóa bởi quản trị viên"
             },
         });
+
+        // Log admin action
+        if (novel) {
+            await logAdminAction(
+                "DELETE_NOVEL",
+                String(novelId),
+                "NOVEL",
+                `Ẩn truyện "${novel.title}"`
+            );
+        }
 
         revalidatePath("/admin/novels");
         return { success: "Đã ẩn truyện thành công" };

@@ -82,6 +82,12 @@ model User {
 
   // Recommendation preferences
   preference UserPreference?
+
+  // Rating discussion comments
+  ratingComments RatingComment[]
+
+  // Admin action logs
+  adminLogs AdminLog[]
 }
 
 model Ticket {
@@ -233,6 +239,9 @@ model Novel {
   // R18/Adult content flag
   isR18 Boolean @default(false)
 
+  // Licensed/Dropped - only visible to logged-in users
+  isLicensedDrop Boolean @default(false)
+
   volumes        Volume[]
   genres         Genre[]
   library        Library[]
@@ -382,12 +391,50 @@ model Rating {
   novelId   Int
   score     Int // 1-5
   content   String?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
 
+  // Discussion comments on this rating (separate table)
+  ratingComments RatingComment[]
+
   @@id([userId, novelId])
+}
+
+// Rating discussion comments (separate from regular comments)
+model RatingComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  // Link to rating
+  ratingUserId  String
+  ratingNovelId Int
+  rating        Rating @relation(fields: [ratingUserId, ratingNovelId], references: [userId, novelId], onDelete: Cascade)
+
+  // Author of comment
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([ratingUserId, ratingNovelId])
+}
+
+// Admin/Mod action log
+model AdminLog {
+  id         String   @id @default(cuid())
+  action     String // APPROVE_NOVEL, REJECT_NOVEL, DELETE_NOVEL, DELETE_COMMENT, BAN_USER, UNBAN_USER
+  targetId   String? // ID của đối tượng bị tác động
+  targetType String? // NOVEL, COMMENT, USER, CHAPTER
+  details    String? // JSON chi tiết thêm (reason, etc.)
+  createdAt  DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([action])
 }
 
 // ================= 5. CHAPTER VERSIONING (EXPERIMENTAL) =================

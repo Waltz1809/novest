@@ -111,6 +111,14 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                onBlur={(e) => {
+                                    // Auto convert to Title Case on blur
+                                    const titleCased = e.target.value
+                                        .split(' ')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                        .join(' ');
+                                    setFormData({ ...formData, title: titleCased });
+                                }}
                                 className="w-full text-3xl md:text-5xl font-serif font-bold text-[#F59E0B] bg-transparent border-none outline-none placeholder:text-[#F59E0B]/30 leading-tight"
                                 style={{ fontFamily: "'Merriweather', serif", lineHeight: "1.2" }}
                                 placeholder="TÊN TRUYỆN"

@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, User, ChevronRight } from "lucide-react"
+import { Star, User, ChevronRight, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
+import { RatingDetailModal } from "./rating-detail-modal"
 
 interface RatingUser {
     id: string
@@ -46,7 +48,7 @@ function StarRating({ score }: { score: number }) {
     )
 }
 
-function RatingItem({ rating }: { rating: Rating }) {
+function RatingItem({ rating, onClick }: { rating: Rating; onClick: () => void }) {
     const displayName = rating.user.nickname || rating.user.name || "Ẩn danh"
     const timeAgo = formatDistanceToNow(new Date(rating.createdAt), {
         addSuffix: true,
@@ -54,12 +56,12 @@ function RatingItem({ rating }: { rating: Rating }) {
     })
 
     return (
-        <div className="flex gap-3 py-4 border-b border-white/5 last:border-0">
+        <div
+            onClick={onClick}
+            className="flex gap-3 py-4 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/5 -mx-2 px-2 rounded-lg transition-colors group"
+        >
             {/* Avatar */}
-            <Link
-                href={`/u/${rating.user.username || rating.user.id}`}
-                className="shrink-0"
-            >
+            <div className="shrink-0">
                 <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden border border-white/10">
                     {rating.user.image ? (
                         <Image
@@ -75,17 +77,14 @@ function RatingItem({ rating }: { rating: Rating }) {
                         </div>
                     )}
                 </div>
-            </Link>
+            </div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                    <Link
-                        href={`/u/${rating.user.username || rating.user.id}`}
-                        className="font-medium text-sm text-white hover:text-amber-400 transition-colors"
-                    >
+                    <span className="font-medium text-sm text-white group-hover:text-amber-400 transition-colors">
                         {displayName}
-                    </Link>
+                    </span>
                     <StarRating score={rating.score} />
                     <span className="text-xs text-gray-500">{timeAgo}</span>
                 </div>
@@ -94,6 +93,10 @@ function RatingItem({ rating }: { rating: Rating }) {
                         {rating.content}
                     </p>
                 )}
+                <div className="mt-2 flex items-center gap-1 text-xs text-gray-500 group-hover:text-amber-500/70 transition-colors">
+                    <MessageSquare className="w-3 h-3" />
+                    <span>Xem chi tiết</span>
+                </div>
             </div>
         </div>
     )
@@ -105,6 +108,8 @@ export function RatingDisplaySection({
     novelSlug,
     averageRating,
 }: RatingDisplaySectionProps) {
+    const [selectedRating, setSelectedRating] = useState<Rating | null>(null)
+
     if (ratings.length === 0) {
         return (
             <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
@@ -120,38 +125,55 @@ export function RatingDisplaySection({
     }
 
     return (
-        <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
-            <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-sm flex items-center gap-2 text-[#F59E0B]">
-                    <Star className="w-4 h-4" />
-                    Đánh giá ({averageRating}/5)
-                </h3>
+        <>
+            <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-bold text-sm flex items-center gap-2 text-[#F59E0B]">
+                        <Star className="w-4 h-4" />
+                        Đánh giá ({averageRating}/5)
+                    </h3>
+                    {totalCount > 3 && (
+                        <Link
+                            href={`/truyen/${novelSlug}/danh-gia`}
+                            className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+                        >
+                            Xem tất cả {totalCount} đánh giá
+                            <ChevronRight className="w-3 h-3" />
+                        </Link>
+                    )}
+                </div>
+
+                <div className="divide-y divide-white/5">
+                    {ratings.slice(0, 3).map((rating) => (
+                        <RatingItem
+                            key={rating.userId}
+                            rating={rating}
+                            onClick={() => setSelectedRating(rating)}
+                        />
+                    ))}
+                </div>
+
                 {totalCount > 3 && (
                     <Link
                         href={`/truyen/${novelSlug}/danh-gia`}
-                        className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors"
+                        className="mt-4 w-full py-2.5 flex items-center justify-center gap-2 bg-[#0B0C10] text-amber-400 font-medium text-sm rounded-lg hover:bg-[#0B0C10]/80 transition-colors border border-amber-500/20"
                     >
-                        Xem tất cả {totalCount} đánh giá
-                        <ChevronRight className="w-3 h-3" />
+                        Xem thêm {totalCount - 3} đánh giá khác
+                        <ChevronRight className="w-4 h-4" />
                     </Link>
                 )}
             </div>
 
-            <div className="divide-y divide-white/5">
-                {ratings.slice(0, 3).map((rating) => (
-                    <RatingItem key={rating.userId} rating={rating} />
-                ))}
-            </div>
-
-            {totalCount > 3 && (
-                <Link
-                    href={`/truyen/${novelSlug}/danh-gia`}
-                    className="mt-4 w-full py-2.5 flex items-center justify-center gap-2 bg-[#0B0C10] text-amber-400 font-medium text-sm rounded-lg hover:bg-[#0B0C10]/80 transition-colors border border-amber-500/20"
-                >
-                    Xem thêm {totalCount - 3} đánh giá khác
-                    <ChevronRight className="w-4 h-4" />
-                </Link>
+            {/* Rating Detail Modal */}
+            {selectedRating && (
+                <RatingDetailModal
+                    isOpen={!!selectedRating}
+                    onClose={() => setSelectedRating(null)}
+                    ratingUserId={selectedRating.userId}
+                    novelId={selectedRating.novelId}
+                />
             )}
-        </div>
+        </>
     )
 }
+

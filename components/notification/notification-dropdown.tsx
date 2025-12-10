@@ -32,7 +32,7 @@ export function NotificationDropdown({ onClose, onUpdate }: NotificationDropdown
     }
 
     return (
-        <div className="w-96 bg-[#0B0C10] border border-[#34D399]/20 rounded-lg shadow-2xl overflow-hidden">
+        <div className="w-[calc(100vw-2rem)] max-w-96 bg-[#0B0C10] border border-[#34D399]/20 rounded-lg shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="px-4 py-3 border-b border-[#34D399]/20 flex items-center justify-between">
                 <h3 className="text-white font-semibold flex items-center gap-2">

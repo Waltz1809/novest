@@ -51,6 +51,7 @@ interface CommentSectionProps {
     novelId: number
     chapterId?: number
     themeId?: string
+    uploaderId?: string // Novel uploader ID for pin permission
 }
 
 // Utility to build FLAT comment structure (max 1 level of nesting)
@@ -111,7 +112,7 @@ function buildCommentTree(flatComments: Comment[]): Comment[] {
     return roots
 }
 
-export function CommentSection({ novelId, chapterId, themeId }: CommentSectionProps) {
+export function CommentSection({ novelId, chapterId, themeId, uploaderId }: CommentSectionProps) {
     const [flatComments, setFlatComments] = useState<Comment[]>([])
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
@@ -279,6 +280,7 @@ export function CommentSection({ novelId, chapterId, themeId }: CommentSectionPr
                         onReplySuccess={handleReplyAdded}
                         expandedCommentIds={expandedCommentIds}
                         toggleExpanded={toggleExpanded}
+                        uploaderId={uploaderId}
                     />
                 ))}
             </div>
@@ -324,6 +326,7 @@ export function CommentItem({
     level = 0,
     theme,
     onDrillDown,
+    uploaderId,
 }: {
     comment: Comment
     novelId: number
@@ -334,6 +337,7 @@ export function CommentItem({
     level?: number
     theme?: ReadingTheme
     onDrillDown?: (comment: Comment) => void
+    uploaderId?: string
 }) {
     const [isReplying, setIsReplying] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
@@ -363,9 +367,11 @@ export function CommentItem({
         session?.user?.role === "ADMIN" ||
         session?.user?.role === "MODERATOR"
 
-    // Check if pin is allowed (admin, mod only - uploader check done server-side)
+    // Check if pin is allowed (admin, mod, or uploader)
+    const isUploader = uploaderId && session?.user?.id === uploaderId
     const canPin = session?.user?.role === "ADMIN" ||
-        session?.user?.role === "MODERATOR"
+        session?.user?.role === "MODERATOR" ||
+        isUploader
 
     // Check if comment was edited
     const isEdited = comment.updatedAt &&
@@ -507,6 +513,7 @@ export function CommentItem({
 
     return (
         <div
+            id={`comment-${comment.id}`}
             className={clsx(
                 "min-w-0",
                 localIsPinned && "relative p-3 rounded-lg border-2 border-amber-500/50 bg-amber-500/5"
@@ -557,9 +564,19 @@ export function CommentItem({
                         >
                             {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
                         </Link>
-                        <span className="text-xs" style={{ color: t.ui.text, opacity: 0.6 }}>
+                        <button
+                            onClick={() => {
+                                const url = `${window.location.origin}${window.location.pathname}#comment-${comment.id}`
+                                navigator.clipboard.writeText(url)
+                                    .then(() => alert("Đã sao chép link!"))
+                                    .catch(() => { })
+                            }}
+                            className="text-xs hover:text-amber-500 transition-colors cursor-pointer"
+                            style={{ color: t.ui.text, opacity: 0.6 }}
+                            title="Click để sao chép link"
+                        >
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
-                        </span>
+                        </button>
                         {isEdited && (
                             <span className="text-xs italic" style={{ color: t.ui.text, opacity: 0.5 }}>
                                 (đã chỉnh sửa)
@@ -767,6 +784,7 @@ export function CommentItem({
                             level={level + 1}
                             theme={theme}
                             onDrillDown={onDrillDown}
+                            uploaderId={uploaderId}
                         />
                     ))}
                 </div>

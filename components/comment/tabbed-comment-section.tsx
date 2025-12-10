@@ -40,9 +40,10 @@ interface ChapterComment {
 interface TabbedCommentSectionProps {
     novelId: number
     novelSlug: string
+    uploaderId?: string
 }
 
-export function TabbedCommentSection({ novelId, novelSlug }: TabbedCommentSectionProps) {
+export function TabbedCommentSection({ novelId, novelSlug, uploaderId }: TabbedCommentSectionProps) {
     const [chapterComments, setChapterComments] = useState<ChapterComment[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -83,7 +84,7 @@ export function TabbedCommentSection({ novelId, novelSlug }: TabbedCommentSectio
 
                 {/* General Comments Tab */}
                 <TabsContent value="general" className="mt-6">
-                    <CommentSection novelId={novelId} />
+                    <CommentSection novelId={novelId} uploaderId={uploaderId} />
                 </TabsContent>
 
                 {/* Chapter Discussions Tab */}

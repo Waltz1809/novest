@@ -35,3 +35,13 @@ export function calculateWordCount(content: string): number {
         .split(/\s+/)
         .filter(word => word.length > 0).length;
 }
+
+// 5. Convert string to Title Case (Viết hoa chữ cái đầu mỗi từ)
+export function toTitleCase(str: string): string {
+    if (!str) return "";
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
