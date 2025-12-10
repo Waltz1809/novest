@@ -7,6 +7,7 @@ import { updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
 import ImageUpload from "@/components/novel/image-upload";
 import GenreSelector from "@/components/novel/genre-selector";
+import GroupSelector from "@/components/novel/group-selector";
 
 
 interface Genre {
@@ -28,10 +29,13 @@ interface NovelInfoEditorProps {
         alternativeTitles: string | null;
         genres: Genre[];
         isR18?: boolean;
+        isLicensedDrop?: boolean;
+        translationGroupId?: string | null;
     };
+    groups: { id: string; name: string }[];
 }
 
-export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
+export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps) {
     const [formData, setFormData] = useState({
         title: novel.title,
         author: novel.author,
@@ -39,6 +43,7 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
         description: novel.description || "",
         status: novel.status,
         isR18: novel.isR18 ?? false,
+        isLicensedDrop: novel.isLicensedDrop ?? false,
     });
     const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(
         novel.genres.map(g => g.id)
@@ -61,6 +66,7 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
         formData.description !== (novel.description || "") ||
         formData.status !== novel.status ||
         formData.isR18 !== (novel.isR18 ?? false) ||
+        formData.isLicensedDrop !== (novel.isLicensedDrop ?? false) ||
         coverPreview !== novel.coverImage ||
         JSON.stringify(selectedGenreIds.sort()) !== JSON.stringify(novel.genres.map(g => g.id).sort());
 
@@ -167,57 +173,77 @@ export default function NovelInfoEditor({ novel }: NovelInfoEditorProps) {
                             />
                         </div>
 
-                        <div>
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.isR18}
-                                    onChange={(e) => setFormData({ ...formData, isR18: e.target.checked })}
-                                    className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#0f172a] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
-                                />
-                                <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
-                                    Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
-                                </span>
-                            </label>
-                        </div>
+                        <GroupSelector
+                            novelId={novel.id}
+                            currentGroupId={novel.translationGroupId || null}
+                            groups={groups}
+                        />
+                    </div>
 
-                        <div>
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Trạng thái</label>
-                            <div className="relative">
-                                <select
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                    className="w-full pl-4 pr-12 py-3.5 rounded-lg bg-[#0f172a] border-2 border-[#F59E0B]/30 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none cursor-pointer"
-                                >
-                                    <option value="ONGOING" className="bg-[#0f172a] text-white">Đang tiến hành</option>
-                                    <option value="COMPLETED" className="bg-[#0f172a] text-white">Hoàn thành</option>
-                                    <option value="HIATUS" className="bg-[#0f172a] text-white">Tạm dừng</option>
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F59E0B] pointer-events-none" />
-                            </div>
-                        </div>
+                    <div>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={formData.isR18}
+                                onChange={(e) => setFormData({ ...formData, isR18: e.target.checked })}
+                                className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#0f172a] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
+                            />
+                            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
+                            </span>
+                        </label>
+                    </div>
 
-                        <div className="pt-4">
-                            <button
-                                onClick={handleSave}
-                                disabled={!hasChanges || isSaving}
-                                className={`px-6 py-3 font-bold rounded-lg transition-all ${hasChanges && !isSaving ? "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber cursor-pointer" : "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"}`}
+                    <div>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={formData.isLicensedDrop}
+                                onChange={(e) => setFormData({ ...formData, isLicensedDrop: e.target.checked })}
+                                className="w-5 h-5 rounded border-2 border-amber-500/50 bg-[#0f172a] text-amber-500 focus:ring-amber-500/20 focus:ring-2 cursor-pointer"
+                            />
+                            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                Truyện bản quyền đã drop - Chặn đặt chương VIP
+                            </span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Trạng thái</label>
+                        <div className="relative">
+                            <select
+                                value={formData.status}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                className="w-full pl-4 pr-12 py-3.5 rounded-lg bg-[#0f172a] border-2 border-[#F59E0B]/30 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none cursor-pointer"
                             >
-                                {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
-                            </button>
+                                <option value="ONGOING" className="bg-[#0f172a] text-white">Đang tiến hành</option>
+                                <option value="COMPLETED" className="bg-[#0f172a] text-white">Hoàn thành</option>
+                                <option value="HIATUS" className="bg-[#0f172a] text-white">Tạm dừng</option>
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F59E0B] pointer-events-none" />
                         </div>
                     </div>
 
-                    <div className="col-span-1">
-                        <div className="sticky top-8">
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-3 block tracking-wide">Ảnh bìa</label>
-                            <ImageUpload
-                                value={coverPreview || ""}
-                                onChange={setCoverPreview}
-                                disabled={isSaving}
-                            />
-                            <p className="text-xs text-[#9CA3AF] mt-2 text-center uppercase tracking-wide">{novel.title}</p>
-                        </div>
+                    <div className="pt-4">
+                        <button
+                            onClick={handleSave}
+                            disabled={!hasChanges || isSaving}
+                            className={`px-6 py-3 font-bold rounded-lg transition-all ${hasChanges && !isSaving ? "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber cursor-pointer" : "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"}`}
+                        >
+                            {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="col-span-1">
+                    <div className="sticky top-8">
+                        <label className="text-xs text-[#9CA3AF] uppercase mb-3 block tracking-wide">Ảnh bìa</label>
+                        <ImageUpload
+                            value={coverPreview || ""}
+                            onChange={setCoverPreview}
+                            disabled={isSaving}
+                        />
+                        <p className="text-xs text-[#9CA3AF] mt-2 text-center uppercase tracking-wide">{novel.title}</p>
                     </div>
                 </div>
             </div>

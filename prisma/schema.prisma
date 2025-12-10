@@ -88,6 +88,9 @@ model User {
 
   // Admin action logs
   adminLogs AdminLog[]
+
+  // Translation groups
+  translationGroups TranslationGroupMember[]
 }
 
 model Ticket {
@@ -255,6 +258,10 @@ model Novel {
   uploader   User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
   comments   Comment[]
   ratings    Rating[]
+
+  // Translation group
+  translationGroupId String?
+  translationGroup   TranslationGroup? @relation(fields: [translationGroupId], references: [id], onDelete: SetNull)
 
   @@index([approvalStatus])
   @@index([nation, novelFormat])
@@ -468,4 +475,27 @@ model Announcement {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ================= 7. TRANSLATION GROUPS =================
+// Groups of translators who can collaborate on novels
+model TranslationGroup {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members TranslationGroupMember[]
+  novels  Novel[]
+}
+
+model TranslationGroupMember {
+  groupId  String
+  userId   String
+  role     String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt DateTime @default(now())
+
+  group TranslationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
 }

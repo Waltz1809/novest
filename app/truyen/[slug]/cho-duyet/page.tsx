@@ -58,6 +58,12 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
         where: { slug },
         include: {
             genres: true,
+            translationGroup: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             uploader: {
                 select: {
                     id: true,
@@ -165,9 +171,21 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                             Trang xem trước - Chỉ bạn và quản trị viên có thể thấy
                         </span>
                     </div>
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${status.bg} ${status.text} border ${status.border}/30`}>
-                        <StatusIcon className="w-4 h-4" />
-                        <span className="text-sm font-bold uppercase">{status.label}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${status.bg} ${status.text} border ${status.border}/30`}>
+                            <StatusIcon className="w-4 h-4" />
+                            <span className="text-sm font-bold uppercase">{status.label}</span>
+                        </div>
+                        {novel.isR18 && (
+                            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                                <span className="text-sm font-bold">🔞 R18</span>
+                            </div>
+                        )}
+                        {novel.isLicensedDrop && (
+                            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                <span className="text-sm font-bold">⚠️ Bản quyền Drop</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -242,6 +260,13 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white">
                                             {novel.title}
                                         </h1>
+
+                                        {/* Alternative Titles */}
+                                        {novel.alternativeTitles && (
+                                            <p className="text-sm text-[#9CA3AF] italic">
+                                                Tên khác: {novel.alternativeTitles}
+                                            </p>
+                                        )}
 
                                         {/* Author */}
                                         <div className="flex items-center gap-2 text-[#9CA3AF] text-sm">
@@ -401,6 +426,7 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
                                 {/* Translator Profile */}
                                 <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
+                                    {/* Uploader + Group */}
                                     <Link href={`/u/${novel.uploader.username || novel.uploader.id}`} className="flex items-center gap-3 mb-4 group">
                                         <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399] overflow-hidden border border-[#34D399]/20 group-hover:border-[#F59E0B] transition-colors">
                                             {novel.uploader.image ? (
@@ -416,8 +442,10 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">Nhóm dịch</h3>
-                                            <p className="text-xs text-gray-400">{novel.uploader.nickname || novel.uploader.name || "Novest Official"}</p>
+                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">
+                                                {novel.uploader.nickname || novel.uploader.name || "Ẩn danh"}
+                                            </h3>
+                                            <p className="text-xs text-gray-500">{novel.translationGroup?.name || "Novest Official"}</p>
                                         </div>
                                     </Link>
                                     <button className="w-full py-2 bg-[#F59E0B] text-[#0B0C10] font-bold text-sm rounded-lg hover:bg-[#D97706] hover:shadow-md transition-all">

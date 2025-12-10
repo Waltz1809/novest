@@ -3,6 +3,7 @@ import { BookOpen } from "lucide-react";
 import UserButton from "@/components/auth/user-button";
 import SearchBar from "@/components/search/search-bar";
 import { NotificationBell } from "@/components/notification/notification-bell";
+import { LibraryNotificationBell } from "@/components/notification/library-notification-bell";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 
 export default function MainHeader() {
@@ -29,6 +30,7 @@ export default function MainHeader() {
                         <div className="flex min-[640px]:hidden">
                             <SearchBar mobileMode />
                         </div>
+                        <LibraryNotificationBell />
                         <NotificationBell />
                         <UserButton />
                     </div>
@@ -39,3 +41,4 @@ export default function MainHeader() {
         </>
     );
 }
+

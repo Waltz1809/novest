@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import EditNovelPageClient from "./edit-novel-client";
+import { getMyGroups } from "@/actions/translation-group";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -21,6 +22,12 @@ export default async function EditNovelPage({ params }: PageProps) {
         },
         include: {
             genres: true,
+            translationGroup: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             volumes: {
                 orderBy: {
                     order: "asc",
@@ -48,5 +55,9 @@ export default async function EditNovelPage({ params }: PageProps) {
         redirect("/studio/novels");
     }
 
-    return <EditNovelPageClient novel={novel} />;
+    // Fetch user's groups for dropdown
+    const userGroups = await getMyGroups();
+    const groups = userGroups.map(g => ({ id: g.id, name: g.name }));
+
+    return <EditNovelPageClient novel={novel} groups={groups} />;
 }

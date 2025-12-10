@@ -3,20 +3,15 @@
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getUnreadCount } from "@/actions/notification";
-import Link from "next/link";
-import { NotificationDropdown } from "./notification-dropdown";
+import { NotificationModal } from "./notification-dropdown";
 
 export function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        // Fetch unread count on mount
         loadUnreadCount();
-
-        // Poll every 30 seconds for new notifications
         const interval = setInterval(loadUnreadCount, 30000);
-
         return () => clearInterval(interval);
     }, []);
 
@@ -26,9 +21,9 @@ export function NotificationBell() {
     }
 
     return (
-        <div className="relative">
+        <>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpen(true)}
                 className="relative p-2 hover:bg-[#1E293B] rounded-lg transition-colors"
                 aria-label="Thông báo"
             >
@@ -41,22 +36,11 @@ export function NotificationBell() {
             </button>
 
             {isOpen && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setIsOpen(false)}
-                    />
-
-                    {/* Dropdown */}
-                    <div className="fixed sm:absolute right-4 sm:right-0 mt-2 z-50 left-4 sm:left-auto">
-                        <NotificationDropdown
-                            onClose={() => setIsOpen(false)}
-                            onUpdate={loadUnreadCount}
-                        />
-                    </div>
-                </>
+                <NotificationModal
+                    onClose={() => setIsOpen(false)}
+                    onUpdate={loadUnreadCount}
+                />
             )}
-        </div>
+        </>
     );
 }

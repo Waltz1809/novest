@@ -7,11 +7,16 @@ import ImageUpload from "@/components/novel/image-upload";
 import GenreSelector from "@/components/novel/genre-selector";
 import { createNovel, updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
-import { Loader2, Save, Wand2 } from "lucide-react";
+import { Loader2, Save, Users, ChevronDown } from "lucide-react";
 import { toSlug } from "@/lib/utils";
 
 interface Genre {
     id: number;
+    name: string;
+}
+
+interface Group {
+    id: string;
     name: string;
 }
 
@@ -31,6 +36,7 @@ interface NovelFormProps {
         novelFormat?: string | null;
     } | null;
     genres: Genre[];
+    groups?: Group[];
 }
 
 interface FormData {
@@ -46,9 +52,11 @@ interface FormData {
     nation: string;
     novelFormat: string;
     isR18: boolean;
+    isLicensedDrop: boolean;
+    groupId: string;
 }
 
-export default function NovelForm({ initialData, genres }: NovelFormProps) {
+export default function NovelForm({ initialData, genres, groups = [] }: NovelFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -72,6 +80,8 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
             nation: initialData?.nation || "CN",
             novelFormat: initialData?.novelFormat || "WN",
             isR18: false,
+            isLicensedDrop: false,
+            groupId: "",
         },
     });
 
@@ -265,6 +275,45 @@ export default function NovelForm({ initialData, genres }: NovelFormProps) {
                                     </span>
                                 </label>
                             </div>
+
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        {...register("isLicensedDrop")}
+                                        className="w-5 h-5 rounded border-2 border-amber-500/50 bg-[#020617] text-amber-500 focus:ring-amber-500/20 focus:ring-2 cursor-pointer"
+                                    />
+                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                        Truyện bản quyền đã drop - Chặn đặt chương VIP
+                                    </span>
+                                </label>
+                            </div>
+
+                            {groups.length > 0 && (
+                                <div className="col-span-1 md:col-span-2 space-y-2">
+                                    <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                        Nhóm dịch
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            {...register("groupId")}
+                                            className="w-full px-4 py-3 pr-16 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                        >
+                                            <option value="">Novest Official (Mặc định)</option>
+                                            {groups.map(group => (
+                                                <option key={group.id} value={group.id}>{group.name}</option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                                            <Users className="w-4 h-4 text-amber-400" />
+                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-[#9CA3AF]/70">
+                                        Gán truyện cho nhóm dịch để các thành viên khác có thể chỉnh sửa
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-2">

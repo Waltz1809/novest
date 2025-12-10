@@ -24,6 +24,11 @@ interface Genre {
     slug: string;
 }
 
+interface Group {
+    id: string;
+    name: string;
+}
+
 interface Novel {
     id: number;
     title: string;
@@ -35,13 +40,15 @@ interface Novel {
     alternativeTitles: string | null;
     genres: Genre[];
     volumes: Volume[];
+    translationGroupId?: string | null;
 }
 
 interface EditNovelPageProps {
     novel: Novel;
+    groups: Group[];
 }
 
-export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
+export default function EditNovelPageClient({ novel, groups }: EditNovelPageProps) {
     const [activeTab, setActiveTab] = useState<"info" | "chapters">("info");
 
     const handleCreateNewVolume = async () => {
@@ -122,7 +129,7 @@ export default function EditNovelPageClient({ novel }: EditNovelPageProps) {
                 {/* Content */}
                 {activeTab === "info" ? (
                     <section className="animate-in fade-in slide-in-from-left-4 duration-300">
-                        <NovelInfoEditor novel={novel} />
+                        <NovelInfoEditor novel={novel} groups={groups} />
                     </section>
                 ) : (
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">

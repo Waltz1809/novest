@@ -502,8 +502,13 @@ export async function schedulePublish(chapterId: number, publishAt: Date) {
         // Check permission
         const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
         const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+        const isGroupMember = chapter.volume.novel.translationGroupId
+            ? await db.translationGroupMember.findFirst({
+                where: { groupId: chapter.volume.novel.translationGroupId, userId: session.user.id }
+            })
+            : null;
 
-        if (!isAdmin && !isUploader) {
+        if (!isAdmin && !isUploader && !isGroupMember) {
             return { error: "Không có quyền thực hiện" };
         }
 
@@ -559,8 +564,13 @@ export async function cancelScheduledPublish(chapterId: number) {
         // Check permission
         const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
         const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+        const isGroupMember = chapter.volume.novel.translationGroupId
+            ? await db.translationGroupMember.findFirst({
+                where: { groupId: chapter.volume.novel.translationGroupId, userId: session.user.id }
+            })
+            : null;
 
-        if (!isAdmin && !isUploader) {
+        if (!isAdmin && !isUploader && !isGroupMember) {
             return { error: "Không có quyền thực hiện" };
         }
 
@@ -595,7 +605,7 @@ export async function getChapterVersions(chapterId: number) {
                 volume: {
                     include: {
                         novel: {
-                            select: { uploaderId: true },
+                            select: { uploaderId: true, translationGroupId: true },
                         },
                     },
                 },
@@ -609,8 +619,13 @@ export async function getChapterVersions(chapterId: number) {
         // Check permission
         const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
         const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+        const isGroupMember = chapter.volume.novel.translationGroupId
+            ? await db.translationGroupMember.findFirst({
+                where: { groupId: chapter.volume.novel.translationGroupId, userId: session.user.id }
+            })
+            : null;
 
-        if (!isAdmin && !isUploader) {
+        if (!isAdmin && !isUploader && !isGroupMember) {
             return { error: "Không có quyền thực hiện" };
         }
 
@@ -652,7 +667,7 @@ export async function revertChapter(chapterId: number, versionId: number) {
                 volume: {
                     include: {
                         novel: {
-                            select: { uploaderId: true },
+                            select: { uploaderId: true, translationGroupId: true },
                         },
                     },
                 },
@@ -666,8 +681,13 @@ export async function revertChapter(chapterId: number, versionId: number) {
         // Check permission
         const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
         const isUploader = chapter.volume.novel.uploaderId === session.user.id;
+        const isGroupMember = chapter.volume.novel.translationGroupId
+            ? await db.translationGroupMember.findFirst({
+                where: { groupId: chapter.volume.novel.translationGroupId, userId: session.user.id }
+            })
+            : null;
 
-        if (!isAdmin && !isUploader) {
+        if (!isAdmin && !isUploader && !isGroupMember) {
             return { error: "Không có quyền thực hiện" };
         }
 

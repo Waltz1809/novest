@@ -54,6 +54,12 @@ export default async function NovelDetailPage({ params }: PageProps) {
         where: { slug },
         include: {
             genres: true,
+            translationGroup: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             uploader: {
                 select: {
                     id: true,
@@ -230,6 +236,13 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                             {novel.title}
                                         </h1>
 
+                                        {/* Alternative Titles */}
+                                        {novel.alternativeTitles && (
+                                            <p className="text-sm text-[#9CA3AF] italic">
+                                                Tên khác: {novel.alternativeTitles}
+                                            </p>
+                                        )}
+
                                         {/* Author */}
                                         <div className="flex items-center gap-2 text-[#9CA3AF] text-sm">
                                             <User className="w-4 h-4" />
@@ -380,6 +393,7 @@ export default async function NovelDetailPage({ params }: PageProps) {
 
                                 {/* Translator Profile */}
                                 <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
+                                    {/* Uploader + Group */}
                                     <Link href={`/u/${novel.uploader.username || novel.uploader.id}`} className="flex items-center gap-3 mb-4 group">
                                         <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399] overflow-hidden border border-[#34D399]/20 group-hover:border-[#F59E0B] transition-colors">
                                             {novel.uploader.image ? (
@@ -395,8 +409,10 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">Nhóm dịch</h3>
-                                            <p className="text-xs text-gray-400">{novel.uploader.nickname || novel.uploader.name || "Novest Official"}</p>
+                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">
+                                                {novel.uploader.nickname || novel.uploader.name || "Ẩn danh"}
+                                            </h3>
+                                            <p className="text-xs text-gray-500">{novel.translationGroup?.name || "Novest Official"}</p>
                                         </div>
                                     </Link>
                                     <button className="w-full py-2 bg-[#F59E0B] text-[#0B0C10] font-bold text-sm rounded-lg hover:bg-[#D97706] hover:shadow-md transition-all">

@@ -152,3 +152,127 @@ export async function createNotification(data: {
         return { error: "Failed to create notification" };
     }
 }
+
+/**
+ * Get novels from user's library that have new chapters since follow date
+ */
+export async function getLibraryUpdates(limit: number = 5) {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+        return { novels: [], total: 0 };
+    }
+
+    try {
+        // Get library entries with novels that have chapters newer than follow date
+        const libraryWithUpdates = await db.library.findMany({
+            where: { userId: session.user.id },
+            include: {
+                novel: {
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        coverImage: true,
+                        volumes: {
+                            select: {
+                                chapters: {
+                                    where: { isDraft: false },
+                                    orderBy: { createdAt: "desc" },
+                                    take: 1,
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        slug: true,
+                                        createdAt: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        // Filter novels with chapters newer than follow date
+        const novelsWithUpdates = libraryWithUpdates
+            .map((lib) => {
+                const allChapters = lib.novel.volumes.flatMap((v) => v.chapters);
+                const latestChapter = allChapters[0];
+
+                // Count chapters since follow
+                const newChaptersCount = allChapters.filter(
+                    (ch) => new Date(ch.createdAt) > new Date(lib.createdAt)
+                ).length;
+
+                if (!latestChapter || newChaptersCount === 0) return null;
+
+                return {
+                    novelId: lib.novel.id,
+                    title: lib.novel.title,
+                    slug: lib.novel.slug,
+                    coverImage: lib.novel.coverImage,
+                    latestChapter: {
+                        id: latestChapter.id,
+                        title: latestChapter.title,
+                        slug: latestChapter.slug,
+                    },
+                    newChaptersCount,
+                    followedAt: lib.createdAt,
+                };
+            })
+            .filter((n): n is NonNullable<typeof n> => n !== null);
+
+        return {
+            novels: novelsWithUpdates.slice(0, limit),
+            total: novelsWithUpdates.length,
+        };
+    } catch (error) {
+        console.error("Error fetching library updates:", error);
+        return { novels: [], total: 0 };
+    }
+}
+
+/**
+ * Get count of novels with updates for badge
+ */
+export async function getLibraryUpdateCount() {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+        return 0;
+    }
+
+    try {
+        const libraryWithUpdates = await db.library.findMany({
+            where: { userId: session.user.id },
+            include: {
+                novel: {
+                    select: {
+                        volumes: {
+                            select: {
+                                chapters: {
+                                    where: { isDraft: false },
+                                    select: { createdAt: true },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Count novels that have at least one chapter newer than follow date
+        let count = 0;
+        for (const lib of libraryWithUpdates) {
+            const hasNewChapters = lib.novel.volumes.some((v) =>
+                v.chapters.some((ch) => new Date(ch.createdAt) > new Date(lib.createdAt))
+            );
+            if (hasNewChapters) count++;
+        }
+
+        return count;
+    } catch (error) {
+        console.error("Error getting library update count:", error);
+        return 0;
+    }
+}

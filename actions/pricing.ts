@@ -118,6 +118,7 @@ export async function setChapterPremium(chapterId: number, price: number) {
                                 novelFormat: true,
                                 status: true,
                                 discountPercent: true,
+                                isLicensedDrop: true,
                             },
                         },
                     },
@@ -135,6 +136,11 @@ export async function setChapterPremium(chapterId: number, price: number) {
 
         if (!isAdmin && !isUploader) {
             return { error: "Không có quyền thực hiện" };
+        }
+
+        // Block VIP for licensed drop novels
+        if (chapter.volume.novel.isLicensedDrop) {
+            return { error: "Không thể đặt chương trả phí cho truyện bản quyền đã drop" };
         }
 
         // Check if chapter can be premium

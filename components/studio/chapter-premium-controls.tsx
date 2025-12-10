@@ -22,6 +22,7 @@ interface ChapterPremiumControlsProps {
     novelWordCount: number;
     novelFormat: string;
     canBePremium: boolean;
+    isLicensedDrop?: boolean;
 }
 
 export default function ChapterPremiumControls({
@@ -32,6 +33,7 @@ export default function ChapterPremiumControls({
     novelWordCount,
     novelFormat,
     canBePremium,
+    isLicensedDrop = false,
 }: ChapterPremiumControlsProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -65,6 +67,21 @@ export default function ChapterPremiumControls({
         });
     };
 
+    // Licensed drop novels cannot have premium chapters
+    if (isLicensedDrop) {
+        return (
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <div className="text-sm">
+                    <span className="text-red-400">Không thể đặt VIP</span>
+                    <p className="text-xs text-red-400/70 mt-0.5">
+                        Truyện bản quyền đã drop không hỗ trợ chương trả phí
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     // Not eligible for premium
     if (!canBePremium) {
         return (
@@ -79,6 +96,7 @@ export default function ChapterPremiumControls({
             </div>
         );
     }
+
 
     // Locked state
     if (isLocked) {

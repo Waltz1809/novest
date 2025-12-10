@@ -15,7 +15,8 @@ import {
     Shield,
     LogOut,
     Menu,
-    X
+    X,
+    Users2
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,11 @@ const sidebarItems = [
         icon: Tag,
     },
     {
+        title: "Nhóm dịch",
+        href: "/admin/groups",
+        icon: Users2,
+    },
+    {
         title: "Tickets",
         href: "/admin/tickets",
         icon: Ticket,
@@ -61,7 +67,6 @@ const sidebarItems = [
         title: "Nhật ký",
         href: "/admin/logs",
         icon: Shield,
-        adminOnly: true,
     },
 ];
 
