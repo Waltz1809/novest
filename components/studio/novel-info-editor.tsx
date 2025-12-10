@@ -113,7 +113,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* LEFT COLUMN - Main Form (2/3 width on desktop) */}
-                    <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
+                    <div className="lg:col-span-2 space-y-6 order-2 lg:order-0">
 
                         {/* Card: Basic Info */}
                         <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
@@ -220,7 +220,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                     <div className="lg:col-span-1 contents lg:block lg:space-y-6">
 
                         {/* Card: Cover Image - Shows first on mobile */}
-                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 order-1 lg:order-none mb-6">
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 order-1 lg:order-0 mb-6">
                             <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2 mb-4">
                                 <span className="w-1 h-4 bg-sky-500 rounded-full"></span>
                                 Ảnh bìa
@@ -236,7 +236,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                         </section>
 
                         {/* Card: Settings - Shows after main form on mobile */}
-                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5 order-3 lg:order-none mb-6">
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5 order-3 lg:order-0 mb-6">
                             <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2">
                                 <span className="w-1 h-4 bg-violet-500 rounded-full"></span>
                                 Cài đặt
@@ -297,7 +297,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                         </section>
 
                         {/* Save Button - Shows last on mobile */}
-                        <div className="lg:sticky lg:top-6 order-4 lg:order-none">
+                        <div className="lg:sticky lg:top-6 order-4 lg:order-0">
                             <button
                                 onClick={handleSave}
                                 disabled={!hasChanges || isSaving}
