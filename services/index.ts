@@ -20,6 +20,10 @@ export { userService } from "./user.service";
 // Interaction services
 export { commentService } from "./comment.service";
 
+// Content services
+export { chapterService } from "./chapter.service";
+export { ratingService } from "./rating.service";
+
 // Admin services
 export { adminService } from "./admin.service";
 

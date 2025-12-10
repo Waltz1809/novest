@@ -104,4 +104,10 @@ export const commentService = {
      */
     togglePin: (id: number) =>
         api.patch<{ pinned: boolean }>(`/api/comments/${id}`, { action: "pin" }),
+
+    /**
+     * Get chapter discussions for a novel (newest chapter comments)
+     */
+    getChapterDiscussions: (novelId: number, limit: number = 10) =>
+        api.get<CommentListResponse>("/api/comments", { novelId, chapterDiscussions: true, limit }),
 };

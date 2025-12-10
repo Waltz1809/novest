@@ -37,6 +37,66 @@ export async function GET(request: NextRequest) {
         }
 
         const session = await auth();
+        const chapterDiscussions = searchParams.get("chapterDiscussions") === "true";
+
+        // Special mode: Get newest chapter discussions across the novel
+        if (chapterDiscussions) {
+            const comments = await db.comment.findMany({
+                where: {
+                    novelId,
+                    chapterId: { not: null },
+                    parentId: null,
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            nickname: true,
+                            username: true,
+                            image: true,
+                        },
+                    },
+                    chapter: {
+                        select: {
+                            id: true,
+                            title: true,
+                            slug: true,
+                            order: true,
+                            volume: {
+                                select: {
+                                    novelId: true,
+                                    novel: {
+                                        select: { slug: true },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    reactions: true,
+                },
+                orderBy: { createdAt: "desc" },
+                take: limit,
+            });
+
+            const processedComments = comments.map((comment) => {
+                const upvotes = comment.reactions.filter((r) => r.type === "UPVOTE").length;
+                const downvotes = comment.reactions.filter((r) => r.type === "DOWNVOTE").length;
+                const score = upvotes - downvotes;
+                const userVote = session?.user?.id
+                    ? comment.reactions.find((r) => r.userId === session.user.id)?.type
+                    : null;
+
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { reactions, ...rest } = comment;
+                return { ...rest, score, userVote };
+            });
+
+            return NextResponse.json({
+                success: true,
+                data: { items: processedComments },
+            });
+        }
 
         // Build where clause
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

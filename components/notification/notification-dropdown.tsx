@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getNotifications, markAllAsRead } from "@/actions/notification";
+import { notificationService, NotificationItem as NotificationItemType } from "@/services";
 import { NotificationItem } from "./notification-item";
 import { Bell, X } from "lucide-react";
 
@@ -11,7 +11,7 @@ interface NotificationModalProps {
 }
 
 export function NotificationModal({ onClose, onUpdate }: NotificationModalProps) {
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<NotificationItemType[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -20,19 +20,29 @@ export function NotificationModal({ onClose, onUpdate }: NotificationModalProps)
 
     async function loadNotifications() {
         setLoading(true);
-        const result = await getNotifications(1, 15);
-        // Filter out NEW_CHAPTER notifications (they go to library bell now)
-        const filtered = result.notifications.filter(
-            (n: any) => n.type !== "NEW_CHAPTER"
-        );
-        setNotifications(filtered);
+        try {
+            const result = await notificationService.getAll({ page: 1, limit: 15 });
+            if (result.success && result.data) {
+                // Filter out NEW_CHAPTER notifications (they go to library bell now)
+                const filtered = result.data.items.filter(
+                    (n) => n.type !== "NEW_CHAPTER"
+                );
+                setNotifications(filtered);
+            }
+        } catch (error) {
+            console.error("Failed to load notifications:", error);
+        }
         setLoading(false);
     }
 
     async function handleMarkAllRead() {
-        await markAllAsRead();
-        await loadNotifications();
-        onUpdate();
+        try {
+            await notificationService.markAllAsRead();
+            await loadNotifications();
+            onUpdate();
+        } catch (error) {
+            console.error("Failed to mark all as read:", error);
+        }
     }
 
     return (

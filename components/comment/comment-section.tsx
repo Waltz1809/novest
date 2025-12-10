@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useTransition, useMemo } from "react"
 import { useForm } from "react-hook-form"
-import { addComment, getComments } from "@/actions/interaction"
+import { commentService, CommentItem as CommentItemType } from "@/services"
 import { Loader2, MessageCircle, MessageSquare, Reply, Send, User, Pencil, Trash2, Pin, X, Check, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { clsx } from "clsx"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-import { voteComment, editComment, deleteUserComment, pinComment } from "@/actions/comment"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
 import Link from "next/link"
 import { ReadingTheme, READING_THEMES } from "@/lib/reading-themes"
@@ -139,11 +138,21 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
 
     const fetchComments = async (pageNum: number, sort: 'newest' | 'votes' | 'replies' = sortBy) => {
         setLoading(true)
-        const res = await getComments(novelId, chapterId, pageNum, undefined, sort)
-        // Page-based: always replace comments
-        setFlatComments(res.comments as any)
-        setHasMore(res.hasMore)
-        setTotal(res.total)
+        try {
+            const res = await commentService.getAll({
+                novelId,
+                chapterId,
+                page: pageNum,
+                sort,
+            })
+            if (res.success && res.data) {
+                setFlatComments(res.data.items as any)
+                setHasMore(res.data.hasMore)
+                setTotal(res.data.total)
+            }
+        } catch (error) {
+            console.error("Failed to fetch comments:", error)
+        }
         setLoading(false)
     }
 
@@ -380,8 +389,8 @@ export function CommentItem({
     const handleEdit = () => {
         if (!editContent.trim()) return
         startTransition(async () => {
-            const res = await editComment(comment.id, editContent)
-            if ('error' in res) {
+            const res = await commentService.edit(comment.id, editContent)
+            if (!res.success) {
                 alert(res.error)
             } else {
                 setLocalContent(editContent)
@@ -393,8 +402,8 @@ export function CommentItem({
     const handleDelete = () => {
         if (!confirm("Bạn có chắc muốn xóa bình luận này?")) return
         startTransition(async () => {
-            const res = await deleteUserComment(comment.id)
-            if ('error' in res) {
+            const res = await commentService.delete(comment.id)
+            if (!res.success) {
                 alert(res.error)
             } else {
                 // Refresh page to show updated comments
@@ -405,11 +414,11 @@ export function CommentItem({
 
     const handlePin = () => {
         startTransition(async () => {
-            const res = await pinComment(comment.id, novelId)
-            if ('error' in res) {
+            const res = await commentService.togglePin(comment.id)
+            if (!res.success) {
                 alert(res.error)
-            } else if ('pinned' in res) {
-                setLocalIsPinned(res.pinned)
+            } else if (res.data) {
+                setLocalIsPinned(res.data.pinned)
             }
         })
     }
@@ -440,9 +449,9 @@ export function CommentItem({
             }
         }
 
-        // Call server action
-        const res = await voteComment(comment.id, type)
-        if ('error' in res) {
+        // Call API
+        const res = await commentService.vote(comment.id, type)
+        if (!res.success) {
             // Revert on error
             setUserVote(previousVote)
             setScore(previousScore)
@@ -461,9 +470,10 @@ export function CommentItem({
             if (!comment.children || comment.children.length === 0) {
                 setLoadingChildren(true)
                 try {
-                    const { getCommentReplies } = await import("@/actions/interaction")
-                    const res = await getCommentReplies(comment.id)
-                    setFetchedChildren(res.comments as Comment[])
+                    const res = await commentService.getReplies(comment.id, novelId)
+                    if (res.success && res.data) {
+                        setFetchedChildren(res.data.items as unknown as Comment[])
+                    }
                 } catch (error) {
                     console.error("Failed to fetch replies:", error)
                 }
@@ -491,9 +501,10 @@ export function CommentItem({
         // Otherwise fetch from server
         setLoadingChildren(true)
         try {
-            const { getCommentReplies } = await import("@/actions/interaction")
-            const res = await getCommentReplies(comment.id)
-            setFetchedChildren(res.comments as Comment[])
+            const res = await commentService.getReplies(comment.id, novelId)
+            if (res.success && res.data) {
+                setFetchedChildren(res.data.items as unknown as Comment[])
+            }
             setIsExpandedLocal(true)
         } catch (error) {
             console.error("Failed to fetch replies:", error)
@@ -848,7 +859,7 @@ function CommentForm({
         }
 
         startTransition(async () => {
-            const res = await addComment({
+            const res = await commentService.create({
                 content: data.content.trim(),
                 novelId,
                 chapterId,
@@ -856,7 +867,7 @@ function CommentForm({
                 paragraphId: paragraphId ?? undefined,
             })
 
-            if ('error' in res) {
+            if (!res.success) {
                 alert(res.error)
             } else {
                 // Explicitly reset with empty content
@@ -866,7 +877,7 @@ function CommentForm({
                     setLocalCooldown(30)
                 }
                 // Pass the new comment to parent if available
-                const newComment = 'comment' in res ? res.comment as unknown as Comment : undefined
+                const newComment = res.data as unknown as Comment
                 onSuccess(newComment)
             }
         })

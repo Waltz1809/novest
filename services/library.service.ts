@@ -61,6 +61,14 @@ export const libraryService = {
         api.get<LibraryListResponse>("/api/library", { ...params, withUpdates: true }),
 
     /**
+     * Get count of novels with updates (for badge)
+     */
+    getUpdateCount: async (): Promise<number> => {
+        const response = await api.get<LibraryListResponse>("/api/library", { withUpdates: true, limit: 999 });
+        return response.data?.total ?? 0;
+    },
+
+    /**
      * Add novel to library (follow)
      */
     follow: (novelId: number) =>

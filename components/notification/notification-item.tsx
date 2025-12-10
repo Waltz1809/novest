@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BookOpen, MessageSquare, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { formatRelativeTime } from "@/lib/format-time";
-import { markAsRead } from "@/actions/notification";
+import { notificationService } from "@/services";
 import { getNovelApprovalStatus } from "@/actions/novel";
 import { useRouter } from "next/navigation";
 
@@ -34,8 +34,12 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
         e.preventDefault();
 
         // Mark as read first
-        await markAsRead(notification.id);
-        onUpdate();
+        try {
+            await notificationService.markAsRead([notification.id]);
+            onUpdate();
+        } catch (error) {
+            console.error("Failed to mark as read:", error);
+        }
 
         // Smart routing for NEW_NOVEL_SUBMISSION
         if (notification.type === "NEW_NOVEL_SUBMISSION" && notification.resourceId) {

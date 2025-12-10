@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { MessageSquare, Book, ArrowRight, Loader2 } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { CommentSection, CommentItem } from "./comment-section"
-import { getChapterDiscussions } from "@/actions/interaction"
+import { commentService } from "@/services"
 import Link from "next/link"
 import Image from "next/image"
 import { clsx } from "clsx"
@@ -50,8 +50,10 @@ export function TabbedCommentSection({ novelId, novelSlug, uploaderId }: TabbedC
     useEffect(() => {
         const fetchChapterDiscussions = async () => {
             setLoading(true)
-            const result = await getChapterDiscussions(novelId, 10)
-            setChapterComments(result.comments as ChapterComment[])
+            const result = await commentService.getChapterDiscussions(novelId, 10)
+            if (result.success && result.data) {
+                setChapterComments(result.data.items as unknown as ChapterComment[])
+            }
             setLoading(false)
         }
         fetchChapterDiscussions()

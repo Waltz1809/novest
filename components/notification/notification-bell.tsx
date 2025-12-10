@@ -2,7 +2,7 @@
 
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getUnreadCount } from "@/actions/notification";
+import { notificationService } from "@/services";
 import { NotificationModal } from "./notification-dropdown";
 
 export function NotificationBell() {
@@ -16,8 +16,14 @@ export function NotificationBell() {
     }, []);
 
     async function loadUnreadCount() {
-        const count = await getUnreadCount();
-        setUnreadCount(count);
+        try {
+            const result = await notificationService.getAll({ limit: 1, unreadOnly: true });
+            if (result.success && result.data) {
+                setUnreadCount(result.data.total);
+            }
+        } catch (error) {
+            console.error("Failed to load unread count:", error);
+        }
     }
 
     return (
