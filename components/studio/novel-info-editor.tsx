@@ -303,7 +303,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                                 onClick={handleSave}
                                 disabled={!hasChanges || isSaving}
                                 className={`w-full py-3.5 font-bold rounded-xl transition-all text-center ${hasChanges && !isSaving
-                                        ? "bg-gradient-to-r from-[#F59E0B] to-amber-500 text-[#0B0C10] hover:from-[#FBBF24] hover:to-amber-400 shadow-lg shadow-amber-500/20 cursor-pointer active:scale-[0.98]"
+                                        ? "bg-linear-to-r from-[#F59E0B] to-amber-500 text-[#0B0C10] hover:from-[#FBBF24] hover:to-amber-400 shadow-lg shadow-amber-500/20 cursor-pointer active:scale-[0.98]"
                                         : "bg-gray-800 text-gray-500 cursor-not-allowed"
                                     }`}
                             >
