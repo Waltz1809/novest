@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Check, Edit, ImageIcon, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
 import ImageUpload from "@/components/novel/image-upload";
 import GenreSelector from "@/components/novel/genre-selector";
 import GroupSelector from "@/components/novel/group-selector";
-
 
 interface Genre {
     id: number;
@@ -92,162 +90,239 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
     };
 
     return (
-        <div className="h-full overflow-y-auto bg-[#020617] p-4 md:p-8">
-            <div className="max-w-5xl mx-auto">
-                <div className="text-sm text-[#9CA3AF] mb-4">
-                    Dashboard &gt; {novel.title}
-                </div>
-
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                        <span className="text-[#F59E0B] font-medium">[ Thông tin / Cài đặt ]</span>
+        <div className="min-h-screen bg-[#020617] p-4 md:p-6 lg:p-8">
+            <div className="max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">
+                            Dashboard &gt; {novel.title}
+                        </p>
+                        <span className="text-[#F59E0B] font-medium text-sm">[ Chỉnh sửa thông tin ]</span>
                     </div>
                     {showSaved && (
-                        <div className="flex items-center gap-2 text-[#34D399]">
+                        <div className="flex items-center gap-2 text-emerald-400 animate-in fade-in duration-300">
                             <Check className="w-4 h-4" />
-                            <span className="text-sm">Đã lưu</span>
+                            <span className="text-sm font-medium">Đã lưu thành công!</span>
                         </div>
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="col-span-2 space-y-6">
-                        <div>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                onBlur={(e) => {
-                                    // Auto convert to Title Case on blur
-                                    const titleCased = e.target.value
-                                        .split(' ')
-                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                                        .join(' ');
-                                    setFormData({ ...formData, title: titleCased });
-                                }}
-                                className="w-full text-3xl md:text-5xl font-serif font-bold text-[#F59E0B] bg-transparent border-none outline-none placeholder:text-[#F59E0B]/30 leading-tight"
-                                style={{ fontFamily: "'Merriweather', serif", lineHeight: "1.2" }}
-                                placeholder="TÊN TRUYỆN"
-                            />
-                        </div>
+                {/* Main Grid: 2 columns on lg, 1 column on mobile */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                        <div>
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Tác giả</label>
-                            <input
-                                type="text"
-                                value={formData.author}
-                                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                                className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
-                                placeholder="Tác giả"
-                            />
-                        </div>
+                    {/* LEFT COLUMN - Main Form (2/3 width on desktop) */}
+                    <div className="lg:col-span-2 space-y-6">
 
-                        <div>
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Họa sĩ (tùy chọn)</label>
-                            <input
-                                type="text"
-                                value={formData.artist}
-                                onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
-                                className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
-                                placeholder="Tên họa sĩ (nếu có)"
-                            />
-                        </div>
+                        {/* Card: Basic Info */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
+                            <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2">
+                                <span className="w-1 h-4 bg-[#F59E0B] rounded-full"></span>
+                                Thông tin cơ bản
+                            </h2>
 
-                        <div>
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Tóm tắt</label>
-                            <textarea
-                                rows={4}
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all resize-none"
-                                placeholder="Tóm tắt"
-                            />
-                        </div>
+                            {/* Title - Large and prominent */}
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                    Tên truyện
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    onBlur={(e) => {
+                                        const titleCased = e.target.value
+                                            .split(' ')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                            .join(' ');
+                                        setFormData({ ...formData, title: titleCased });
+                                    }}
+                                    className="w-full text-2xl md:text-3xl font-serif font-bold text-[#F59E0B] bg-transparent border-b-2 border-[#F59E0B]/20 focus:border-[#F59E0B] pb-2 outline-none placeholder:text-[#F59E0B]/30 transition-colors"
+                                    style={{ fontFamily: "'Merriweather', serif" }}
+                                    placeholder="Nhập tên truyện..."
+                                />
+                            </div>
 
-                        <div>
-                            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Thể loại</label>
-                            <GenreSelector
-                                genres={allGenres}
-                                selectedValues={selectedGenreIds}
-                                onChange={setSelectedGenreIds}
-                            />
-                        </div>
+                            {/* Author & Artist - 2 columns on md+ */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                        Tác giả <span className="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.author}
+                                        onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-lg bg-[#0B0C10] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]/30 outline-none transition-all"
+                                        placeholder="Tên tác giả"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                        Họa sĩ <span className="text-gray-600 normal-case">(không bắt buộc)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.artist}
+                                        onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-lg bg-[#0B0C10] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]/30 outline-none transition-all"
+                                        placeholder="Tên họa sĩ minh họa"
+                                    />
+                                </div>
+                            </div>
 
-                        <GroupSelector
-                            novelId={novel.id}
-                            currentGroupId={novel.translationGroupId || null}
-                            groups={groups}
-                        />
+                            {/* Summary */}
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                    Tóm tắt nội dung
+                                </label>
+                                <textarea
+                                    rows={5}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full px-4 py-3 rounded-lg bg-[#0B0C10] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]/30 outline-none transition-all resize-none leading-relaxed"
+                                    placeholder="Mô tả ngắn gọn về nội dung truyện..."
+                                />
+                            </div>
+                        </section>
+
+                        {/* Card: Classification */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
+                            <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2">
+                                <span className="w-1 h-4 bg-amber-500 rounded-full"></span>
+                                Phân loại
+                            </h2>
+
+                            {/* Genres */}
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                    Thể loại
+                                </label>
+                                <GenreSelector
+                                    genres={allGenres}
+                                    selectedValues={selectedGenreIds}
+                                    onChange={setSelectedGenreIds}
+                                />
+                            </div>
+
+                            {/* Translation Group */}
+                            <GroupSelector
+                                novelId={novel.id}
+                                currentGroupId={novel.translationGroupId || null}
+                                groups={groups}
+                            />
+                        </section>
                     </div>
 
-                    <div>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={formData.isR18}
-                                onChange={(e) => setFormData({ ...formData, isR18: e.target.checked })}
-                                className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#0f172a] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
-                            />
-                            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
-                                Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
-                            </span>
-                        </label>
-                    </div>
+                    {/* RIGHT COLUMN - Sidebar (1/3 width on desktop) */}
+                    <div className="lg:col-span-1 space-y-6 order-first lg:order-last">
 
-                    <div>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={formData.isLicensedDrop}
-                                onChange={(e) => setFormData({ ...formData, isLicensedDrop: e.target.checked })}
-                                className="w-5 h-5 rounded border-2 border-amber-500/50 bg-[#0f172a] text-amber-500 focus:ring-amber-500/20 focus:ring-2 cursor-pointer"
+                        {/* Card: Cover Image */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6">
+                            <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2 mb-4">
+                                <span className="w-1 h-4 bg-sky-500 rounded-full"></span>
+                                Ảnh bìa
+                            </h2>
+                            <ImageUpload
+                                value={coverPreview || ""}
+                                onChange={setCoverPreview}
+                                disabled={isSaving}
                             />
-                            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
-                                Truyện bản quyền đã drop - Chặn đặt chương VIP
-                            </span>
-                        </label>
-                    </div>
+                            <p className="text-xs text-gray-500 mt-3 text-center truncate">
+                                {novel.title}
+                            </p>
+                        </section>
 
-                    <div>
-                        <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">Trạng thái</label>
-                        <div className="relative">
-                            <select
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                className="w-full pl-4 pr-12 py-3.5 rounded-lg bg-[#0f172a] border-2 border-[#F59E0B]/30 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none cursor-pointer"
+                        {/* Card: Settings */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
+                            <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2">
+                                <span className="w-1 h-4 bg-violet-500 rounded-full"></span>
+                                Cài đặt
+                            </h2>
+
+                            {/* Status Dropdown */}
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
+                                    Trạng thái
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                        className="w-full pl-4 pr-10 py-3 rounded-lg bg-[#0B0C10] border border-[#F59E0B]/30 text-gray-100 focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]/30 outline-none transition-all appearance-none cursor-pointer"
+                                    >
+                                        <option value="ONGOING" className="bg-[#0B0C10]">Đang tiến hành</option>
+                                        <option value="COMPLETED" className="bg-[#0B0C10]">Hoàn thành</option>
+                                        <option value="HIATUS" className="bg-[#0B0C10]">Tạm dừng</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F59E0B] pointer-events-none" />
+                                </div>
+                            </div>
+
+                            {/* Checkboxes */}
+                            <div className="space-y-3 pt-2">
+                                <label className="flex items-start gap-3 cursor-pointer group p-3 rounded-lg bg-[#0B0C10]/50 border border-white/5 hover:border-red-500/20 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.isR18}
+                                        onChange={(e) => setFormData({ ...formData, isR18: e.target.checked })}
+                                        className="w-5 h-5 mt-0.5 rounded border-2 border-red-500/50 bg-transparent text-red-500 focus:ring-red-500/30 focus:ring-2 cursor-pointer accent-red-500"
+                                    />
+                                    <div>
+                                        <span className="text-sm text-gray-200 group-hover:text-white transition-colors font-medium">
+                                            Nội dung 18+
+                                        </span>
+                                        <p className="text-xs text-gray-500 mt-0.5">
+                                            Chỉ hiển thị với người dùng đủ 18 tuổi
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-start gap-3 cursor-pointer group p-3 rounded-lg bg-[#0B0C10]/50 border border-white/5 hover:border-amber-500/20 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.isLicensedDrop}
+                                        onChange={(e) => setFormData({ ...formData, isLicensedDrop: e.target.checked })}
+                                        className="w-5 h-5 mt-0.5 rounded border-2 border-amber-500/50 bg-transparent text-amber-500 focus:ring-amber-500/30 focus:ring-2 cursor-pointer accent-amber-500"
+                                    />
+                                    <div>
+                                        <span className="text-sm text-gray-200 group-hover:text-white transition-colors font-medium">
+                                            Bản quyền đã drop
+                                        </span>
+                                        <p className="text-xs text-gray-500 mt-0.5">
+                                            Chặn đặt chương VIP
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                        </section>
+
+                        {/* Save Button - Sticky on mobile */}
+                        <div className="lg:sticky lg:top-6">
+                            <button
+                                onClick={handleSave}
+                                disabled={!hasChanges || isSaving}
+                                className={`w-full py-3.5 font-bold rounded-xl transition-all text-center ${hasChanges && !isSaving
+                                        ? "bg-gradient-to-r from-[#F59E0B] to-amber-500 text-[#0B0C10] hover:from-[#FBBF24] hover:to-amber-400 shadow-lg shadow-amber-500/20 cursor-pointer active:scale-[0.98]"
+                                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                                    }`}
                             >
-                                <option value="ONGOING" className="bg-[#0f172a] text-white">Đang tiến hành</option>
-                                <option value="COMPLETED" className="bg-[#0f172a] text-white">Hoàn thành</option>
-                                <option value="HIATUS" className="bg-[#0f172a] text-white">Tạm dừng</option>
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#F59E0B] pointer-events-none" />
+                                {isSaving ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Đang lưu...
+                                    </span>
+                                ) : (
+                                    "Lưu thay đổi"
+                                )}
+                            </button>
                         </div>
-                    </div>
-
-                    <div className="pt-4">
-                        <button
-                            onClick={handleSave}
-                            disabled={!hasChanges || isSaving}
-                            className={`px-6 py-3 font-bold rounded-lg transition-all ${hasChanges && !isSaving ? "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] glow-amber cursor-pointer" : "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"}`}
-                        >
-                            {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
-                        </button>
-                    </div>
-                </div>
-
-                <div className="col-span-1">
-                    <div className="sticky top-8">
-                        <label className="text-xs text-[#9CA3AF] uppercase mb-3 block tracking-wide">Ảnh bìa</label>
-                        <ImageUpload
-                            value={coverPreview || ""}
-                            onChange={setCoverPreview}
-                            disabled={isSaving}
-                        />
-                        <p className="text-xs text-[#9CA3AF] mt-2 text-center uppercase tracking-wide">{novel.title}</p>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
-

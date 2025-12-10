@@ -68,7 +68,7 @@ export function AnnouncementBanner() {
 
     return (
         <div
-            className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 ${isClosing ? "opacity-0" : "opacity-100"
+            className={`fixed inset-0 z-100 flex items-center justify-center p-4 transition-all duration-300 ${isClosing ? "opacity-0" : "opacity-100"
                 }`}
         >
             {/* Backdrop */}
@@ -79,7 +79,7 @@ export function AnnouncementBanner() {
 
             {/* Modal */}
             <div
-                className={`relative w-full max-w-lg bg-gradient-to-br from-[#1E293B]/95 to-[#0F172A]/95 
+                className={`relative w-full max-w-lg bg-linear-to-br from-[#1E293B]/95 to-[#0F172A]/95 
                     backdrop-blur-xl rounded-2xl border border-[#F59E0B]/30 shadow-2xl shadow-[#F59E0B]/10
                     transform transition-all duration-300 ${isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
                     }`}
