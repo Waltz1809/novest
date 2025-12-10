@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check } from "lucide-react";
 import { updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
 import ImageUpload from "@/components/novel/image-upload";
 import GenreSelector from "@/components/novel/genre-selector";
 import GroupSelector from "@/components/novel/group-selector";
+import CustomDropdown from "@/components/ui/custom-dropdown";
 
 interface Genre {
     id: number;
@@ -112,7 +113,7 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* LEFT COLUMN - Main Form (2/3 width on desktop) */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
 
                         {/* Card: Basic Info */}
                         <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
@@ -215,10 +216,11 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                     </div>
 
                     {/* RIGHT COLUMN - Sidebar (1/3 width on desktop) */}
-                    <div className="lg:col-span-1 space-y-6 order-first lg:order-last">
+                    {/* On mobile: uses contents to allow children to participate in grid ordering */}
+                    <div className="lg:col-span-1 contents lg:block lg:space-y-6">
 
-                        {/* Card: Cover Image */}
-                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6">
+                        {/* Card: Cover Image - Shows first on mobile */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 order-1 lg:order-none mb-6">
                             <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2 mb-4">
                                 <span className="w-1 h-4 bg-sky-500 rounded-full"></span>
                                 Ảnh bìa
@@ -233,8 +235,8 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                             </p>
                         </section>
 
-                        {/* Card: Settings */}
-                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5">
+                        {/* Card: Settings - Shows after main form on mobile */}
+                        <section className="bg-[#0f172a]/50 border border-white/5 rounded-xl p-5 md:p-6 space-y-5 order-3 lg:order-none mb-6">
                             <h2 className="text-xs uppercase tracking-widest text-gray-500 font-semibold flex items-center gap-2">
                                 <span className="w-1 h-4 bg-violet-500 rounded-full"></span>
                                 Cài đặt
@@ -245,18 +247,15 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                                 <label className="text-xs text-gray-400 uppercase mb-2 block tracking-wide">
                                     Trạng thái
                                 </label>
-                                <div className="relative">
-                                    <select
-                                        value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                        className="w-full pl-4 pr-10 py-3 rounded-lg bg-[#0B0C10] border border-[#F59E0B]/30 text-gray-100 focus:border-[#F59E0B] focus:ring-1 focus:ring-[#F59E0B]/30 outline-none transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="ONGOING" className="bg-[#0B0C10]">Đang tiến hành</option>
-                                        <option value="COMPLETED" className="bg-[#0B0C10]">Hoàn thành</option>
-                                        <option value="HIATUS" className="bg-[#0B0C10]">Tạm dừng</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F59E0B] pointer-events-none" />
-                                </div>
+                                <CustomDropdown
+                                    options={[
+                                        { value: "ONGOING", label: "Đang tiến hành" },
+                                        { value: "COMPLETED", label: "Hoàn thành" },
+                                        { value: "HIATUS", label: "Tạm dừng" },
+                                    ]}
+                                    value={formData.status}
+                                    onChange={(status) => setFormData({ ...formData, status })}
+                                />
                             </div>
 
                             {/* Checkboxes */}
@@ -297,14 +296,14 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                             </div>
                         </section>
 
-                        {/* Save Button - Sticky on mobile */}
-                        <div className="lg:sticky lg:top-6">
+                        {/* Save Button - Shows last on mobile */}
+                        <div className="lg:sticky lg:top-6 order-4 lg:order-none">
                             <button
                                 onClick={handleSave}
                                 disabled={!hasChanges || isSaving}
                                 className={`w-full py-3.5 font-bold rounded-xl transition-all text-center ${hasChanges && !isSaving
-                                        ? "bg-linear-to-r from-[#F59E0B] to-amber-500 text-[#0B0C10] hover:from-[#FBBF24] hover:to-amber-400 shadow-lg shadow-amber-500/20 cursor-pointer active:scale-[0.98]"
-                                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                                    ? "bg-linear-to-r from-[#F59E0B] to-amber-500 text-[#0B0C10] hover:from-[#FBBF24] hover:to-amber-400 shadow-lg shadow-amber-500/20 cursor-pointer active:scale-[0.98]"
+                                    : "bg-gray-800 text-gray-500 cursor-not-allowed"
                                     }`}
                             >
                                 {isSaving ? (

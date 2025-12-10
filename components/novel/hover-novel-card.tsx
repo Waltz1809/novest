@@ -67,7 +67,7 @@ export function HoverNovelCard({ novel, className }: HoverNovelCardProps) {
                     </div>
 
                     {/* Action Button */}
-                    <button className="flex w-full items-center justify-center gap-2 rounded-full bg-white py-1.5 text-xs font-bold text-black shadow-lg transition-transform hover:scale-105 active:scale-95">
+                    <button className="flex w-full items-center justify-center gap-2 rounded-full bg-white py-1.5 text-xs font-bold text-black shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer">
                         <Play className="h-3 w-3 fill-current" />
                         Đọc Ngay
                     </button>
