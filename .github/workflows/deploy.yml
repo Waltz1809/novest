@@ -59,11 +59,9 @@ jobs:
             mkdir -p $BACKUP_DIR
             BACKUP_FILE="$BACKUP_DIR/novest_$(date +%Y%m%d_%H%M%S).sql"
             echo "📦 Creating database backup: $BACKUP_FILE"
-            # Load DATABASE_URL and strip query params (pg_dump doesn't understand ?schema=public)
-            source $APP_DIR/.env
-            CLEAN_URL=$(echo "$DATABASE_URL" | sed 's/?.*$//')
-            pg_dump "$CLEAN_URL" > $BACKUP_FILE || {
-              echo "⚠️ Backup failed, continuing with deploy..."
+            # Use postgres peer auth (no password needed when running as postgres user)
+            sudo -u postgres pg_dump novest_prod > $BACKUP_FILE 2>/dev/null || {
+              echo "⚠️ Backup skipped (sudo not available), continuing with deploy..."
             }
             
             # Keep only last 30 backups (about 1 month of daily deploys)
