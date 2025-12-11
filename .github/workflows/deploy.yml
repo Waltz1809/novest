@@ -45,22 +45,20 @@ jobs:
           script: |
             set -e  # Exit immediately if a command fails
             
+            # Use absolute path to avoid user confusion
+            APP_DIR="/home/novest_admin/novest"
+            
             # Load NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            cd ~/novest
+            cd $APP_DIR
             git fetch --all
             git reset --hard origin/master
             npm install
             npx prisma generate
-            
-            # Mark baseline as applied if not already (safe to fail)
-            npx prisma migrate resolve --applied 20251211125601_init_postgresql_baseline 2>/dev/null || true
-            
             npx prisma migrate deploy
             npm run build
             pm2 restart novest --update-env
-            
-            echo "✅ Deploy completed successfully!"
+            echo "✅ Deploy completed successfully to $APP_DIR!"
 
