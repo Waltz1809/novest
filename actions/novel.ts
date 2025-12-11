@@ -9,6 +9,37 @@ import { logAdminAction } from "./admin-log";
 import { MIN_WORDS_FOR_APPROVAL, MIN_WORDS_FOR_VIP } from "@/lib/pricing";
 
 /**
+ * Helper to delete a novel and all its related records in correct order.
+ * This manually handles the cascade because Chapter → Volume doesn't have onDelete: Cascade in schema.
+ */
+async function deleteNovelWithCascade(novelId: number): Promise<void> {
+    // Get all volume IDs for this novel
+    const volumes = await db.volume.findMany({
+        where: { novelId },
+        select: { id: true },
+    });
+    const volumeIds = volumes.map(v => v.id);
+
+    // Delete in correct order to avoid FK constraint violations:
+    // 1. Delete chapters (they reference volumes)
+    if (volumeIds.length > 0) {
+        await db.chapter.deleteMany({
+            where: { volumeId: { in: volumeIds } },
+        });
+    }
+
+    // 2. Delete volumes (they reference novel)
+    await db.volume.deleteMany({
+        where: { novelId },
+    });
+
+    // 3. Delete the novel itself (other cascades like comments, ratings handled by schema)
+    await db.novel.delete({
+        where: { id: novelId },
+    });
+}
+
+/**
  * Get total word count of a novel (sum of all chapters)
  */
 export async function getNovelWordCount(novelId: number): Promise<number> {
@@ -331,9 +362,7 @@ export async function deleteNovel(id: number) {
         throw new Error("Unauthorized");
     }
 
-    await db.novel.delete({
-        where: { id },
-    });
+    await deleteNovelWithCascade(id);
 
     revalidatePath("/studio/novels");
     revalidatePath("/");
@@ -570,10 +599,8 @@ export async function rejectNovel(novelId: number, reason: string) {
 
         // 3 strikes = permanent delete
         if (newRejectionCount >= 3) {
-            // Hard delete the novel (cascade will handle related records)
-            await db.novel.delete({
-                where: { id: novelId },
-            });
+            // Hard delete the novel with proper cascade order
+            await deleteNovelWithCascade(novelId);
 
             // Notify uploader about permanent deletion
             if (novel.uploaderId) {
@@ -678,10 +705,8 @@ export async function permanentlyRejectNovel(novelId: number, reason: string) {
             return { error: "Không tìm thấy truyện" };
         }
 
-        // Hard delete the novel immediately
-        await db.novel.delete({
-            where: { id: novelId },
-        });
+        // Hard delete the novel with proper cascade order
+        await deleteNovelWithCascade(novelId);
 
         // Notify uploader about permanent deletion
         if (novel.uploaderId) {

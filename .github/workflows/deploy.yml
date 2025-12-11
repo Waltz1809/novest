@@ -53,11 +53,34 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd $APP_DIR
+            
+            # ===== BACKUP DATABASE BEFORE DEPLOY =====
+            BACKUP_DIR="$HOME/backups"
+            mkdir -p $BACKUP_DIR
+            BACKUP_FILE="$BACKUP_DIR/novest_$(date +%Y%m%d_%H%M%S).sql"
+            echo "📦 Creating database backup: $BACKUP_FILE"
+            # Load DATABASE_URL from .env and use it for backup
+            source $APP_DIR/.env
+            pg_dump "$DATABASE_URL" > $BACKUP_FILE
+            
+            # Keep only last 30 backups (about 1 month of daily deploys)
+            ls -t $BACKUP_DIR/novest_*.sql | tail -n +31 | xargs -r rm
+            echo "✅ Backup completed!"
+            
+            # ===== DEPLOY =====
             git fetch --all
             git reset --hard origin/master
             npm install
             npx prisma generate
-            npx prisma migrate deploy
+            
+            # Use db push WITHOUT --accept-data-loss
+            # If schema changes require data loss, this will fail and require manual review
+            npx prisma db push || {
+              echo "❌ Database push failed! Schema changes may require data loss."
+              echo "Please review changes manually and run: npx prisma db push --accept-data-loss"
+              exit 1
+            }
+            
             npm run build
             pm2 restart novest --update-env
             echo "✅ Deploy completed successfully to $APP_DIR!"

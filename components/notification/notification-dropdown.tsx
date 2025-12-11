@@ -77,7 +77,7 @@ export function NotificationModal({ onClose, onUpdate }: NotificationModalProps)
                 </div>
 
                 {/* Notification List */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto scrollbar-amber">
                     {loading ? (
                         <div className="px-4 py-8 text-center text-gray-400">
                             Đang tải...

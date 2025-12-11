@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Send, Crown, Loader2, CheckCircle } from "lucide-react";
+import { Send, Crown, Loader2, CheckCircle, Clock } from "lucide-react";
 import { submitNovelForApproval, requestVipStatus } from "@/actions/novel";
 import { useRouter } from "next/navigation";
 
@@ -87,8 +87,8 @@ export function SubmitApprovalButton({
             {/* Pending Status */}
             {approvalStatus === "PENDING" && (
                 <div className="w-full px-4 py-3 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Đang chờ duyệt...
+                    <Clock className="w-5 h-5" />
+                    Đang chờ duyệt
                 </div>
             )}
 
