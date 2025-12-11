@@ -41,7 +41,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          script_stop: true
           script: |
+            set -e  # Exit immediately if a command fails
+            
             # Load NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -51,9 +54,13 @@ jobs:
             git reset --hard origin/master
             npm install
             npx prisma generate
-            # Mark baseline as applied if migration table exists but baseline isn't recorded
-            # This handles the squashed migration scenario
+            
+            # Mark baseline as applied if not already (safe to fail)
             npx prisma migrate resolve --applied 20251211125601_init_postgresql_baseline 2>/dev/null || true
+            
             npx prisma migrate deploy
             npm run build
             pm2 restart novest --update-env
+            
+            echo "✅ Deploy completed successfully!"
+

@@ -107,7 +107,7 @@ export async function createNovel(data: {
                 alternativeTitles: data.alternativeTitles,
                 searchIndex,
                 uploaderId: session.user.id,
-                approvalStatus: "PENDING", // New novels require approval
+                approvalStatus: "DRAFT", // New novels start as draft until submitted
                 nation: data.nation || "CN",
                 novelFormat: data.novelFormat || "WN",
                 isR18: data.isR18 ?? false,
@@ -150,13 +150,96 @@ export async function createNovel(data: {
         }
 
         revalidatePath("/studio/novels");
-        revalidatePath("/admin/novels/pending");
         revalidatePath("/");
 
         return { success: true, novelId: novel.id };
     } catch (error) {
         console.error("Failed to create novel:", error);
         return { error: "Có lỗi xảy ra khi tạo truyện. Vui lòng thử lại." };
+    }
+}
+
+/**
+ * Submit a novel for approval (first-time submission)
+ * Requires MIN_WORDS_FOR_APPROVAL (5000 words)
+ */
+export async function submitNovelForApproval(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                uploaderId: true,
+                approvalStatus: true,
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        // Only the uploader can submit
+        if (novel.uploaderId !== session.user.id) {
+            return { error: "Chỉ người đăng mới có thể gửi yêu cầu duyệt" };
+        }
+
+        // Can only submit if DRAFT
+        if (novel.approvalStatus !== "DRAFT") {
+            return { error: "Truyện này đã được gửi duyệt hoặc đã được duyệt rồi" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_APPROVAL) {
+            return {
+                error: `Cần tối thiểu ${MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ để gửi duyệt. Hiện tại: ${wordCount.toLocaleString()} chữ.`
+            };
+        }
+
+        // Update novel to pending
+        await db.novel.update({
+            where: { id: novelId },
+            data: { approvalStatus: "PENDING" },
+        });
+
+        // Notify admins
+        const admins = await db.user.findMany({
+            where: { role: { in: ["ADMIN", "MODERATOR"] } },
+            select: { id: true },
+        });
+
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+
+        await Promise.all(
+            admins.map((admin) =>
+                db.notification.create({
+                    data: {
+                        userId: admin.id,
+                        actorId: session.user.id,
+                        type: "NEW_NOVEL_SUBMISSION",
+                        resourceId: novel.slug,
+                        resourceType: "NOVEL",
+                        message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
+                    },
+                })
+            )
+        );
+
+        revalidatePath("/admin/novels/pending");
+        revalidatePath(`/truyen/${novel.slug}/cho-duyet`);
+        revalidatePath("/studio/novels");
+
+        return { success: "Đã gửi yêu cầu duyệt. Admin sẽ xem xét trong thời gian sớm nhất." };
+    } catch (error) {
+        console.error("Submit novel for approval error:", error);
+        return { error: "Lỗi khi gửi yêu cầu duyệt" };
     }
 }
 export async function updateNovel(id: number, data: {
@@ -667,6 +750,14 @@ export async function resubmitNovel(novelId: number, message?: string) {
         // Can only resubmit if rejected
         if (novel.approvalStatus !== "REJECTED") {
             return { error: "Chỉ có thể gửi lại truyện đã bị từ chối" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_APPROVAL) {
+            return {
+                error: `Cần tối thiểu ${MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ để gửi duyệt. Hiện tại: ${wordCount.toLocaleString()} chữ.`
+            };
         }
 
         // Update novel to pending
