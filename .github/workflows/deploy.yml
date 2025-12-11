@@ -59,9 +59,12 @@ jobs:
             mkdir -p $BACKUP_DIR
             BACKUP_FILE="$BACKUP_DIR/novest_$(date +%Y%m%d_%H%M%S).sql"
             echo "📦 Creating database backup: $BACKUP_FILE"
-            # Load DATABASE_URL from .env and use it for backup
+            # Load DATABASE_URL and strip query params (pg_dump doesn't understand ?schema=public)
             source $APP_DIR/.env
-            pg_dump "$DATABASE_URL" > $BACKUP_FILE
+            CLEAN_URL=$(echo "$DATABASE_URL" | sed 's/?.*$//')
+            pg_dump "$CLEAN_URL" > $BACKUP_FILE || {
+              echo "⚠️ Backup failed, continuing with deploy..."
+            }
             
             # Keep only last 30 backups (about 1 month of daily deploys)
             ls -t $BACKUP_DIR/novest_*.sql | tail -n +31 | xargs -r rm
