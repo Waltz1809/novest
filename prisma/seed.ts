@@ -130,7 +130,22 @@ async function main() {
     await db.adminLog.deleteMany({});
     await db.ticket.deleteMany({});
     await db.userPreference.deleteMany({});
-    // Don't delete users to preserve OAuth accounts
+    // Delete seeded test users but preserve OAuth accounts
+    await db.user.deleteMany({
+        where: {
+            email: {
+                in: [
+                    "admin@novest.com",
+                    "mod@novest.com",
+                    "reader1@novest.com",
+                    "reader2@novest.com",
+                    "reader3@novest.com",
+                    "reader4@novest.com",
+                    "reader5@novest.com",
+                ]
+            }
+        }
+    });
     console.log("✅ Cleanup complete\n");
 
     // ============ 2. CREATE GENRES ============
@@ -183,12 +198,12 @@ async function main() {
 
     const admin = await db.user.upsert({
         where: { email: "admin@novest.com" },
-        update: { username: "admin", nickname: "Quản Trị Viên" },
+        update: { username: "seed_admin", nickname: "Quản Trị Viên" },
         create: {
             email: "admin@novest.com",
             name: "Admin User",
             nickname: "Quản Trị Viên",
-            username: "admin",
+            username: "seed_admin",
             role: "ADMIN",
             password: await bcrypt.hash("Admin123!", 10),
             emailVerified: new Date(),
@@ -197,12 +212,12 @@ async function main() {
 
     const moderator = await db.user.upsert({
         where: { email: "mod@novest.com" },
-        update: { username: "moderator", nickname: "Điều Hành Viên" },
+        update: { username: "seed_moderator", nickname: "Điều Hành Viên" },
         create: {
             email: "mod@novest.com",
             name: "Moderator User",
             nickname: "Điều Hành Viên",
-            username: "moderator",
+            username: "seed_moderator",
             role: "MODERATOR",
             password: await bcrypt.hash("Mod123!", 10),
             emailVerified: new Date(),

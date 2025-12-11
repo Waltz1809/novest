@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         const skip = (page - 1) * limit;
 
         if (withUpdates) {
-            // Get novels with new chapters since follow
+            // Get novels with new chapters since lastReadAt
             const libraryWithUpdates = await db.library.findMany({
                 where: { userId: session.user.id },
                 include: {
@@ -42,15 +42,17 @@ export async function GET(request: NextRequest) {
                             slug: true,
                             coverImage: true,
                             volumes: {
+                                orderBy: { order: "asc" },
                                 select: {
+                                    order: true,
                                     chapters: {
                                         where: { isDraft: false },
-                                        orderBy: { createdAt: "desc" },
-                                        take: 1,
+                                        orderBy: { order: "asc" },
                                         select: {
                                             id: true,
                                             title: true,
                                             slug: true,
+                                            order: true,
                                             createdAt: true,
                                         },
                                     },
@@ -62,17 +64,54 @@ export async function GET(request: NextRequest) {
                 orderBy: { createdAt: "desc" },
             });
 
+            // Get reading history for smart routing
+            const novelIds = libraryWithUpdates.map(lib => lib.novelId);
+            const readingHistories = await db.readingHistory.findMany({
+                where: {
+                    userId: session.user.id,
+                    novelId: { in: novelIds },
+                },
+                include: {
+                    chapter: {
+                        select: { order: true },
+                    },
+                },
+            });
+            const historyMap = new Map(readingHistories.map(h => [h.novelId, h]));
+
             // Filter and format
             const novelsWithUpdates = libraryWithUpdates
                 .map((lib) => {
-                    const allChapters = lib.novel.volumes.flatMap((v) => v.chapters);
-                    const latestChapter = allChapters[0];
+                    // Flatten chapters sorted by volume order then chapter order
+                    const allChapters = lib.novel.volumes.flatMap((v) =>
+                        v.chapters.map(ch => ({ ...ch, volumeOrder: v.order }))
+                    );
 
+                    if (allChapters.length === 0) return null;
+
+                    // Count new chapters since lastReadAt
                     const newChaptersCount = allChapters.filter(
-                        (ch) => new Date(ch.createdAt) > new Date(lib.createdAt)
+                        (ch) => new Date(ch.createdAt) > new Date(lib.lastReadAt)
                     ).length;
 
-                    if (!latestChapter || newChaptersCount === 0) return null;
+                    if (newChaptersCount === 0) return null;
+
+                    // Find next unread chapter based on reading history
+                    const history = historyMap.get(lib.novelId);
+                    let nextChapter = allChapters[0]; // Default to first
+
+                    if (history && history.chapter) {
+                        const lastReadOrder = history.chapter.order;
+                        const nextUnread = allChapters.find(ch => ch.order > lastReadOrder);
+                        if (nextUnread) {
+                            nextChapter = nextUnread;
+                        } else {
+                            nextChapter = allChapters[allChapters.length - 1];
+                        }
+                    }
+
+                    // Latest chapter for display
+                    const latestChapter = allChapters[allChapters.length - 1];
 
                     return {
                         novelId: lib.novel.id,
@@ -84,8 +123,9 @@ export async function GET(request: NextRequest) {
                             title: latestChapter.title,
                             slug: latestChapter.slug,
                         },
+                        nextChapterSlug: nextChapter.slug,
                         newChaptersCount,
-                        followedAt: lib.createdAt,
+                        lastReadAt: lib.lastReadAt,
                     };
                 })
                 .filter((n): n is NonNullable<typeof n> => n !== null);

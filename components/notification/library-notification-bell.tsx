@@ -1,30 +1,18 @@
 "use client";
 
-import { Library, X, BookOpen, ChevronRight } from "lucide-react";
+import { Library, X, BookOpen, ChevronRight, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { libraryService, LibraryUpdateItem } from "@/services";
 import Link from "next/link";
 import Image from "next/image";
-
-interface LibraryUpdate {
-    novelId: number;
-    title: string;
-    slug: string;
-    coverImage: string | null;
-    latestChapter: {
-        id: number;
-        title: string;
-        slug: string;
-    };
-    newChaptersCount: number;
-    followedAt: Date;
-}
 
 export function LibraryNotificationBell() {
     const [updateCount, setUpdateCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [novels, setNovels] = useState<LibraryUpdateItem[]>([]);
     const [loading, setLoading] = useState(false);
+    const [markingAll, setMarkingAll] = useState(false);
+    const [markingIds, setMarkingIds] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         loadUpdateCount();
@@ -39,7 +27,7 @@ export function LibraryNotificationBell() {
 
     async function loadUpdates() {
         setLoading(true);
-        const result = await libraryService.getUpdates({ limit: 5 });
+        const result = await libraryService.getUpdates({ limit: 10 });
         if (result.success && result.data) {
             setNovels(result.data.items as LibraryUpdateItem[]);
         }
@@ -49,6 +37,46 @@ export function LibraryNotificationBell() {
     function handleOpen() {
         setIsOpen(true);
         loadUpdates();
+    }
+
+    async function handleMarkAsRead(novelId: number, e: React.MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setMarkingIds(prev => new Set(prev).add(novelId));
+
+        const result = await libraryService.markAsRead(novelId);
+        if (result.success) {
+            // Remove from list
+            setNovels(prev => prev.filter(n => n.novelId !== novelId));
+            setUpdateCount(prev => Math.max(0, prev - 1));
+        }
+
+        setMarkingIds(prev => {
+            const next = new Set(prev);
+            next.delete(novelId);
+            return next;
+        });
+    }
+
+    async function handleMarkAllAsRead() {
+        setMarkingAll(true);
+
+        const result = await libraryService.markAllAsRead();
+        if (result.success) {
+            setNovels([]);
+            setUpdateCount(0);
+        }
+
+        setMarkingAll(false);
+    }
+
+    async function handleNovelClick(novelId: number) {
+        // Auto-mark as read when clicking novel
+        await libraryService.markAsRead(novelId);
+        setNovels(prev => prev.filter(n => n.novelId !== novelId));
+        setUpdateCount(prev => Math.max(0, prev - 1));
+        setIsOpen(false);
     }
 
     return (
@@ -83,12 +111,23 @@ export function LibraryNotificationBell() {
                                 <Library className="w-5 h-5 text-amber-500" />
                                 Truyện cập nhật
                             </h3>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                            >
-                                <X className="w-5 h-5 text-gray-400" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {novels.length > 0 && (
+                                    <button
+                                        onClick={handleMarkAllAsRead}
+                                        disabled={markingAll}
+                                        className="text-sm text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-50"
+                                    >
+                                        {markingAll ? "Đang xử lý..." : "Đọc tất cả"}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-gray-400" />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Content */}
@@ -107,43 +146,59 @@ export function LibraryNotificationBell() {
                             ) : (
                                 <div className="space-y-3">
                                     {novels.map((novel) => (
-                                        <Link
+                                        <div
                                             key={novel.novelId}
-                                            href={`/truyen/${novel.slug}`}
-                                            onClick={() => setIsOpen(false)}
-                                            className="flex gap-3 p-3 bg-[#1E293B] hover:bg-[#2D3A4F] rounded-lg transition-colors group"
+                                            className="flex gap-3 p-3 bg-[#1E293B] hover:bg-[#2D3A4F] rounded-lg transition-colors group relative"
                                         >
-                                            {/* Cover */}
-                                            <div className="w-16 h-24 relative shrink-0 rounded-md overflow-hidden bg-gray-800">
-                                                {novel.coverImage ? (
-                                                    <Image
-                                                        src={novel.coverImage}
-                                                        alt={novel.title}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <BookOpen className="w-6 h-6 text-gray-600" />
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Info */}
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-white line-clamp-2 group-hover:text-amber-400 transition-colors">
-                                                    {novel.title}
-                                                </h4>
-                                                <p className="text-sm text-gray-400 mt-1 line-clamp-1">
-                                                    {novel.latestChapter.title}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-2">
-                                                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-medium rounded">
-                                                        +{novel.newChaptersCount} chương mới
-                                                    </span>
+                                            {/* Novel card link - routes to next unread chapter */}
+                                            <Link
+                                                href={`/truyen/${novel.slug}/${novel.nextChapterSlug}`}
+                                                onClick={() => handleNovelClick(novel.novelId)}
+                                                className="flex gap-3 flex-1 min-w-0"
+                                            >
+                                                {/* Cover */}
+                                                <div className="w-16 h-24 relative shrink-0 rounded-md overflow-hidden bg-gray-800">
+                                                    {novel.coverImage ? (
+                                                        <Image
+                                                            src={novel.coverImage}
+                                                            alt={novel.title}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center">
+                                                            <BookOpen className="w-6 h-6 text-gray-600" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        </Link>
+
+                                                {/* Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-semibold text-white line-clamp-2 group-hover:text-amber-400 transition-colors">
+                                                        {novel.title}
+                                                    </h4>
+                                                    <p className="text-sm text-gray-400 mt-1 line-clamp-1">
+                                                        {novel.latestChapter.title}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-medium rounded">
+                                                            +{novel.newChaptersCount} chương mới
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+
+                                            {/* Mark as read button */}
+                                            <button
+                                                onClick={(e) => handleMarkAsRead(novel.novelId, e)}
+                                                disabled={markingIds.has(novel.novelId)}
+                                                className="shrink-0 self-center p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-green-400 disabled:opacity-50"
+                                                aria-label="Đánh dấu đã đọc"
+                                                title="Đánh dấu đã đọc"
+                                            >
+                                                <Check className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     ))}
                                 </div>
                             )}

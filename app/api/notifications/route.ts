@@ -31,7 +31,11 @@ export async function GET(request: NextRequest) {
         const skip = (page - 1) * limit;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const where: any = { userId: session.user.id };
+        const where: any = {
+            userId: session.user.id,
+            // Exclude NEW_CHAPTER - now handled by library bell
+            type: { not: "NEW_CHAPTER" },
+        };
         if (unreadOnly) {
             where.isRead = false;
         }
@@ -55,8 +59,13 @@ export async function GET(request: NextRequest) {
                 skip,
             }),
             db.notification.count({ where }),
+            // Unread count also excludes NEW_CHAPTER
             db.notification.count({
-                where: { userId: session.user.id, isRead: false },
+                where: {
+                    userId: session.user.id,
+                    isRead: false,
+                    type: { not: "NEW_CHAPTER" },
+                },
             }),
         ]);
 

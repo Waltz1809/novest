@@ -22,8 +22,9 @@ export interface LibraryUpdateItem {
         title: string;
         slug: string;
     };
+    nextChapterSlug: string; // For smart routing to next unread chapter
     newChaptersCount: number;
-    followedAt: string;
+    lastReadAt: string;
 }
 
 // Library list response
@@ -88,4 +89,17 @@ export const libraryService = {
         if (!response.success || !response.data) return false;
         return (response.data.items as LibraryNovelItem[]).some(item => item.id === novelId);
     },
+
+    /**
+     * Mark single novel as read (update lastReadAt)
+     */
+    markAsRead: (novelId: number) =>
+        api.patch<void>("/api/library/read", { novelId }),
+
+    /**
+     * Mark all library entries as read
+     */
+    markAllAsRead: () =>
+        api.patch<void>("/api/library/read", { all: true }),
 };
+

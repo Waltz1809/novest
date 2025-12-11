@@ -23,11 +23,8 @@ export function NotificationModal({ onClose, onUpdate }: NotificationModalProps)
         try {
             const result = await notificationService.getAll({ page: 1, limit: 15 });
             if (result.success && result.data) {
-                // Filter out NEW_CHAPTER notifications (they go to library bell now)
-                const filtered = result.data.items.filter(
-                    (n) => n.type !== "NEW_CHAPTER"
-                );
-                setNotifications(filtered);
+                // NEW_CHAPTER is now excluded by API
+                setNotifications(result.data.items);
             }
         } catch (error) {
             console.error("Failed to load notifications:", error);

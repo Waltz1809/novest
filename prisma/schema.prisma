@@ -325,9 +325,10 @@ model UserPurchase {
 }
 
 model Library {
-  userId    String
-  novelId   Int
-  createdAt DateTime @default(now())
+  userId     String
+  novelId    Int
+  createdAt  DateTime @default(now())
+  lastReadAt DateTime @default(now()) // When user last "caught up" with updates
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
