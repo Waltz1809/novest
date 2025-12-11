@@ -54,35 +54,24 @@ jobs:
             
             cd $APP_DIR
             
-            # ===== BACKUP DATABASE BEFORE DEPLOY =====
+            # ===== OPTIONAL: BACKUP DATABASE =====
             BACKUP_DIR="$HOME/backups"
             mkdir -p $BACKUP_DIR
             BACKUP_FILE="$BACKUP_DIR/novest_$(date +%Y%m%d_%H%M%S).sql"
-            echo "📦 Creating database backup: $BACKUP_FILE"
-            # Use postgres peer auth (no password needed when running as postgres user)
-            sudo -u postgres pg_dump novest_prod > $BACKUP_FILE 2>/dev/null || {
-              echo "⚠️ Backup skipped (sudo not available), continuing with deploy..."
-            }
+            echo "📦 Attempting database backup..."
+            sudo -u postgres pg_dump novest_prod > $BACKUP_FILE 2>/dev/null && echo "✅ Backup saved!" || echo "⚠️ Backup skipped"
             
-            # Keep only last 30 backups (about 1 month of daily deploys)
-            ls -t $BACKUP_DIR/novest_*.sql | tail -n +31 | xargs -r rm
-            echo "✅ Backup completed!"
+            # Clean old backups (keep last 30)
+            ls -t $BACKUP_DIR/novest_*.sql 2>/dev/null | tail -n +31 | xargs -r rm 2>/dev/null || true
             
             # ===== DEPLOY =====
+            echo "🚀 Starting deploy..."
             git fetch --all
             git reset --hard origin/master
             npm install
             npx prisma generate
-            
-            # Use db push WITHOUT --accept-data-loss
-            # If schema changes require data loss, this will fail and require manual review
-            npx prisma db push || {
-              echo "❌ Database push failed! Schema changes may require data loss."
-              echo "Please review changes manually and run: npx prisma db push --accept-data-loss"
-              exit 1
-            }
-            
+            npx prisma db push
             npm run build
             pm2 restart novest --update-env
-            echo "✅ Deploy completed successfully to $APP_DIR!"
+            echo "✅ Deploy completed successfully!"
 
