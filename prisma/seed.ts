@@ -167,7 +167,7 @@ async function main() {
         { name: "Dịch Giả", description: "Thành viên nhóm dịch", icon: "languages", color: "#A78BFA" },
     ];
 
-    const badges: Record<string, typeof badgeData[0] & { id: string }> = {};
+    const badges: Record<string, { id: string; name: string; description: string | null; icon: string; color: string | null; createdAt: Date; updatedAt: Date }> = {};
     for (const data of badgeData) {
         const badge = await db.badge.upsert({
             where: { id: toSlug(data.name) },
