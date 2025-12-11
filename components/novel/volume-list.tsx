@@ -69,11 +69,14 @@ export default function VolumeList({ volumes, novelSlug }: VolumeListProps) {
                                     <Link
                                         key={chapter.id}
                                         href={`/truyen/${novelSlug}/${chapter.slug}`}
-                                        className="group/chapter flex items-center gap-2 py-2.5 border-b border-dashed border-[#34D399]/10 hover:bg-[#34D399]/5 px-2 rounded transition-colors"
+                                        className="group/chapter flex items-center justify-between gap-2 py-2.5 border-b border-dashed border-[#34D399]/10 hover:bg-[#34D399]/5 px-2 rounded transition-colors"
                                         title={chapter.title}
                                     >
                                         <span className="text-sm text-gray-300 group-hover/chapter:text-[#F59E0B] transition-colors truncate">
                                             {chapter.title}
+                                        </span>
+                                        <span className="text-xs text-gray-500 shrink-0">
+                                            {new Date(chapter.createdAt).toLocaleDateString("vi-VN")}
                                         </span>
                                     </Link>
                                 ))}

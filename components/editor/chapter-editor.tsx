@@ -111,7 +111,7 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
     );
 
     return (
-        <div className="bg-[#0f172a] border border-white/10 rounded-lg overflow-hidden">
+        <div className="bg-[#0f172a] border border-white/10 rounded-lg overflow-hidden h-full flex flex-col">
             {/* Toolbar */}
             <div className="sticky top-0 z-10 bg-[#1E293B] border-b border-white/10 p-2 flex flex-wrap gap-1">
                 {/* Text Formatting */}
@@ -202,9 +202,11 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                 </div>
             </div>
 
-            {/* Editor Content with Scroll */}
-            <div className="max-h-[60vh] overflow-y-auto">
-                <EditorContent editor={editor} />
+            {/* Editor Content with Custom Scrollbar */}
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-amber">
+                <div className="py-2 px-1">
+                    <EditorContent editor={editor} />
+                </div>
             </div>
 
             {/* Image URL Dialog */}

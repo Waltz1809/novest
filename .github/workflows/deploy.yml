@@ -51,6 +51,9 @@ jobs:
             git reset --hard origin/master
             npm install
             npx prisma generate
+            # Mark baseline as applied if migration table exists but baseline isn't recorded
+            # This handles the squashed migration scenario
+            npx prisma migrate resolve --applied 20251211125601_init_postgresql_baseline 2>/dev/null || true
             npx prisma migrate deploy
             npm run build
             pm2 restart novest --update-env

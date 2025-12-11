@@ -6,6 +6,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateSearchIndex } from "@/lib/utils";
 import { logAdminAction } from "./admin-log";
+import { MIN_WORDS_FOR_APPROVAL, MIN_WORDS_FOR_VIP } from "@/lib/pricing";
+
+/**
+ * Get total word count of a novel (sum of all chapters)
+ */
+export async function getNovelWordCount(novelId: number): Promise<number> {
+    const result = await db.chapter.aggregate({
+        where: {
+            volume: { novelId },
+            isDraft: false,
+        },
+        _sum: { wordCount: true },
+    });
+    return result._sum.wordCount || 0;
+}
 
 /**
  * Get novel approval status by slug (for smart notification routing)
@@ -725,3 +740,144 @@ export async function getPendingNovels() {
         return { error: "Lỗi khi tải danh sách truyện chờ duyệt" };
     }
 }
+
+/**
+ * Request VIP status for a novel (50k words required)
+ * Uploader only - creates ticket for admin review
+ */
+export async function requestVipStatus(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                uploaderId: true,
+                approvalStatus: true,
+                vipStatus: true,
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        if (novel.uploaderId !== session.user.id) {
+            return { error: "Chỉ người đăng mới có thể yêu cầu VIP" };
+        }
+
+        if (novel.approvalStatus !== "APPROVED") {
+            return { error: "Truyện phải được duyệt trước khi yêu cầu VIP" };
+        }
+
+        if (novel.vipStatus === "APPROVED") {
+            return { error: "Truyện đã là VIP" };
+        }
+
+        if (novel.vipStatus === "PENDING") {
+            return { error: "Yêu cầu VIP đang chờ duyệt" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_VIP) {
+            const remaining = MIN_WORDS_FOR_VIP - wordCount;
+            return {
+                error: `Cần thêm ${remaining.toLocaleString()} chữ nữa để đủ điều kiện VIP (đã có ${wordCount.toLocaleString()}/${MIN_WORDS_FOR_VIP.toLocaleString()})`
+            };
+        }
+
+        // Update to pending VIP
+        await db.novel.update({
+            where: { id: novelId },
+            data: { vipStatus: "PENDING" },
+        });
+
+        // Create ticket for admin
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+        await db.ticket.create({
+            data: {
+                userId: session.user.id,
+                mainType: "VIP_REQUEST",
+                title: `Yêu cầu VIP: ${novel.title}`,
+                description: `${uploaderName} yêu cầu chuyển truyện "${novel.title}" sang chế độ VIP. Truyện hiện có ${wordCount.toLocaleString()} chữ.`,
+                novelId: novel.id,
+                status: "OPEN",
+            },
+        });
+
+        revalidatePath("/admin/tickets");
+        revalidatePath(`/studio/novels/edit/${novel.slug}`);
+
+        return { success: "Đã gửi yêu cầu VIP. Admin sẽ xem xét trong thời gian sớm nhất." };
+    } catch (error) {
+        console.error("Request VIP status error:", error);
+        return { error: "Lỗi khi gửi yêu cầu VIP" };
+    }
+}
+
+/**
+ * Approve VIP status for a novel (Admin/Moderator only)
+ */
+export async function approveVipStatus(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    if (!isAdmin) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { id: true, title: true, uploaderId: true, vipStatus: true }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        await db.novel.update({
+            where: { id: novelId },
+            data: { vipStatus: "APPROVED" },
+        });
+
+        // Notify uploader
+        if (novel.uploaderId) {
+            const { createNotification } = await import("./notification");
+            await createNotification({
+                userId: novel.uploaderId,
+                actorId: session.user.id,
+                type: "VIP_APPROVED",
+                resourceId: String(novel.id),
+                resourceType: "NOVEL",
+                message: `Truyện "${novel.title}" đã được chuyển sang chế độ VIP!`,
+            });
+        }
+
+        revalidatePath("/admin/novels");
+        revalidatePath(`/truyen/${novelId}`);
+
+        await logAdminAction(
+            "APPROVE_VIP",
+            String(novelId),
+            "NOVEL",
+            `Duyệt VIP cho truyện "${novel.title}"`
+        );
+
+        return { success: "Đã duyệt VIP thành công" };
+    } catch (error) {
+        console.error("Approve VIP status error:", error);
+        return { error: "Lỗi khi duyệt VIP" };
+    }
+}
+

@@ -255,6 +255,13 @@ export function ChapterPageClient({
                     <h1 className="text-3xl md:text-4xl font-bold leading-tight font-display">
                         {chapter.title}
                     </h1>
+                    {/* Chapter Metadata */}
+                    <p className="text-sm opacity-50 mt-3 font-sans">
+                        {chapter.wordCount?.toLocaleString() || 0} chữ
+                        {chapter.updatedAt && (
+                            <span> • Cập nhật: {new Date(chapter.updatedAt).toLocaleDateString("vi-VN")}</span>
+                        )}
+                    </p>
                 </div>
 
                 {/* Content */}

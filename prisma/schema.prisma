@@ -235,6 +235,7 @@ model Novel {
   approvalStatus  String  @default("PENDING") // PENDING, APPROVED, REJECTED
   rejectionReason String?
   rejectionCount  Int     @default(0) // 3 rejections = permanent delete
+  vipStatus       String  @default("NONE") // NONE, PENDING, APPROVED
 
   // Discount for completed novels (uploader can set 10-100%)
   discountPercent Int @default(0)
@@ -308,6 +309,7 @@ model Chapter {
   versions         ChapterVersion[] // Version history for reverting
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   wordCount Int      @default(0)
 
   @@index([isDraft, publishAt])

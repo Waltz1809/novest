@@ -9,7 +9,9 @@
  */
 
 // Constants
-export const BASE_PRICE_PER_1000_WORDS = 5; // 5 tickets per 1000 words
+export const BASE_PRICE_PER_1000_WORDS = 150; // 150đ per 1000 words
+export const MIN_WORDS_FOR_APPROVAL = 5000; // 5k words minimum to submit for approval
+export const MIN_WORDS_FOR_VIP = 50000; // 50k words minimum for VIP status
 export const MIN_WORDS_FOR_PREMIUM = 50000; // 50k words minimum for a novel to have premium chapters
 export const MIN_CHAPTER_WORDS_FOR_PREMIUM = 1000; // Minimum words for a chapter to be premium
 

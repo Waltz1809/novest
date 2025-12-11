@@ -120,13 +120,24 @@ export async function createChapter(data: z.infer<typeof chapterSchema>) {
         const plainText = stripHtml(content);
         const wordCount = countWords(plainText);
 
+        // Auto-calculate price if chapter is locked
+        let finalPrice = price;
+        if (isLocked && price === 0) {
+            const { calculateChapterPrice } = await import("@/lib/pricing");
+            finalPrice = calculateChapterPrice(
+                wordCount,
+                volume.novel.novelFormat,
+                volume.novel.discountPercent
+            );
+        }
+
         await db.chapter.create({
             data: {
                 title,
                 content,
                 volumeId,
                 order,
-                price,
+                price: finalPrice,
                 isLocked,
                 slug,
                 wordCount,
@@ -231,6 +242,17 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
         const plainText = stripHtml(content);
         const wordCount = countWords(plainText);
 
+        // Auto-calculate price if chapter is locked and no price set
+        let finalPrice = price;
+        if (isLocked && price === 0) {
+            const { calculateChapterPrice } = await import("@/lib/pricing");
+            finalPrice = calculateChapterPrice(
+                wordCount,
+                existingChapter.volume.novel.novelFormat,
+                existingChapter.volume.novel.discountPercent
+            );
+        }
+
         await db.chapter.update({
             where: { id: chapterId },
             data: {
@@ -238,7 +260,7 @@ export async function updateChapter(chapterId: number, data: z.infer<typeof chap
                 content,
                 volumeId,
                 order,
-                price,
+                price: finalPrice,
                 isLocked,
                 slug,
                 wordCount,

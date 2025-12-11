@@ -12,6 +12,7 @@ import NovelDescription from "@/components/novel/novel-description";
 import VolumeList from "@/components/novel/volume-list";
 import { ApprovalControls } from "@/components/admin/approval-controls";
 import { ResubmitButton } from "@/components/admin/resubmit-button";
+import { MIN_WORDS_FOR_APPROVAL } from "@/lib/pricing";
 
 // No caching for preview pages
 export const dynamic = "force-dynamic";
@@ -197,6 +198,29 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                         <p className="text-red-300 text-sm">
                             <strong>Lý do từ chối:</strong> {novel.rejectionReason}
                         </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Word Count Indicator - Shows for uploader */}
+            {isUploader && novel.approvalStatus !== "APPROVED" && (
+                <div className={`${totalWordCount >= MIN_WORDS_FOR_APPROVAL ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'} border-b py-3`}>
+                    <div className="container mx-auto px-4 flex items-center gap-2">
+                        {totalWordCount >= MIN_WORDS_FOR_APPROVAL ? (
+                            <>
+                                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                <span className="text-emerald-300 text-sm font-medium">
+                                    {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Đủ điều kiện gửi duyệt
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <XCircle className="w-4 h-4 text-red-400" />
+                                <span className="text-red-300 text-sm font-medium">
+                                    {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Cần thêm {(MIN_WORDS_FOR_APPROVAL - totalWordCount).toLocaleString()} chữ để gửi duyệt
+                                </span>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
