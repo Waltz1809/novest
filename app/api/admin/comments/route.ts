@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { logAdminActionDirect } from "@/lib/admin-log";
-
-// Helper to check admin or moderator role
-async function checkAdmin() {
-    const session = await auth();
-    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
-    if (!isAdminOrMod) {
-        return null;
-    }
-    return session;
-}
+import { checkAdminAuth, unauthorizedResponse, safeParseInt } from "@/lib/api-utils";
 
 /**
  * GET /api/admin/comments - Get paginated comments for admin
@@ -20,17 +10,14 @@ async function checkAdmin() {
  */
 export async function GET(request: NextRequest) {
     try {
-        const session = await checkAdmin();
+        const session = await checkAdminAuth();
         if (!session) {
-            return NextResponse.json(
-                { success: false, error: "Không có quyền truy cập" },
-                { status: 403 }
-            );
+            return unauthorizedResponse();
         }
 
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "10", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 10);
         const search = searchParams.get("search") || "";
         const skip = (page - 1) * limit;
 
@@ -96,12 +83,9 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
     try {
-        const session = await checkAdmin();
+        const session = await checkAdminAuth();
         if (!session) {
-            return NextResponse.json(
-                { success: false, error: "Không có quyền truy cập" },
-                { status: 403 }
-            );
+            return unauthorizedResponse();
         }
 
         const body = await request.json();

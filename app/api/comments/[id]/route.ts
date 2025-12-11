@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { safeParseInt, isValidVoteType } from "@/lib/api-utils";
 
 interface RouteParams {
     params: Promise<{
@@ -27,7 +28,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         const { id } = await params;
-        const commentId = parseInt(id, 10);
+        const commentId = safeParseInt(id, 0);
+
+        if (commentId === 0) {
+            return NextResponse.json(
+                { success: false, error: "ID bình luận không hợp lệ" },
+                { status: 400 }
+            );
+        }
 
         const body = await request.json();
         const { content } = body;
@@ -102,7 +110,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         }
 
         const { id } = await params;
-        const commentId = parseInt(id, 10);
+        const commentId = safeParseInt(id, 0);
+
+        if (commentId === 0) {
+            return NextResponse.json(
+                { success: false, error: "ID bình luận không hợp lệ" },
+                { status: 400 }
+            );
+        }
 
         const comment = await db.comment.findUnique({
             where: { id: commentId },
@@ -164,7 +179,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
 
         const { id } = await params;
-        const commentId = parseInt(id, 10);
+        const commentId = safeParseInt(id, 0);
+
+        if (commentId === 0) {
+            return NextResponse.json(
+                { success: false, error: "ID bình luận không hợp lệ" },
+                { status: 400 }
+            );
+        }
 
         const body = await request.json();
         const { action, voteType } = body;
@@ -182,7 +204,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
 
         if (action === "vote") {
-            if (!voteType || !["UPVOTE", "DOWNVOTE"].includes(voteType)) {
+            if (!isValidVoteType(voteType)) {
                 return NextResponse.json(
                     { success: false, error: "voteType phải là UPVOTE hoặc DOWNVOTE" },
                     { status: 400 }

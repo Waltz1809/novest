@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { toSlug } from "@/lib/utils";
+import { safeParseInt } from "@/lib/api-utils";
 
 /**
  * GET /api/search - Search novels
@@ -23,8 +24,8 @@ export async function GET(request: NextRequest) {
         const genresParam = searchParams.get("genres") || "";
         const status = searchParams.get("status") || "";
         const sort = searchParams.get("sort") || "latest";
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "24", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 24);
         const isQuickSearch = searchParams.get("quick") === "true";
 
         // Quick search for autocomplete (simplified response)

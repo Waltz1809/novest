@@ -143,7 +143,7 @@ export const adminService = {
         api.get<AdminPaginatedResponse<AdminCommentItem>>("/api/admin/comments", params),
 
     deleteComment: (commentId: number) =>
-        api.delete<void>("/api/admin/comments"),
+        api.deleteWithBody<void>("/api/admin/comments", { commentId }),
 
     // Tickets
     getTickets: (params: AdminListParams = {}) =>

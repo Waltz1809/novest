@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { checkAdminAuth, unauthorizedResponse, safeParseInt, isValidEnum } from "@/lib/api-utils";
 
-// Helper to check admin or moderator role
-async function checkAdmin() {
-    const session = await auth();
-    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
-    if (!isAdminOrMod) {
-        return null;
-    }
-    return session;
-}
+// Valid ticket statuses
+const VALID_TICKET_STATUSES = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] as const;
 
 /**
  * GET /api/admin/tickets - Get paginated tickets
@@ -19,22 +12,19 @@ async function checkAdmin() {
  */
 export async function GET(request: NextRequest) {
     try {
-        const session = await checkAdmin();
+        const session = await checkAdminAuth();
         if (!session) {
-            return NextResponse.json(
-                { success: false, error: "Không có quyền truy cập" },
-                { status: 403 }
-            );
+            return unauthorizedResponse();
         }
 
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "10", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 10);
         const status = searchParams.get("status") || "";
         const skip = (page - 1) * limit;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const where: any = status ? { status } : {};
+        const where: any = isValidEnum(status, VALID_TICKET_STATUSES) ? { status } : {};
 
         const [tickets, total] = await Promise.all([
             db.ticket.findMany({
@@ -83,12 +73,9 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await checkAdmin();
+        const session = await checkAdminAuth();
         if (!session) {
-            return NextResponse.json(
-                { success: false, error: "Không có quyền truy cập" },
-                { status: 403 }
-            );
+            return unauthorizedResponse();
         }
 
         const body = await request.json();
@@ -101,8 +88,7 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        const validStatuses = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
-        if (!validStatuses.includes(status)) {
+        if (!isValidEnum(status, VALID_TICKET_STATUSES)) {
             return NextResponse.json(
                 { success: false, error: "Trạng thái không hợp lệ" },
                 { status: 400 }

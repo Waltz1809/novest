@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { safeParseIntClamped } from "@/lib/api-utils";
 
 /**
  * GET /api/rankings - Get novel rankings
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
 
         const type = searchParams.get("type") || "views";
-        const limit = Math.min(parseInt(searchParams.get("limit") || "10", 10), 50);
+        const limit = safeParseIntClamped(searchParams.get("limit"), 10, 1, 50);
         const includeR18 = searchParams.get("includeR18") === "true";
 
         // Base where clause

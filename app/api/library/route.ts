@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { safeParseInt } from "@/lib/api-utils";
 
 /**
  * GET /api/library - Get user's library (followed novels)
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
         }
 
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "20", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 20);
         const withUpdates = searchParams.get("withUpdates") === "true";
         const skip = (page - 1) * limit;
 

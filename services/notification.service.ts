@@ -71,11 +71,11 @@ export const notificationService = {
      * Delete specific notifications
      */
     delete: (ids: string[]) =>
-        api.delete<void>("/api/notifications"),
+        api.deleteWithBody<void>("/api/notifications", { ids }),
 
     /**
      * Delete all notifications
      */
     deleteAll: () =>
-        api.delete<void>("/api/notifications"),
+        api.deleteWithBody<void>("/api/notifications", { all: true }),
 };

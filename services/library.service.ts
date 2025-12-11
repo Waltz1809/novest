@@ -78,7 +78,7 @@ export const libraryService = {
      * Remove novel from library (unfollow)
      */
     unfollow: (novelId: number) =>
-        api.delete<void>("/api/library"),
+        api.deleteWithBody<void>("/api/library", { novelId }),
 
     /**
      * Check if a novel is in library

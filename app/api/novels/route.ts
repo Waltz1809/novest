@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { generateSearchIndex } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import { safeParseInt, safeParseIntClamped } from "@/lib/api-utils";
 
 /**
  * GET /api/novels - List novels
@@ -22,8 +23,8 @@ export async function GET(request: NextRequest) {
         const status = searchParams.get("status") || "";
         const approvalStatus = searchParams.get("approvalStatus") || "APPROVED";
         const uploaderId = searchParams.get("uploaderId") || "";
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseIntClamped(searchParams.get("limit"), 20, 1, 50);
         const skip = (page - 1) * limit;
 
         // Check if requesting non-approved novels (requires admin)

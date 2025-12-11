@@ -110,4 +110,8 @@ export const api = {
 
     delete: <T>(endpoint: string) =>
         apiClient<T>(endpoint, { method: "DELETE" }),
+
+    /** DELETE with body - for APIs that require body on DELETE */
+    deleteWithBody: <T>(endpoint: string, body: unknown) =>
+        apiClient<T>(endpoint, { method: "DELETE", body }),
 };

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { safeParseInt } from "@/lib/api-utils";
 
 /**
  * GET /api/comments - Get comments for a novel/chapter
@@ -20,12 +21,12 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
 
-        const novelId = parseInt(searchParams.get("novelId") || "0", 10);
+        const novelId = safeParseInt(searchParams.get("novelId"), 0);
         const chapterId = searchParams.get("chapterId");
         const paragraphId = searchParams.get("paragraphId");
         const parentId = searchParams.get("parentId");
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "10", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 10);
         const sort = searchParams.get("sort") || "newest";
         const skip = (page - 1) * limit;
 

@@ -3,19 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { logAdminActionDirect } from "@/lib/admin-log";
-
-// Helper to check admin or moderator role
-async function checkAdmin() {
-    const session = await auth();
-    const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
-    if (!isAdminOrMod) {
-        return null;
-    }
-    return session;
-}
-
-// Roles assignable via dashboard
-const VALID_ROLES = ["MODERATOR", "READER"] as const;
+import { checkAdminAuth, unauthorizedResponse, safeParseInt, isValidRole } from "@/lib/api-utils";
 
 /**
  * GET /api/admin/users - Get paginated users
@@ -23,17 +11,14 @@ const VALID_ROLES = ["MODERATOR", "READER"] as const;
  */
 export async function GET(request: NextRequest) {
     try {
-        const session = await checkAdmin();
+        const session = await checkAdminAuth();
         if (!session) {
-            return NextResponse.json(
-                { success: false, error: "Không có quyền truy cập" },
-                { status: 403 }
-            );
+            return unauthorizedResponse();
         }
 
         const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get("page") || "1", 10);
-        const limit = parseInt(searchParams.get("limit") || "10", 10);
+        const page = safeParseInt(searchParams.get("page"), 1);
+        const limit = safeParseInt(searchParams.get("limit"), 10);
         const search = searchParams.get("search") || "";
         const skip = (page - 1) * limit;
 
@@ -133,7 +118,7 @@ export async function PATCH(request: NextRequest) {
 
         switch (action) {
             case "updateRole": {
-                if (!VALID_ROLES.includes(role)) {
+                if (!isValidRole(role)) {
                     return NextResponse.json(
                         { success: false, error: "Vai trò không hợp lệ" },
                         { status: 400 }
