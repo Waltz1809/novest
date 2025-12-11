@@ -2,7 +2,7 @@
 
 import { Library, X, BookOpen, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getLibraryUpdates, getLibraryUpdateCount } from "@/actions/notification";
+import { libraryService, LibraryUpdateItem } from "@/services";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -23,7 +23,7 @@ interface LibraryUpdate {
 export function LibraryNotificationBell() {
     const [updateCount, setUpdateCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
-    const [novels, setNovels] = useState<LibraryUpdate[]>([]);
+    const [novels, setNovels] = useState<LibraryUpdateItem[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -33,14 +33,16 @@ export function LibraryNotificationBell() {
     }, []);
 
     async function loadUpdateCount() {
-        const count = await getLibraryUpdateCount();
+        const count = await libraryService.getUpdateCount();
         setUpdateCount(count);
     }
 
     async function loadUpdates() {
         setLoading(true);
-        const result = await getLibraryUpdates(5);
-        setNovels(result.novels);
+        const result = await libraryService.getUpdates({ limit: 5 });
+        if (result.success && result.data) {
+            setNovels(result.data.items as LibraryUpdateItem[]);
+        }
         setLoading(false);
     }
 

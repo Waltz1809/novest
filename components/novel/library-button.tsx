@@ -1,6 +1,6 @@
 "use client";
 
-import { toggleLibrary } from "@/actions/library";
+import { libraryService } from "@/services";
 import { Heart } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -23,19 +23,20 @@ export default function LibraryButton({ novelId, initialIsInLibrary, className }
 
         startTransition(async () => {
             try {
-                await toggleLibrary(novelId);
+                if (newState) {
+                    await libraryService.follow(novelId);
+                } else {
+                    await libraryService.unfollow(novelId);
+                }
                 router.refresh();
-                // Optional: Show success message if needed, but the button state change is usually enough.
-                // Since user asked for "notification", we can add a small alert or just rely on the UI change.
-                // For now, let's just log success.
                 console.log(newState ? "Added to library" : "Removed from library");
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Revert on error
                 setIsInLibrary((prev) => !prev);
                 console.error("Failed to toggle library", error);
 
                 // Show specific error message
-                const message = error.message || "Có lỗi xảy ra, vui lòng thử lại.";
+                const message = error instanceof Error ? error.message : "Có lỗi xảy ra, vui lòng thử lại.";
                 alert(message);
             }
         });

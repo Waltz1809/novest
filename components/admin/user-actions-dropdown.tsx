@@ -15,7 +15,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { banUser, unbanUser, updateUserRole } from "@/actions/admin";
+import { adminService } from "@/services";
 
 // Role display names in Vietnamese
 const ROLE_LABELS: Record<string, string> = {
@@ -49,11 +49,11 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
 
     const handleRoleChange = (role: string) => {
         startTransition(async () => {
-            const result = await updateUserRole(user.id, role);
+            const result = await adminService.updateUserRole(user.id, role);
             if (result.success) {
-                console.log("✅", result.success);
-                alert(result.success); // Simple feedback for now
-            } else if (result.error) {
+                console.log("✅", result.message);
+                alert(result.message); // Simple feedback for now
+            } else {
                 console.error("❌", result.error);
                 alert(result.error);
             }
@@ -64,10 +64,10 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
 
     const handleBan = () => {
         startTransition(async () => {
-            const result = await banUser(user.id, "Vi phạm quy định");
+            const result = await adminService.banUser(user.id, "Vi phạm quy định");
             if (result.success) {
-                console.log("✅", result.success);
-            } else if (result.error) {
+                console.log("✅", result.message);
+            } else {
                 console.error("❌", result.error);
                 alert(result.error);
             }
@@ -78,10 +78,10 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
 
     const handleUnban = () => {
         startTransition(async () => {
-            const result = await unbanUser(user.id);
+            const result = await adminService.unbanUser(user.id);
             if (result.success) {
-                console.log("✅", result.success);
-            } else if (result.error) {
+                console.log("✅", result.message);
+            } else {
                 console.error("❌", result.error);
                 alert(result.error);
             }

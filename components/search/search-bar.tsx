@@ -3,10 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, Loader2, SlidersHorizontal, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
-import { searchNovels, getGenres } from "@/actions/search";
-import { useDebounce } from "@/hooks/use-debounce"; // Assuming this hook exists or I'll create it
+import { searchService, genreService } from "@/services";
 import AdvancedFilterModal from "./advanced-filter-modal";
 
 interface SearchResult {
@@ -43,8 +41,10 @@ export default function SearchBar({ mobileMode = false }: SearchBarProps) {
     useEffect(() => {
         const fetchGenres = async () => {
             try {
-                const data = await getGenres();
-                setGenres(data);
+                const response = await genreService.getAll();
+                if (response.success && response.data) {
+                    setGenres(response.data);
+                }
             } catch (error) {
                 console.error("Error fetching genres:", error);
             }
@@ -77,9 +77,11 @@ export default function SearchBar({ mobileMode = false }: SearchBarProps) {
 
             setIsLoading(true);
             try {
-                const data = await searchNovels(debouncedQuery);
-                setResults(data);
-                setIsOpen(true);
+                const response = await searchService.quickSearch(debouncedQuery);
+                if (response.success && response.data) {
+                    setResults(response.data);
+                    setIsOpen(true);
+                }
             } catch (error) {
                 console.error("Search error:", error);
             } finally {

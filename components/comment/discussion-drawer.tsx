@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { addComment, getComments, getCommentReplies } from "@/actions/interaction"
+import { commentService } from "@/services"
 import { ArrowLeft, Loader2, MessageSquare, Send, User } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
@@ -145,19 +145,30 @@ export function DiscussionDrawer({
 
     const fetchComments = async (pageNum: number, reset = false) => {
         setLoading(true)
-        const res = await getComments(novelId, chapterId, pageNum, paragraphId)
-        if (reset) {
-            setFlatComments(res.comments as any)
-        } else {
-            setFlatComments((prev) => {
-                const newComments = res.comments as any
-                const existingIds = new Set(prev.map((c) => c.id))
-                const uniqueNewComments = newComments.filter((c: Comment) => !existingIds.has(c.id))
-                return [...prev, ...uniqueNewComments]
+        try {
+            const res = await commentService.getAll({
+                novelId,
+                chapterId,
+                paragraphId: paragraphId ?? undefined,
+                page: pageNum,
             })
+            if (res.success && res.data) {
+                if (reset) {
+                    setFlatComments(res.data.items as any)
+                } else {
+                    setFlatComments((prev) => {
+                        const newComments = res.data!.items as any
+                        const existingIds = new Set(prev.map((c) => c.id))
+                        const uniqueNewComments = newComments.filter((c: Comment) => !existingIds.has(c.id))
+                        return [...prev, ...uniqueNewComments]
+                    })
+                }
+                setHasMore(res.data.hasMore)
+                setTotal(res.data.total)
+            }
+        } catch (error) {
+            console.error("Failed to fetch comments:", error)
         }
-        setHasMore(res.hasMore)
-        setTotal(res.total)
         setLoading(false)
     }
 
@@ -195,8 +206,14 @@ export function DiscussionDrawer({
     const handleDrillDown = async (comment: Comment) => {
         setSubThreadRoot(comment)
         setSubThreadLoading(true)
-        const res = await getCommentReplies(comment.id)
-        setSubThreadComments(res.comments as any)
+        try {
+            const res = await commentService.getReplies(comment.id, novelId)
+            if (res.success && res.data) {
+                setSubThreadComments(res.data.items as any)
+            }
+        } catch (error) {
+            console.error("Failed to fetch replies:", error)
+        }
         setSubThreadLoading(false)
     }
 
@@ -412,18 +429,22 @@ function CommentFormDrawer({
         if (cooldown && cooldown > 0) return
 
         startTransition(async () => {
-            const res = await addComment({
-                content: data.content.trim(),
-                novelId,
-                chapterId,
-                paragraphId: paragraphId ?? undefined,
-            })
+            try {
+                const res = await commentService.create({
+                    content: data.content.trim(),
+                    novelId,
+                    chapterId,
+                    paragraphId: paragraphId ?? undefined,
+                })
 
-            if ('error' in res) {
-                alert(res.error)
-            } else {
-                reset({ content: "" })
-                onSuccess()
+                if (!res.success) {
+                    alert(res.error)
+                } else {
+                    reset({ content: "" })
+                    onSuccess()
+                }
+            } catch (error) {
+                console.error("Failed to add comment:", error)
             }
         })
     }
