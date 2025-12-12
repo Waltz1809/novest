@@ -444,6 +444,72 @@ export async function deleteNovel(novelId: number) {
 }
 
 /**
+ * Permanently delete a novel and ALL related data (chapters, volumes, comments, ratings, etc.)
+ * ⚠️ This is IRREVERSIBLE! Use with caution.
+ * Admin only.
+ */
+export async function permanentlyDeleteNovel(novelId: number, confirm: boolean = false) {
+    await checkAdmin();
+
+    if (!confirm) {
+        return { error: "Cần xác nhận để xoá vĩnh viễn. Hành động này không thể hoàn tác!" };
+    }
+
+    try {
+        // Get novel details for logging
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { title: true }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        // Get all volume IDs for this novel
+        const volumes = await db.volume.findMany({
+            where: { novelId },
+            select: { id: true },
+        });
+        const volumeIds = volumes.map(v => v.id);
+
+        // Delete in correct order to avoid FK constraint violations:
+        // 1. Delete chapters (they reference volumes)
+        if (volumeIds.length > 0) {
+            await db.chapter.deleteMany({
+                where: { volumeId: { in: volumeIds } },
+            });
+        }
+
+        // 2. Delete volumes (they reference novel)
+        await db.volume.deleteMany({
+            where: { novelId },
+        });
+
+        // 3. Delete the novel itself (other cascades like comments, ratings handled by schema)
+        await db.novel.delete({
+            where: { id: novelId },
+        });
+
+        // Log admin action
+        await logAdminAction(
+            "PERMANENT_DELETE_NOVEL",
+            String(novelId),
+            "NOVEL",
+            `Xoá vĩnh viễn truyện "${novel.title}" và tất cả dữ liệu liên quan`
+        );
+
+        revalidatePath("/admin/novels");
+        revalidatePath("/");
+
+        return { success: `Đã xoá vĩnh viễn truyện "${novel.title}"` };
+    } catch (error) {
+        console.error("Permanently delete novel error:", error);
+        return { error: "Lỗi khi xoá truyện. Có thể còn ràng buộc dữ liệu khác." };
+    }
+}
+
+/**
  * Get paginated tickets
  */
 export async function getTickets({

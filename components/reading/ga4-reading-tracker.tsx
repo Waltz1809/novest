@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-
-// Extend Window interface for gtag
-declare global {
-    interface Window {
-        gtag?: (...args: unknown[]) => void;
-    }
-}
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface GA4ReadingTrackerProps {
     novelSlug: string;
@@ -48,31 +42,27 @@ export function GA4ReadingTracker({
     const rafId = useRef<number | null>(null);
     const isScrollPending = useRef<boolean>(false);
 
-    // Send GA4 event (normal - for scroll milestones, etc.)
+    // Send GA4 event using @next/third-parties
     const sendEvent = useCallback((eventName: string, params: Record<string, unknown>) => {
-        if (typeof window !== "undefined" && window.gtag) {
-            window.gtag("event", eventName, {
-                ...params,
-                novel_slug: novelSlug,
-                chapter_slug: chapterSlug,
-                novel_title: novelTitle,
-                chapter_title: chapterTitle,
-            });
-        }
+        sendGAEvent('event', eventName, {
+            ...params,
+            novel_slug: novelSlug,
+            chapter_slug: chapterSlug,
+            novel_title: novelTitle,
+            chapter_title: chapterTitle,
+        });
     }, [novelSlug, chapterSlug, novelTitle, chapterTitle]);
 
     // Send GA4 event with beacon transport (for beforeunload - survives page close)
     const sendBeaconEvent = useCallback((eventName: string, params: Record<string, unknown>) => {
-        if (typeof window !== "undefined" && window.gtag) {
-            window.gtag("event", eventName, {
-                ...params,
-                novel_slug: novelSlug,
-                chapter_slug: chapterSlug,
-                novel_title: novelTitle,
-                chapter_title: chapterTitle,
-                transport_type: "beacon", // Survives page close
-            });
-        }
+        sendGAEvent('event', eventName, {
+            ...params,
+            novel_slug: novelSlug,
+            chapter_slug: chapterSlug,
+            novel_title: novelTitle,
+            chapter_title: chapterTitle,
+            transport_type: "beacon", // Survives page close
+        });
     }, [novelSlug, chapterSlug, novelTitle, chapterTitle]);
 
     // Calculate scroll percentage based on content container or document

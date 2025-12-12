@@ -10,9 +10,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, CheckCircle, XCircle, Trash2, RotateCcw, Eye, Loader2 } from "lucide-react";
+import { MoreHorizontal, CheckCircle, XCircle, Trash2, RotateCcw, Eye, Loader2, AlertTriangle } from "lucide-react";
 import { approveNovel, rejectNovel } from "@/actions/novel";
-import { deleteNovel } from "@/actions/admin";
+import { deleteNovel, permanentlyDeleteNovel } from "@/actions/admin";
 import Link from "next/link";
 
 interface NovelActionsDropdownProps {
@@ -92,6 +92,31 @@ export function NovelActionsDropdown({
             } else {
                 alert("Đã khôi phục truyện về trạng thái đã duyệt!");
                 router.refresh();
+            }
+        });
+    };
+
+    const handlePermanentDelete = () => {
+        // Double confirmation for permanent delete
+        if (!confirm(`⚠️ XOÁ VĨNH VIỄN truyện "${novelTitle}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!\nTất cả chapters, comments, ratings sẽ bị xoá.`)) return;
+
+        const confirmText = prompt(`Nhập "XOA" để xác nhận xoá vĩnh viễn:`);
+        if (confirmText !== "XOA") {
+            alert("Đã huỷ xoá.");
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                const result = await permanentlyDeleteNovel(novelId, true);
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    alert(result.success);
+                    router.refresh();
+                }
+            } catch (error) {
+                alert("Lỗi khi xoá truyện");
             }
         });
     };
@@ -188,12 +213,19 @@ export function NovelActionsDropdown({
                     </DropdownMenuItem>
                 )}
 
-                {/* REJECTED: Show Restore */}
+                {/* REJECTED: Show Restore and Permanent Delete */}
                 {approvalStatus === "REJECTED" && (
-                    <DropdownMenuItem onClick={handleRestore} className="flex items-center gap-2 cursor-pointer text-green-400 focus:text-green-400">
-                        <RotateCcw className="w-4 h-4" />
-                        Khôi phục (Duyệt)
-                    </DropdownMenuItem>
+                    <>
+                        <DropdownMenuItem onClick={handleRestore} className="flex items-center gap-2 cursor-pointer text-green-400 focus:text-green-400">
+                            <RotateCcw className="w-4 h-4" />
+                            Khôi phục (Duyệt)
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-white/10" />
+                        <DropdownMenuItem onClick={handlePermanentDelete} className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-500/10">
+                            <AlertTriangle className="w-4 h-4" />
+                            Xoá vĩnh viễn
+                        </DropdownMenuItem>
+                    </>
                 )}
             </DropdownMenuContent>
         </DropdownMenu>

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Be_Vietnam_Pro, Merriweather, Lora, Roboto, Noto_Sans, Nunito } from "next/font/google";
-import Script from "next/script";
+import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
@@ -84,22 +84,9 @@ export default async function RootLayout({
 
   return (
     <html lang="vi" suppressHydrationWarning>
-      {/* Google Analytics 4 - Only in production */}
+      {/* Google Analytics 4 - Using @next/third-parties for better integration */}
       {process.env.NODE_ENV === "production" && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}');
-            `}
-          </Script>
-        </>
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
       )}
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
