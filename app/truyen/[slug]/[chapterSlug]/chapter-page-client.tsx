@@ -356,6 +356,7 @@ export function ChapterPageClient({
                 }}
                 isHidden={showTOC}
                 themeId={config.theme}
+                isPending={novel.approvalStatus !== "APPROVED"}
             />
 
             {/* TOC Sidebar */}

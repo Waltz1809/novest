@@ -27,6 +27,7 @@ interface SpeedDialFabProps {
     onToggleComments: () => void
     isHidden?: boolean
     themeId?: string // Theme syncing with reader
+    isPending?: boolean // If novel is pending approval, link to /cho-duyet
 }
 
 export function SpeedDialFab({
@@ -38,7 +39,8 @@ export function SpeedDialFab({
     onToggleTOC,
     onToggleComments,
     isHidden = false,
-    themeId = "night"
+    themeId = "night",
+    isPending = false
 }: SpeedDialFabProps) {
     const [isOpen, setIsOpen] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -66,7 +68,7 @@ export function SpeedDialFab({
             id: "home",
             icon: Home,
             label: "Trang chính",
-            href: `/truyen/${novelSlug}`,
+            href: isPending ? `/truyen/${novelSlug}/cho-duyet` : `/truyen/${novelSlug}`,
         },
         {
             id: "toc",
