@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, BookOpen, Clock, AlertTriangle, ExternalLink } from "lucide-react";
+import { Eye, BookOpen, Clock, AlertTriangle, ExternalLink, FileEdit } from "lucide-react";
 
 interface NovelGridCardProps {
     id: number;
@@ -10,7 +10,7 @@ interface NovelGridCardProps {
     slug: string;
     coverImage: string | null;
     status: "ONGOING" | "COMPLETED" | "HIATUS";
-    approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
+    approvalStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
     viewCount: number;
     chapterCount: number;
 }
@@ -48,6 +48,7 @@ export default function NovelGridCard({
 
     // Approval status styles
     const approvalStyles = {
+        DRAFT: { bg: "bg-blue-500/20 border-blue-500/30", text: "text-blue-400", icon: FileEdit, label: "Nháp" },
         PENDING: { bg: "bg-amber-500/20 border-amber-500/30", text: "text-amber-400", icon: Clock, label: "Chờ duyệt" },
         REJECTED: { bg: "bg-red-500/20 border-red-500/30", text: "text-red-400", icon: AlertTriangle, label: "Bị từ chối" },
         APPROVED: null, // Don't show badge for approved
