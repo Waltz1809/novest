@@ -387,6 +387,7 @@ export function ChapterPageClient({
                 chapterId={chapter.id}
                 themeId={config.theme}
                 paragraphId={selectedParagraphId}
+                uploaderId={novel.uploaderId}
                 onCommentAdded={() => {
                     // Refresh paragraph comment counts
                     getChapterParagraphCommentCounts(chapter.id).then(counts => {

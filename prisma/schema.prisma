@@ -91,6 +91,9 @@ model User {
 
   // Translation groups
   translationGroups TranslationGroupMember[]
+
+  // Novel collaborations (co-uploader)
+  collaborations NovelCollaborator[]
 }
 
 model Ticket {
@@ -263,6 +266,9 @@ model Novel {
   // Translation group
   translationGroupId String?
   translationGroup   TranslationGroup? @relation(fields: [translationGroupId], references: [id], onDelete: SetNull)
+
+  // Co-uploaders (phó thớt)
+  collaborators NovelCollaborator[]
 
   @@index([approvalStatus])
   @@index([nation, novelFormat])
@@ -501,4 +507,18 @@ model TranslationGroupMember {
   user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([groupId, userId])
+}
+
+// ================= NOVEL COLLABORATOR (Co-uploader / Phó thớt) =================
+model NovelCollaborator {
+  id      Int      @id @default(autoincrement())
+  novelId Int
+  userId  String
+  addedAt DateTime @default(now())
+
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([novelId, userId])
+  @@index([userId])
 }

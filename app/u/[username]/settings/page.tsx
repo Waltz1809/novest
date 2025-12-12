@@ -26,6 +26,7 @@ export default function SettingsPage() {
     const [usernameMessage, setUsernameMessage] = useState("");
     const [showWelcome, setShowWelcome] = useState(false);
     const [isUsernameLocked, setIsUsernameLocked] = useState(false);
+    const [initialUsername, setInitialUsername] = useState<string>(""); // Real username from DB
 
     // Birthday state
     const [birthDay, setBirthDay] = useState<string>("");
@@ -54,10 +55,12 @@ export default function SettingsPage() {
             getUsernameStatus().then((data) => {
                 if (data) {
                     setUsername(data.username);
+                    setInitialUsername(data.username); // Save the real DB username
                     setIsUsernameLocked(data.isLocked);
                 } else {
                     // Fallback to session if server action fails
                     setUsername(session.user.username || "");
+                    setInitialUsername(session.user.username || "");
                 }
             });
 
@@ -93,10 +96,11 @@ export default function SettingsPage() {
         }
     }, [session, status, router]);
 
-    // Debounce username check
+    // Debounce username check (compare against initialUsername from DB, not stale session)
     useEffect(() => {
         const checkUsername = async () => {
-            if (!username || username === session?.user?.username) {
+            // Use initialUsername (from DB) instead of session.user.username to avoid stale data
+            if (!username || !initialUsername || username === initialUsername) {
                 setUsernameAvailable(null);
                 setUsernameMessage("");
                 return;
@@ -123,7 +127,7 @@ export default function SettingsPage() {
 
         const timeoutId = setTimeout(checkUsername, 500);
         return () => clearTimeout(timeoutId);
-    }, [username, session?.user?.username]);
+    }, [username, initialUsername]);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -515,7 +519,7 @@ export default function SettingsPage() {
                         <div className="pt-6 border-t border-white/5 flex items-center gap-4">
                             <button
                                 type="submit"
-                                disabled={isLoading || (usernameAvailable === false && username !== session.user.username)}
+                                disabled={isLoading || (usernameAvailable === false && username !== initialUsername)}
                                 className="bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

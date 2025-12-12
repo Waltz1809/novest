@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
-import { useForm } from "react-hook-form"
+import { useState, useEffect, useTransition, useRef } from "react"
 import { commentService } from "@/services"
 import { ArrowLeft, Loader2, MessageSquare, Send, User } from "lucide-react"
 import Image from "next/image"
@@ -9,6 +8,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Sheet, READING_THEMES, ReadingTheme } from "@/components/ui/sheet"
 import { CommentItem } from "./comment-section"
+import CommentEditor, { CommentEditorRef } from "@/components/editor/comment-editor"
 
 interface Comment {
     id: number
@@ -105,6 +105,7 @@ interface DiscussionDrawerProps {
     themeId?: string // Theme ID for syncing with reader theme
     paragraphId?: number | null // For paragraph-specific comments
     onCommentAdded?: () => void // Callback when comment is added
+    uploaderId?: string // For pin permission - uploader can pin comments
 }
 
 export function DiscussionDrawer({
@@ -115,6 +116,7 @@ export function DiscussionDrawer({
     themeId = "night",
     paragraphId = null,
     onCommentAdded,
+    uploaderId,
 }: DiscussionDrawerProps) {
     const [flatComments, setFlatComments] = useState<Comment[]>([])
     const [page, setPage] = useState(1)
@@ -283,6 +285,7 @@ export function DiscussionDrawer({
                                     chapterId={chapterId}
                                     onReplySuccess={handleCommentAdded}
                                     theme={theme}
+                                    uploaderId={uploaderId}
                                 />
                             </div>
 
@@ -312,6 +315,7 @@ export function DiscussionDrawer({
                                         theme={theme}
                                         onDrillDown={handleDrillDown}
                                         level={1}
+                                        uploaderId={uploaderId}
                                     />
                                 ))
                             )}
@@ -337,6 +341,7 @@ export function DiscussionDrawer({
                                     onReplySuccess={handleCommentAdded}
                                     theme={theme}
                                     onDrillDown={handleDrillDown}
+                                    uploaderId={uploaderId}
                                 />
                             ))
                         )
@@ -416,22 +421,20 @@ function CommentFormDrawer({
     theme: ReadingTheme
     cooldown?: number  // External cooldown from parent
 }) {
-    const { register, handleSubmit, reset } = useForm<{ content: string }>({
-        defaultValues: { content: "" }
-    })
+    const editorRef = useRef<CommentEditorRef>(null)
     const [isPending, startTransition] = useTransition()
-    const { data: session } = useSession()
 
-    const onSubmit = (data: { content: string }) => {
-        // Check if content exists and is not empty
-        if (!data.content || !data.content.trim()) return
+    const handleSubmit = (html: string) => {
+        // Strip HTML to check content
+        const textContent = html.replace(/<[^>]*>/g, '').trim()
+        if (!textContent) return
         // Check cooldown
         if (cooldown && cooldown > 0) return
 
         startTransition(async () => {
             try {
                 const res = await commentService.create({
-                    content: data.content.trim(),
+                    content: html,
                     novelId,
                     chapterId,
                     paragraphId: paragraphId ?? undefined,
@@ -440,7 +443,7 @@ function CommentFormDrawer({
                 if (!res.success) {
                     alert(res.error)
                 } else {
-                    reset({ content: "" })
+                    editorRef.current?.clear()
                     onSuccess()
                 }
             } catch (error) {
@@ -449,56 +452,14 @@ function CommentFormDrawer({
         })
     }
 
-    // Determine if this is a dark theme
-    const isDark = ["dark", "night", "onyx", "dusk"].includes(theme.id)
-    const isDisabled = isPending || (cooldown ?? 0) > 0
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 items-center">
-            <div className="shrink-0">
-                {session?.user?.image ? (
-                    <Image
-                        src={session.user.image}
-                        alt="You"
-                        width={36}
-                        height={36}
-                        className="rounded-full object-cover"
-                    />
-                ) : (
-                    <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: theme.ui.hover }}
-                    >
-                        <User className="w-5 h-5" style={{ color: theme.ui.text }} />
-                    </div>
-                )}
-            </div>
-            <div className="flex-1 flex items-center gap-2">
-                <input
-                    {...register("content", { required: true })}
-                    placeholder={(cooldown ?? 0) > 0 ? `Chờ ${cooldown}s...` : "Viết bình luận..."}
-                    className="flex-1 px-4 py-2.5 text-sm rounded-full focus:outline-none transition-colors"
-                    style={{
-                        backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                        borderColor: theme.ui.border,
-                        borderWidth: 1,
-                        borderStyle: "solid",
-                        color: theme.foreground,
-                    }}
-                    disabled={isDisabled}
-                />
-                <button
-                    type="submit"
-                    disabled={isDisabled}
-                    className="p-2.5 text-amber-500 hover:text-amber-400 disabled:opacity-50 transition-colors shrink-0"
-                >
-                    {isPending ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                        <Send className="w-5 h-5" />
-                    )}
-                </button>
-            </div>
-        </form>
+        <CommentEditor
+            ref={editorRef}
+            placeholder="Viết bình luận..."
+            onSubmit={handleSubmit}
+            disabled={isPending}
+            loading={isPending}
+            cooldown={cooldown}
+        />
     )
 }

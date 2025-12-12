@@ -30,9 +30,10 @@ interface Novel {
 interface EditNovelPageProps {
     novel: Novel;
     groups: Group[];
+    isOwner: boolean;
 }
 
-export default function EditNovelPageClient({ novel, groups }: EditNovelPageProps) {
+export default function EditNovelPageClient({ novel, groups, isOwner }: EditNovelPageProps) {
     return (
         <div className="min-h-screen bg-[#0B0C10] pb-20">
             <div className="w-full px-4 py-2 space-y-4">
@@ -50,9 +51,9 @@ export default function EditNovelPageClient({ novel, groups }: EditNovelPageProp
                     </Link>
                 </div>
 
-                {/* Content */}
+                {/* Content - NovelInfoEditor has its own internal 2-column layout */}
                 <section className="animate-in fade-in slide-in-from-left-4 duration-300">
-                    <NovelInfoEditor novel={novel} groups={groups} />
+                    <NovelInfoEditor novel={novel} groups={groups} isOwner={isOwner} />
                 </section>
             </div>
         </div>

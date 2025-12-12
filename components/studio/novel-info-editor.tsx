@@ -8,6 +8,7 @@ import ImageUpload from "@/components/novel/image-upload";
 import GenreSelector from "@/components/novel/genre-selector";
 import GroupSelector from "@/components/novel/group-selector";
 import CustomDropdown from "@/components/ui/custom-dropdown";
+import { CollaboratorManager } from "@/components/studio/collaborator-manager";
 
 interface Genre {
     id: number;
@@ -32,9 +33,10 @@ interface NovelInfoEditorProps {
         translationGroupId?: string | null;
     };
     groups: { id: string; name: string }[];
+    isOwner?: boolean;
 }
 
-export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps) {
+export default function NovelInfoEditor({ novel, groups, isOwner = false }: NovelInfoEditorProps) {
     const [formData, setFormData] = useState({
         title: novel.title,
         author: novel.author,
@@ -294,6 +296,11 @@ export default function NovelInfoEditor({ novel, groups }: NovelInfoEditorProps)
                                     </div>
                                 </label>
                             </div>
+                        </section>
+
+                        {/* Card: Phó Thớt - Shows after Cài đặt */}
+                        <section className="order-3 lg:order-0 mb-6">
+                            <CollaboratorManager novelId={novel.id} isOwner={isOwner} />
                         </section>
 
                         {/* Save Button - Shows last on mobile */}

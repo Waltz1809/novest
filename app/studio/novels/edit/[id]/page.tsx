@@ -40,6 +40,10 @@ export default async function EditNovelPage({ params }: PageProps) {
                     },
                 },
             },
+            // Include collaborators for permission check
+            collaborators: {
+                select: { userId: true }
+            }
         },
     });
 
@@ -47,11 +51,12 @@ export default async function EditNovelPage({ params }: PageProps) {
         redirect("/studio/novels");
     }
 
-    // Only uploader or admin/mod can edit
+    // Check permissions: uploader, collaborator, or admin/mod
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
     const isUploader = session.user.id === novel.uploaderId;
+    const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
 
-    if (!isAdmin && !isUploader) {
+    if (!isAdmin && !isUploader && !isCollaborator) {
         redirect("/studio/novels");
     }
 
@@ -59,5 +64,5 @@ export default async function EditNovelPage({ params }: PageProps) {
     const userGroups = await getMyGroups();
     const groups = userGroups.map(g => ({ id: g.id, name: g.name }));
 
-    return <EditNovelPageClient novel={novel} groups={groups} />;
+    return <EditNovelPageClient novel={novel} groups={groups} isOwner={isUploader} />;
 }
