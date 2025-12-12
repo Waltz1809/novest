@@ -9,6 +9,7 @@ import { DiscussionDrawer } from "@/components/comment/discussion-drawer"
 import { ReadingSettings, ReadingConfig, getFontFamily } from "@/components/novel/reading-settings"
 import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
 import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
+import { GA4ReadingTracker } from "@/components/reading/ga4-reading-tracker"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { getChapterParagraphCommentCounts } from "@/actions/interaction"
 import { clsx } from "clsx"
@@ -48,6 +49,7 @@ export function ChapterPageClient({
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const isRestoring = useRef(true)
     const settingsRef = useRef<HTMLDivElement>(null)
+    const contentRef = useRef<HTMLDivElement>(null) // For GA4 scroll tracking
 
     // Close settings panel when clicking outside
     useOnClickOutside(settingsRef, () => {
@@ -266,6 +268,7 @@ export function ChapterPageClient({
 
                 {/* Content */}
                 <div
+                    ref={contentRef}
                     className="relative"
                     style={{
                         fontSize: `${config.fontSize}px`,
@@ -386,6 +389,20 @@ export function ChapterPageClient({
                     })
                 }}
             />
+
+            {/* GA4 Reading Analytics - Only in production and when not locked */}
+            {process.env.NODE_ENV === "production" && !isLocked && (
+                <GA4ReadingTracker
+                    novelSlug={novel.slug}
+                    chapterSlug={chapter.slug}
+                    novelId={novel.id}
+                    chapterId={chapter.id}
+                    wordCount={chapter.wordCount || 0}
+                    novelTitle={novel.title}
+                    chapterTitle={chapter.title}
+                    contentRef={contentRef}
+                />
+            )}
         </div>
     )
 }
