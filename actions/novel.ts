@@ -150,35 +150,9 @@ export async function createNovel(data: {
             },
         });
 
-        // Notify all admins and moderators about new novel submission
-        try {
-            const admins = await db.user.findMany({
-                where: {
-                    role: { in: ["ADMIN", "MODERATOR"] },
-                },
-                select: { id: true },
-            });
-
-            const uploaderName = session.user.nickname || session.user.name || "Người dùng";
-
-            await Promise.all(
-                admins.map((admin) =>
-                    db.notification.create({
-                        data: {
-                            userId: admin.id,
-                            actorId: session.user.id,
-                            type: "NEW_NOVEL_SUBMISSION",
-                            resourceId: novel.slug, // Store slug for direct navigation
-                            resourceType: "NOVEL",
-                            message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
-                        },
-                    })
-                )
-            );
-        } catch (notifyError) {
-            console.error("Failed to notify admins:", notifyError);
-            // Don't fail the main action if notification fails
-        }
+        // NOTE: No notification sent here because novel is DRAFT.
+        // Admin notification will be sent when user submits for approval
+        // via submitNovelForApproval() after meeting 5k words requirement.
 
         revalidatePath("/studio/novels");
         revalidatePath("/");

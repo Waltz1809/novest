@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Be_Vietnam_Pro, Merriweather, Lora, Roboto, Noto_Sans, Nunito } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import FooterWrapper from "@/components/layout/footer-wrapper";
 import { Toaster } from "sonner";
+
+const GA_MEASUREMENT_ID = "G-48LS4WPMK7";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -81,6 +84,23 @@ export default async function RootLayout({
 
   return (
     <html lang="vi" suppressHydrationWarning>
+      {/* Google Analytics 4 - Only in production */}
+      {process.env.NODE_ENV === "production" && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+            `}
+          </Script>
+        </>
+      )}
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
       >
