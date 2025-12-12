@@ -1,149 +1,97 @@
-/* Import Be Vietnam Pro for Vietnamese text support */
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
-/* Import Merriweather for premium serif title */
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&display=swap");
 @import "@uploadthing/react/styles.css";
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
-    /* Deep Charcoal Background - Primary */
-    --background: 220 13% 5%; /* #0B0C10 */
+    --font-be-vietnam-pro: "Be Vietnam Pro", sans-serif;
+    --font-merriweather: "Merriweather", serif;
+    /* Light Mode Colors */
+    --background: 0 100% 99%;
+    --foreground: 218 23% 21%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 218 23% 21%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 23% 21%;
+
+    --primary: 351 74% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 231 96% 66%;
+    --secondary-foreground: 218 23% 21%;
+
+    --muted: 202 46% 85%;
+    --muted-foreground: 214 35% 37%;
+
+    --accent: 316 38% 23%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark Mode Colors */
+    --background: 220 13% 5%;
     --foreground: 0 0% 98%;
-    
-    /* Midnight Blue - Card Backgrounds */
-    --card: 222 47% 11%; /* #1E293B */
+
+    --card: 222 47% 11%;
     --card-foreground: 0 0% 98%;
-    
-    /* Popover/Dropdown */
+
     --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
-    
-    /* Electric Amber - Primary Accent */
-    --primary: 38 92% 50%; /* #F59E0B */
+
+    --primary: 38 92% 50%;
     --primary-foreground: 220 13% 5%;
-    
-    /* Jade Green - Secondary Accent */
-    --secondary: 160 84% 39%; /* #10B981 */
+
+    --secondary: 160 84% 39%;
     --secondary-foreground: 0 0% 98%;
-    
-    /* Muted Elements */
-    --muted: 215 25% 27%; /* #3B4A5C */
-    --muted-foreground: 215 16% 65%; /* #9CA3AF */
-    
-    /* Accent - Lighter Jade */
-    --accent: 160 84% 50%; /* #34D399 */
+
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 160 84% 50%;
     --accent-foreground: 220 13% 5%;
-    
-    /* Destructive - Cinnabar Red */
-    --destructive: 0 84% 60%; /* #EF4444 */
+
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    
-    /* Borders & Inputs */
-    --border: 215 25% 20%; /* Subtle dark border */
-    --input: 222 47% 11%;
-    --ring: 38 92% 50%; /* Amber focus ring */
-    
-    --radius: 0.5rem;
   }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-be-vietnam-pro), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-}
+@layer base {
+  body {
+    @apply bg-white text-foreground;
+  }
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  body {
+    font-family: var(--font-be-vietnam-pro), -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-/* Prevent horizontal overflow on mobile */
-html {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: var(--font-be-vietnam-pro), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.75; /* Generous line-height for Vietnamese diacritics */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* Premium noise texture for matte paper feel */
-.bg-noise {
-  position: relative;
-}
-
-.bg-noise::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.05;
-  z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  pointer-events: none;
-}
-
-/* Apply noise to body globally */
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.04;
-  z-index: -1;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  pointer-events: none;
-}
-
-
-/* Glow effect utility classes */
-.glow-amber {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-}
-
-.glow-amber-strong {
-  box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 60px rgba(245, 158, 11, 0.2);
-}
-
-/* Glowing gold text for dashboard stats */
-.glow-gold-text {
-  text-shadow: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 40px rgba(245, 158, 11, 0.2);
-}
-
-/* Custom scrollbar for dark theme */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(11, 12, 16, 0.5);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(52, 211, 153, 0.3);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(52, 211, 153, 0.5);
-}
-
-/* Hide scrollbar for horizontal shelves */
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-}
-.scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  .rank-number {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+    color: transparent;
+    font-family: var(--font-merriweather);
+    font-weight: 900;
+    line-height: 1;
+    position: absolute;
+    bottom: -15px;
+    left: 10px;
+    z-index: 10;
+    pointer-events: none;
+  }
 }
