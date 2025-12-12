@@ -22,6 +22,7 @@ interface ChapterPageClientProps {
     nextChapter: any
     isLocked: boolean
     session: Session | null
+    isUploader?: boolean  // For FAB edit button
 }
 
 export function ChapterPageClient({
@@ -31,6 +32,7 @@ export function ChapterPageClient({
     nextChapter,
     isLocked,
     session,
+    isUploader = false,
 }: ChapterPageClientProps) {
     const [config, setConfig] = useState<ReadingConfig>({
         font: "lora",
@@ -360,6 +362,9 @@ export function ChapterPageClient({
                 isHidden={showTOC}
                 themeId={config.theme}
                 isPending={novel.approvalStatus !== "APPROVED"}
+                isUploader={isUploader}
+                novelId={novel.id}
+                chapterId={chapter.id}
             />
 
             {/* TOC Sidebar */}

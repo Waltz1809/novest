@@ -53,6 +53,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
             title: true,
             slug: true,
             uploaderId: true, // For draft permission check
+            approvalStatus: true, // For FAB home button routing
             volumes: {
                 orderBy: { order: "asc" },
                 select: {
@@ -139,6 +140,7 @@ export default async function ChapterReadingPage({ params }: PageProps) {
             nextChapter={nextChapter}
             isLocked={isLocked}
             session={session}
+            isUploader={isUploader}
         />
     );
 }

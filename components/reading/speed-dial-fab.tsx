@@ -10,7 +10,8 @@ import {
     ChevronRight,
     List,
     MessageSquare,
-    X
+    X,
+    Pencil
 } from "lucide-react"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { clsx } from "clsx"
@@ -26,8 +27,11 @@ interface SpeedDialFabProps {
     onToggleTOC: () => void
     onToggleComments: () => void
     isHidden?: boolean
-    themeId?: string // Theme syncing with reader
-    isPending?: boolean // If novel is pending approval, link to /cho-duyet
+    themeId?: string
+    isPending?: boolean
+    isUploader?: boolean  // Show edit button for uploader
+    novelId?: number      // For edit chapter link
+    chapterId?: number    // For edit chapter link
 }
 
 export function SpeedDialFab({
@@ -40,7 +44,10 @@ export function SpeedDialFab({
     onToggleComments,
     isHidden = false,
     themeId = "night",
-    isPending = false
+    isPending = false,
+    isUploader = false,
+    novelId,
+    chapterId
 }: SpeedDialFabProps) {
     const [isOpen, setIsOpen] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -89,6 +96,16 @@ export function SpeedDialFab({
             },
         },
     ]
+
+    // Add edit button for uploader only
+    if (isUploader && novelId && chapterId) {
+        menuItems.splice(1, 0, {
+            id: "edit",
+            icon: Pencil,
+            label: "Sửa chương",
+            href: `/studio/novels/edit/${novelId}/chapters?edit=${chapterId}`,
+        })
+    }
 
     const navItems = [
         {

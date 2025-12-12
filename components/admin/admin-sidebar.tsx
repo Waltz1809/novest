@@ -18,7 +18,7 @@ import {
     X,
     Users2
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 const sidebarItems = [
@@ -79,6 +79,21 @@ export function AdminSidebar() {
     const visibleItems = sidebarItems.filter(item => !item.adminOnly || isAdmin);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    // Load collapsed state from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem("admin-sidebar-collapsed");
+        if (saved !== null) {
+            setIsCollapsed(JSON.parse(saved));
+        }
+    }, []);
+
+    // Toggle collapse and save to localStorage
+    const toggleCollapse = () => {
+        const newState = !isCollapsed;
+        setIsCollapsed(newState);
+        localStorage.setItem("admin-sidebar-collapsed", JSON.stringify(newState));
+    };
+
     return (
         <aside
             className={cn(
@@ -101,7 +116,7 @@ export function AdminSidebar() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        onClick={toggleCollapse}
                         className="text-gray-400 hover:text-white hover:bg-white/5"
                     >
                         {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}

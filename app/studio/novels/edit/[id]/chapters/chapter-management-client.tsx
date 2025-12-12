@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, Edit2, Plus, FileText } from "lucide-react";
@@ -34,13 +34,30 @@ interface Novel {
 
 interface ChapterManagementClientProps {
     novel: Novel;
+    initialEditChapterId?: number; // Auto-open chapter editor from query param
 }
 
-export default function ChapterManagementClient({ novel }: ChapterManagementClientProps) {
+export default function ChapterManagementClient({ novel, initialEditChapterId }: ChapterManagementClientProps) {
     const router = useRouter();
     const [expandedVolumes, setExpandedVolumes] = useState<Set<number>>(new Set());
     const [addingChapterToVolume, setAddingChapterToVolume] = useState<number | null>(null);
     const [editingChapterId, setEditingChapterId] = useState<number | null>(null);
+
+    // Auto-expand volume and open editor if initialEditChapterId is provided
+    useEffect(() => {
+        if (initialEditChapterId) {
+            // Find which volume contains this chapter
+            for (const volume of novel.volumes) {
+                const foundChapter = volume.chapters.find(ch => ch.id === initialEditChapterId);
+                if (foundChapter) {
+                    // Expand the volume and open editor
+                    setExpandedVolumes(new Set([volume.id]));
+                    setEditingChapterId(initialEditChapterId);
+                    break;
+                }
+            }
+        }
+    }, [initialEditChapterId, novel.volumes]);
 
     const toggleVolume = (volumeId: number) => {
         const newExpanded = new Set(expandedVolumes);

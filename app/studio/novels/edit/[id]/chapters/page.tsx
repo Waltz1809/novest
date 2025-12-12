@@ -5,10 +5,12 @@ import ChapterManagementClient from "./chapter-management-client";
 
 interface PageProps {
     params: Promise<{ id: string }>;
+    searchParams: Promise<{ edit?: string }>;
 }
 
-export default async function ChaptersPage({ params }: PageProps) {
+export default async function ChaptersPage({ params, searchParams }: PageProps) {
     const { id } = await params;
+    const { edit } = await searchParams;
     const session = await auth();
 
     if (!session?.user) {
@@ -52,5 +54,9 @@ export default async function ChaptersPage({ params }: PageProps) {
         redirect("/studio/novels");
     }
 
-    return <ChapterManagementClient novel={novel} />;
+    // Parse edit query param if present
+    const initialEditChapterId = edit ? parseInt(edit) : undefined;
+
+    return <ChapterManagementClient novel={novel} initialEditChapterId={initialEditChapterId} />;
 }
+

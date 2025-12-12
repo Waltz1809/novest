@@ -11,6 +11,7 @@ interface Chapter {
     createdAt: Date;
     content: string;
     price: number;
+    isDraft?: boolean; // Draft chapters show in orange
 }
 
 interface Volume {
@@ -131,12 +132,15 @@ export default function VolumeAccordion({
                                                     className="flex items-center justify-between p-3 bg-[#1E293B] rounded-lg border border-[#34D399]/10 hover:border-[#34D399]/30 transition-colors group"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-[#0B0C10] rounded-md text-[#34D399]">
+                                                        <div className={`p-2 bg-[#0B0C10] rounded-md ${chapter.isDraft ? 'text-[#F59E0B]' : 'text-[#34D399]'}`}>
                                                             <FileText className="w-4 h-4" />
                                                         </div>
                                                         <div>
-                                                            <div className="font-medium text-white group-hover:text-[#F59E0B] transition-colors">
+                                                            <div className={`font-medium ${chapter.isDraft ? 'text-[#F59E0B]' : 'text-white'} group-hover:text-[#FBBF24] transition-colors flex items-center gap-2`}>
                                                                 {chapter.title}
+                                                                {chapter.isDraft && (
+                                                                    <span className="text-xs px-1.5 py-0.5 bg-[#F59E0B]/20 text-[#F59E0B] rounded font-bold">Nháp</span>
+                                                                )}
                                                             </div>
                                                             <div className="text-xs text-[#9CA3AF] flex items-center gap-2">
                                                                 <span>Cập nhật: {new Date(chapter.createdAt).toLocaleDateString("vi-VN")}</span>
@@ -184,7 +188,8 @@ export default function VolumeAccordion({
                                     </button>
                                 )}
                             </div>
-                        )}
+                        )
+                        }
                     </div>
                 );
             })}
@@ -197,6 +202,6 @@ export default function VolumeAccordion({
                 <Plus className="w-5 h-5" />
                 Tạo tập mới
             </button>
-        </div>
+        </div >
     );
 }
