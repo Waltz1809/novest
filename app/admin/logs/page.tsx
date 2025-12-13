@@ -35,11 +35,11 @@ export default async function AdminLogsPage({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <Shield className="w-8 h-8 text-amber-500" />
+                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                    <Shield className="w-8 h-8 text-emerald-500" />
                     Nhật ký hoạt động
                 </h1>
-                <p className="text-gray-400 mt-1">
+                <p className="text-muted-foreground mt-1">
                     Theo dõi các hành động của Admin/Mod trên hệ thống.
                 </p>
             </div>
@@ -47,15 +47,15 @@ export default async function AdminLogsPage({
             {/* Filters */}
             <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-400">Lọc theo:</span>
+                    <Filter className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Lọc theo:</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                     <Link
                         href="/admin/logs"
                         className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${!action
-                                ? "bg-amber-500 text-slate-900 font-medium"
-                                : "bg-slate-800 text-gray-300 hover:bg-slate-700"
+                            ? "bg-emerald-500 text-white font-medium"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                             }`}
                     >
                         Tất cả
@@ -65,8 +65,8 @@ export default async function AdminLogsPage({
                             key={type}
                             href={`/admin/logs?action=${type}`}
                             className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${action === type
-                                    ? "bg-amber-500 text-slate-900 font-medium"
-                                    : "bg-slate-800 text-gray-300 hover:bg-slate-700"
+                                ? "bg-emerald-500 text-white font-medium"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 }`}
                         >
                             {ACTION_LABELS[type]?.label || type}
@@ -76,20 +76,20 @@ export default async function AdminLogsPage({
             </div>
 
             {/* Logs Table */}
-            <div className="bg-slate-900/50 rounded-xl border border-white/5 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-white/5">
-                            <th className="text-left px-6 py-4 text-xs text-gray-400 uppercase tracking-wide">
+                        <tr className="border-b border-gray-200">
+                            <th className="text-left px-6 py-4 text-xs text-muted-foreground uppercase tracking-wide">
                                 Thời gian
                             </th>
-                            <th className="text-left px-6 py-4 text-xs text-gray-400 uppercase tracking-wide">
+                            <th className="text-left px-6 py-4 text-xs text-muted-foreground uppercase tracking-wide">
                                 Người thực hiện
                             </th>
-                            <th className="text-left px-6 py-4 text-xs text-gray-400 uppercase tracking-wide">
+                            <th className="text-left px-6 py-4 text-xs text-muted-foreground uppercase tracking-wide">
                                 Hành động
                             </th>
-                            <th className="text-left px-6 py-4 text-xs text-gray-400 uppercase tracking-wide">
+                            <th className="text-left px-6 py-4 text-xs text-muted-foreground uppercase tracking-wide">
                                 Chi tiết
                             </th>
                         </tr>
@@ -97,7 +97,7 @@ export default async function AdminLogsPage({
                     <tbody>
                         {logs.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="text-center py-12 text-gray-500">
+                                <td colSpan={4} className="text-center py-12 text-muted-foreground">
                                     Chưa có hoạt động nào được ghi lại.
                                 </td>
                             </tr>
@@ -105,14 +105,14 @@ export default async function AdminLogsPage({
                             logs.map((log) => {
                                 const actionInfo = ACTION_LABELS[log.action] || {
                                     label: log.action,
-                                    color: "text-gray-400 bg-gray-500/10",
+                                    color: "text-gray-600 bg-gray-100",
                                 }
                                 return (
                                     <tr
                                         key={log.id}
-                                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                                     >
-                                        <td className="px-6 py-4 text-sm text-gray-400">
+                                        <td className="px-6 py-4 text-sm text-muted-foreground">
                                             {new Date(log.createdAt).toLocaleString("vi-VN")}
                                         </td>
                                         <td className="px-6 py-4">
@@ -126,15 +126,15 @@ export default async function AdminLogsPage({
                                                         className="rounded-full"
                                                     />
                                                 ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm text-gray-400">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm text-muted-foreground">
                                                         {(log.user.nickname || log.user.name || "?").charAt(0)}
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <p className="text-sm text-white font-medium">
+                                                    <p className="text-sm text-foreground font-medium">
                                                         {log.user.nickname || log.user.name}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{log.user.role}</p>
+                                                    <p className="text-xs text-muted-foreground">{log.user.role}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -145,7 +145,7 @@ export default async function AdminLogsPage({
                                                 {actionInfo.label}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-400 max-w-xs truncate">
+                                        <td className="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
                                             {log.details || "-"}
                                         </td>
                                     </tr>
@@ -162,18 +162,18 @@ export default async function AdminLogsPage({
                     {page > 1 && (
                         <Link
                             href={`/admin/logs?page=${page - 1}${action ? `&action=${action}` : ""}`}
-                            className="px-4 py-2 bg-slate-800 text-gray-300 rounded-lg hover:bg-slate-700 transition-colors"
+                            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
                         >
                             Trước
                         </Link>
                     )}
-                    <span className="text-gray-400 text-sm">
+                    <span className="text-muted-foreground text-sm">
                         Trang {page} / {metadata.totalPages}
                     </span>
                     {page < metadata.totalPages && (
                         <Link
                             href={`/admin/logs?page=${page + 1}${action ? `&action=${action}` : ""}`}
-                            className="px-4 py-2 bg-slate-800 text-gray-300 rounded-lg hover:bg-slate-700 transition-colors"
+                            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
                         >
                             Sau
                         </Link>

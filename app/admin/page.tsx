@@ -42,8 +42,8 @@ export default async function AdminDashboardPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="font-sans text-3xl font-bold text-white">Tổng quan</h1>
-                <p className="text-gray-400">Chào mừng trở lại, Quản trị viên.</p>
+                <h1 className="font-sans text-3xl font-bold text-foreground">Tổng quan</h1>
+                <p className="text-muted-foreground">Chào mừng trở lại, Quản trị viên.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
@@ -54,8 +54,8 @@ export default async function AdminDashboardPage() {
                     >
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-400">{card.title}</p>
-                                <h3 className="mt-2 font-sans text-3xl font-bold text-white">
+                                <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
+                                <h3 className="mt-2 font-sans text-3xl font-bold text-foreground">
                                     {card.value.toLocaleString()}
                                 </h3>
                             </div>
@@ -72,12 +72,12 @@ export default async function AdminDashboardPage() {
             </div>
 
             {/* Trạng thái hệ thống */}
-            <div className="rounded-xl border border-white/5 bg-white/2 p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="h-5 w-5 text-amber-500" />
-                    <h2 className="font-sans text-xl font-bold text-white">Trạng thái hệ thống</h2>
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h2 className="font-sans text-xl font-bold text-foreground">Trạng thái hệ thống</h2>
                 </div>
-                <p className="text-gray-400">Hệ thống hoạt động bình thường. Không phát hiện bất thường.</p>
+                <p className="text-muted-foreground">Hệ thống hoạt động bình thường. Không phát hiện bất thường.</p>
             </div>
         </div>
     );

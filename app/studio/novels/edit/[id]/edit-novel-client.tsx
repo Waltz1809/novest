@@ -35,17 +35,17 @@ interface EditNovelPageProps {
 
 export default function EditNovelPageClient({ novel, groups, isOwner }: EditNovelPageProps) {
     return (
-        <div className="min-h-screen bg-[#0B0C10] pb-20">
+        <div className="min-h-screen pb-20">
             <div className="w-full px-4 py-2 space-y-4">
                 {/* Tabs */}
-                <div className="flex items-center gap-4 border-b border-[#34D399]/20 mb-6">
-                    <div className="py-3 px-4 font-bold text-sm transition-all relative text-[#F59E0B]">
+                <div className="flex items-center gap-4 border-b border-gray-200 mb-6">
+                    <div className="py-3 px-4 font-bold text-sm transition-all relative text-primary">
                         Thông tin
-                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#F59E0B] glow-amber"></span>
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
                     </div>
                     <Link
                         href={`/studio/novels/edit/${novel.id}/chapters`}
-                        className="py-3 px-4 font-bold text-sm transition-all relative text-[#9CA3AF] hover:text-white"
+                        className="py-3 px-4 font-bold text-sm transition-all relative text-muted-foreground hover:text-foreground"
                     >
                         Danh sách tập & Chương
                     </Link>

@@ -210,16 +210,16 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xl font-bold text-gray-200">
-                    <MessageSquare className="h-6 w-6 text-[#F59E0B]" />
-                    <h3>Bình luận ({total})</h3>
+                <div className="flex items-center gap-2 text-lg md:text-xl font-bold text-foreground">
+                    <MessageSquare className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                    <span className="text-muted-foreground">({total})</span>
                 </div>
 
                 {/* Sorting Dropdown */}
                 <div className="relative">
                     <button
                         onClick={() => setShowSortDropdown(!showSortDropdown)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200 text-sm text-muted-foreground hover:bg-gray-200 transition-colors"
                     >
                         <span>{
                             sortBy === 'newest' ? 'Mới nhất' :
@@ -229,7 +229,7 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
                     </button>
 
                     {showSortDropdown && (
-                        <div className="absolute right-0 top-full mt-1 z-20 bg-[#1E293B] border border-white/10 rounded-lg shadow-lg overflow-hidden min-w-[140px]">
+                        <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden min-w-[140px]">
                             {[
                                 { value: 'newest', label: 'Mới nhất' },
                                 { value: 'votes', label: 'Votes cao' },
@@ -245,8 +245,8 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
                                     className={clsx(
                                         "w-full px-4 py-2 text-left text-sm transition-colors",
                                         sortBy === option.value
-                                            ? "bg-amber-500/10 text-amber-500"
-                                            : "text-gray-300 hover:bg-white/5"
+                                            ? "bg-primary/10 text-primary"
+                                            : "text-muted-foreground hover:bg-gray-50"
                                     )}
                                 >
                                     {option.label}
@@ -266,20 +266,20 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
                     cooldown={cooldown}
                 />
             ) : (
-                <div className="rounded-lg bg-[#0B0C10]/50 p-4 text-center border border-gray-800">
-                    <p className="mb-2 text-gray-400">
+                <div className="rounded-lg bg-gray-50 p-4 text-center border border-gray-200">
+                    <p className="mb-2 text-muted-foreground">
                         Bạn cần đăng nhập để bình luận.
                     </p>
                     <button
                         onClick={() => router.push("/login")}
-                        className="rounded-md bg-[#F59E0B] px-4 py-2 text-sm font-medium text-[#0B0C10] hover:bg-[#D97706]"
+                        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
                     >
                         Đăng nhập ngay
                     </button>
                 </div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-4 bg-white border border-gray-200 rounded-xl p-4 md:p-6">
                 {commentTree.map((comment) => (
                     <CommentItem
                         key={comment.id}
@@ -306,7 +306,7 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
                     {page > 1 && (
                         <button
                             onClick={handleLoadPrevious}
-                            className="text-sm font-medium text-[#F59E0B] hover:underline"
+                            className="text-sm font-medium text-primary hover:underline"
                         >
                             ← Bình luận mới hơn
                         </button>
@@ -314,7 +314,7 @@ export function CommentSection({ novelId, chapterId, themeId, uploaderId }: Comm
                     {hasMore && (
                         <button
                             onClick={handleLoadMore}
-                            className="text-sm font-medium text-[#F59E0B] hover:underline"
+                            className="text-sm font-medium text-primary hover:underline"
                         >
                             Bình luận cũ hơn →
                         </button>
@@ -512,9 +512,11 @@ export function CommentItem({
         setLoadingChildren(false)
     }
 
-    // Default theme fallback
-    const t = theme || READING_THEMES["night"]
-    const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
+    // Theme-based styling: use when `theme` prop is explicitly provided (for reader/drawer)
+    // Otherwise fall back to Tailwind classes for light mode (main comment section)
+    const useThemeStyles = !!theme
+    const t = theme || READING_THEMES["night"] // fallback for type safety but won't be used if useThemeStyles is false
+    const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : false
 
     const replyCount = comment.replyCount || comment.children?.length || 0
     const hasReplies = replyCount > 0
@@ -552,13 +554,19 @@ export function CommentItem({
                             />
                         ) : (
                             <div
-                                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border hover:border-amber-500 transition-colors"
-                                style={{
+                                className={clsx(
+                                    "flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border hover:border-amber-500 transition-colors",
+                                    !useThemeStyles && "border-2 border-primary/60 bg-gray-100"
+                                )}
+                                style={useThemeStyles ? {
                                     backgroundColor: t.ui.hover,
                                     borderColor: t.ui.border,
-                                }}
+                                } : undefined}
                             >
-                                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: t.ui.text }} />
+                                <User
+                                    className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                                    style={useThemeStyles ? { color: t.ui.text } : undefined}
+                                />
                             </div>
                         )}
                     </Link>
@@ -570,8 +578,11 @@ export function CommentItem({
                     <div className="flex items-center gap-2 flex-wrap">
                         <Link
                             href={`/u/${comment.user.username || comment.user.id}`}
-                            className="font-semibold text-sm hover:text-amber-500 transition-colors"
-                            style={{ color: t.foreground }}
+                            className={clsx(
+                                "font-semibold text-sm md:text-base hover:text-amber-500 transition-colors",
+                                !useThemeStyles && "text-foreground"
+                            )}
+                            style={useThemeStyles ? { color: t.foreground } : undefined}
                         >
                             {comment.user.nickname || comment.user.name || "Người dùng ẩn danh"}
                         </Link>
@@ -582,14 +593,23 @@ export function CommentItem({
                                     .then(() => alert("Đã sao chép link!"))
                                     .catch(() => { })
                             }}
-                            className="text-xs hover:text-amber-500 transition-colors cursor-pointer"
-                            style={{ color: t.ui.text, opacity: 0.6 }}
+                            className={clsx(
+                                "text-sm hover:text-amber-500 transition-colors cursor-pointer",
+                                !useThemeStyles && "text-muted-foreground"
+                            )}
+                            style={useThemeStyles ? { color: t.ui.text, opacity: 0.6 } : undefined}
                             title="Click để sao chép link"
                         >
                             {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
                         </button>
                         {isEdited && (
-                            <span className="text-xs italic" style={{ color: t.ui.text, opacity: 0.5 }}>
+                            <span
+                                className={clsx(
+                                    "text-sm italic",
+                                    !useThemeStyles && "text-muted-foreground"
+                                )}
+                                style={useThemeStyles ? { color: t.ui.text, opacity: 0.5 } : undefined}
+                            >
                                 (đã chỉnh sửa)
                             </span>
                         )}
@@ -618,8 +638,17 @@ export function CommentItem({
                             <span style={{ color: "#f59e0b" }} className="font-medium">
                                 @{comment.parent.user.nickname || comment.parent.user.name || "User"}
                             </span>
-                            <span style={{ color: t.ui.text, opacity: 0.5 }}>·</span>
-                            <span className="truncate max-w-[150px] sm:max-w-[200px]" style={{ color: t.ui.text, opacity: 0.7 }}>
+                            <span
+                                className={!useThemeStyles ? "text-muted-foreground" : undefined}
+                                style={useThemeStyles ? { color: t.ui.text, opacity: 0.5 } : undefined}
+                            >·</span>
+                            <span
+                                className={clsx(
+                                    "truncate max-w-[150px] sm:max-w-[200px]",
+                                    !useThemeStyles && "text-muted-foreground"
+                                )}
+                                style={useThemeStyles ? { color: t.ui.text, opacity: 0.7 } : undefined}
+                            >
                                 {comment.parent.content.length > 30
                                     ? comment.parent.content.slice(0, 30) + "..."
                                     : comment.parent.content}
@@ -664,8 +693,11 @@ export function CommentItem({
                         </div>
                     ) : (
                         <div
-                            className="text-sm prose prose-sm prose-invert max-w-none [&_p]:my-0 [&_strong]:text-inherit [&_em]:text-inherit"
-                            style={{ color: t.foreground, opacity: 0.9 }}
+                            className={clsx(
+                                "text-sm md:text-base prose prose-sm md:prose-base max-w-none [&_p]:my-0 [&_strong]:text-inherit [&_em]:text-inherit",
+                                !useThemeStyles && "text-foreground"
+                            )}
+                            style={useThemeStyles ? { color: t.foreground } : undefined}
                             dangerouslySetInnerHTML={{ __html: localContent }}
                         />
                     )}
@@ -682,79 +714,88 @@ export function CommentItem({
                                 onClick={() => handleVote("UPVOTE")}
                                 className={clsx(
                                     "p-1 rounded transition-colors",
-                                    userVote === "UPVOTE" ? "text-amber-500" : ""
+                                    userVote === "UPVOTE" ? "text-amber-500" : (!useThemeStyles && "text-gray-500 hover:text-gray-700")
                                 )}
-                                style={{ color: userVote === "UPVOTE" ? undefined : t.ui.text }}
+                                style={useThemeStyles && userVote !== "UPVOTE" ? { color: t.ui.text } : undefined}
                             >
-                                <ThumbsUp className={clsx("w-3 h-3", userVote === "UPVOTE" && "fill-current")} />
+                                <ThumbsUp className={clsx("w-3.5 h-3.5", userVote === "UPVOTE" && "fill-current")} />
                             </button>
-                            <span className={clsx(
-                                "text-xs font-medium min-w-[1ch] text-center",
-                                userVote === "UPVOTE" ? "text-amber-500" :
-                                    userVote === "DOWNVOTE" ? "text-red-500" : ""
-                            )} style={{ color: !userVote ? t.ui.text : undefined }}>
+                            <span
+                                className={clsx(
+                                    "text-sm font-medium min-w-[1.5ch] text-center",
+                                    userVote === "UPVOTE" ? "text-amber-500" :
+                                        userVote === "DOWNVOTE" ? "text-red-500" : (!useThemeStyles && "text-gray-600")
+                                )}
+                                style={useThemeStyles && !userVote ? { color: t.ui.text } : undefined}
+                            >
                                 {score}
                             </span>
                             <button
                                 onClick={() => handleVote("DOWNVOTE")}
                                 className={clsx(
                                     "p-1 rounded transition-colors",
-                                    userVote === "DOWNVOTE" ? "text-red-500" : ""
+                                    userVote === "DOWNVOTE" ? "text-red-500" : (!useThemeStyles && "text-gray-500 hover:text-gray-700")
                                 )}
-                                style={{ color: userVote === "DOWNVOTE" ? undefined : t.ui.text }}
+                                style={useThemeStyles && userVote !== "DOWNVOTE" ? { color: t.ui.text } : undefined}
                             >
-                                <ThumbsDown className={clsx("w-3 h-3", userVote === "DOWNVOTE" && "fill-current")} />
+                                <ThumbsDown className={clsx("w-3.5 h-3.5", userVote === "DOWNVOTE" && "fill-current")} />
                             </button>
                         </div>
 
                         {session && (
                             <button
                                 onClick={() => setIsReplying(!isReplying)}
-                                className="flex items-center gap-1 text-xs font-medium hover:text-amber-500 transition-colors"
-                                style={{ color: t.ui.text }}
+                                className={clsx(
+                                    "flex items-center gap-1 text-sm font-medium hover:text-amber-500 transition-colors",
+                                    !useThemeStyles && "text-gray-600"
+                                )}
+                                style={useThemeStyles ? { color: t.ui.text } : undefined}
                             >
-                                <Reply className="h-3 w-3" />
+                                <Reply className="h-3.5 w-3.5" />
                                 Trả lời
                             </button>
                         )}
 
-                        {/* Edit button - visible within 10 min */}
                         {isEditAllowed && !isEditing && (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="flex items-center gap-1 text-xs font-medium hover:text-blue-400 transition-colors"
-                                style={{ color: t.ui.text }}
+                                className={clsx(
+                                    "flex items-center gap-1 text-sm font-medium hover:text-blue-500 transition-colors",
+                                    !useThemeStyles && "text-gray-600"
+                                )}
+                                style={useThemeStyles ? { color: t.ui.text } : undefined}
                             >
-                                <Pencil className="h-3 w-3" />
+                                <Pencil className="h-3.5 w-3.5" />
                                 Sửa
                             </button>
                         )}
 
-                        {/* Delete button */}
                         {canDelete && (
                             <button
                                 onClick={handleDelete}
                                 disabled={isPending}
-                                className="flex items-center gap-1 text-xs font-medium hover:text-red-400 transition-colors"
-                                style={{ color: t.ui.text }}
+                                className={clsx(
+                                    "flex items-center gap-1 text-sm font-medium hover:text-red-500 transition-colors",
+                                    !useThemeStyles && "text-gray-600"
+                                )}
+                                style={useThemeStyles ? { color: t.ui.text } : undefined}
                             >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-3.5 w-3.5" />
                                 Xóa
                             </button>
                         )}
 
-                        {/* Pin button - admin/mod/uploader */}
                         {canPin && (
                             <button
                                 onClick={handlePin}
                                 disabled={isPending}
                                 className={clsx(
-                                    "flex items-center gap-1 text-xs font-medium transition-colors",
-                                    localIsPinned ? "text-amber-500" : "hover:text-amber-500"
+                                    "flex items-center gap-1 text-sm font-medium transition-colors",
+                                    localIsPinned ? "text-amber-500" : (useThemeStyles ? "hover:text-amber-500" : "text-gray-600 hover:text-amber-500")
                                 )}
-                                style={{ color: localIsPinned ? undefined : t.ui.text }}
+                                style={useThemeStyles && !localIsPinned ? { color: t.ui.text } : undefined}
                             >
-                                <Pin className={clsx("h-3 w-3", localIsPinned && "fill-current")} />
+                                <Pin className={clsx("h-3.5 w-3.5", localIsPinned && "fill-current")} />
                                 {localIsPinned ? "Bỏ ghim" : "Ghim"}
                             </button>
                         )}

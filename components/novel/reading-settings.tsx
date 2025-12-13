@@ -116,7 +116,7 @@ export function ReadingSettings({
                 <h3 className="font-bold text-lg">Cài đặt hiển thị</h3>
                 <button
                     onClick={resetConfig}
-                    className="text-sm text-amber-500 hover:text-amber-600 font-medium flex items-center gap-1"
+                    className="text-sm text-emerald-500 hover:text-emerald-600 font-medium flex items-center gap-1"
                 >
                     <RotateCcw className="w-3.5 h-3.5" /> Mặc định
                 </button>
@@ -162,7 +162,7 @@ export function ReadingSettings({
                                     className={clsx(
                                         "w-full px-4 py-2.5 text-left text-sm transition-colors",
                                         config.font === fontOpt.id
-                                            ? "bg-amber-500/20 text-amber-500"
+                                            ? "bg-emerald-500/20 text-emerald-500"
                                             : isDarkPanel
                                                 ? "text-gray-200 hover:bg-white/10"
                                                 : "text-gray-800 hover:bg-black/5"
@@ -314,7 +314,7 @@ export function ReadingSettings({
                                 className={clsx(
                                     "w-9 h-9 rounded-full border-2 flex items-center justify-center shadow-sm transition-all pointer-events-none",
                                     config.theme === themeOption.id
-                                        ? "border-amber-500 scale-110"
+                                        ? "border-emerald-500 scale-110"
                                         : isDarkPanel
                                             ? "border-transparent group-hover:border-gray-600"
                                             : "border-transparent group-hover:border-gray-300"

@@ -97,27 +97,27 @@ export function AdminSidebar() {
     return (
         <aside
             className={cn(
-                "fixed left-0 top-0 z-40 h-screen border-r border-white/5 bg-[#0B0C10] text-gray-300 transition-all duration-300",
+                "fixed left-0 top-0 z-40 h-screen border-r border-gray-200 bg-white text-foreground shadow-sm transition-all duration-300",
                 isCollapsed ? "w-20" : "w-64"
             )}
         >
             <div className="flex h-full flex-col">
                 {/* Header */}
                 <div className={cn(
-                    "flex h-16 items-center border-b border-white/5",
+                    "flex h-16 items-center border-b border-gray-200",
                     isCollapsed ? "justify-center" : "justify-between px-6"
                 )}>
                     {!isCollapsed && (
-                        <Link href="/" className="flex items-center gap-2 font-bold text-white font-family-name:var(--font-be-vietnam-pro)">
-                            <span className="text-amber-500">Novest</span>
-                            <span className="text-xs font-normal text-gray-500">Admin</span>
+                        <Link href="/" className="flex items-center gap-2 font-bold text-foreground font-family-name:var(--font-be-vietnam-pro)">
+                            <span className="text-primary">Novest</span>
+                            <span className="text-xs font-normal text-muted-foreground">Admin</span>
                         </Link>
                     )}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={toggleCollapse}
-                        className="text-gray-400 hover:text-white hover:bg-white/5"
+                        className="text-muted-foreground hover:text-foreground hover:bg-gray-100"
                     >
                         {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
                     </Button>
@@ -135,8 +135,8 @@ export function AdminSidebar() {
                                     "group flex items-center rounded-lg transition-all duration-200 font-family-name:var(--font-be-vietnam-pro)",
                                     isCollapsed ? "justify-center p-3" : "gap-3 px-3 py-2.5",
                                     isActive
-                                        ? "bg-amber-500/10 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                                        : "hover:bg-white/5 hover:text-white"
+                                        ? "bg-primary/10 text-primary shadow-sm"
+                                        : "hover:bg-gray-100 hover:text-foreground"
                                 )}
                                 title={isCollapsed ? item.title : undefined}
                             >
@@ -144,7 +144,7 @@ export function AdminSidebar() {
                                     className={cn(
                                         "transition-colors",
                                         isCollapsed ? "h-6 w-6" : "h-5 w-5",
-                                        isActive ? "text-amber-500" : "text-gray-500 group-hover:text-white"
+                                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                                     )}
                                 />
                                 {!isCollapsed && <span className="text-sm font-medium">{item.title}</span>}
@@ -154,11 +154,11 @@ export function AdminSidebar() {
                 </nav>
 
                 {/* Footer */}
-                <div className="border-t border-white/5 p-4">
+                <div className="border-t border-gray-200 p-4">
                     <Link
                         href="/"
                         className={cn(
-                            "flex items-center rounded-lg text-gray-400 transition-colors hover:bg-white/5 hover:text-white font-family-name:var(--font-be-vietnam-pro)",
+                            "flex items-center rounded-lg text-muted-foreground transition-colors hover:bg-gray-100 hover:text-foreground font-family-name:var(--font-be-vietnam-pro)",
                             isCollapsed ? "justify-center p-3" : "gap-3 px-3 py-2.5 w-full"
                         )}
                         title={isCollapsed ? "Exit Admin" : undefined}

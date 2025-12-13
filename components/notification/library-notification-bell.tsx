@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export function LibraryNotificationBell() {
   const [updateCount, setUpdateCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   async function loadUpdateCount() {
     const count = await libraryService.getUpdateCount();
@@ -24,6 +25,7 @@ export function LibraryNotificationBell() {
   }
 
   useEffect(() => {
+    setMounted(true);
     const fetch = () => {
       loadUpdateCount();
     };
@@ -45,7 +47,7 @@ export function LibraryNotificationBell() {
           aria-label="Tủ truyện cập nhật"
         >
           <BookMarked size={24} />
-          {updateCount > 0 && (
+          {mounted && updateCount > 0 && (
             <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full min-w-[20px]">
               {updateCount > 99 ? "99+" : updateCount}
             </span>

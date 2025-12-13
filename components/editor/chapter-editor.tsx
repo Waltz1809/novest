@@ -55,7 +55,7 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
         },
         editorProps: {
             attributes: {
-                class: "prose prose-invert max-w-none focus:outline-none min-h-[500px] px-6 py-4",
+                class: "prose max-w-none focus:outline-none min-h-[500px] px-6 py-4",
             },
             // Strip all inline styles, backgrounds, and colors when pasting
             transformPastedHTML(html) {
@@ -100,8 +100,8 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
         <button
             onClick={onClick}
             className={`p-2 rounded transition-colors ${isActive
-                ? "bg-[#F59E0B] text-[#0B0C10]"
-                : "text-[#9CA3AF] hover:bg-[#1E293B] hover:text-white"
+                ? "bg-primary text-white"
+                : "text-muted-foreground hover:bg-gray-100 hover:text-foreground"
                 }`}
             title={tooltip}
             type="button"
@@ -111,11 +111,11 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
     );
 
     return (
-        <div className="bg-[#0f172a] border border-white/10 rounded-lg overflow-hidden h-full flex flex-col">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full flex flex-col">
             {/* Toolbar */}
-            <div className="sticky top-0 z-10 bg-[#1E293B] border-b border-white/10 p-2 flex flex-wrap gap-1">
+            <div className="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 p-2 flex flex-wrap gap-1">
                 {/* Text Formatting */}
-                <div className="flex gap-1 pr-2 border-r border-white/10">
+                <div className="flex gap-1 pr-2 border-r border-gray-200">
                     <ToolbarButton
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         isActive={editor.isActive("bold")}
@@ -143,7 +143,7 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                 </div>
 
                 {/* Headings */}
-                <div className="flex gap-1 pr-2 border-r border-white/10">
+                <div className="flex gap-1 pr-2 border-r border-gray-200">
                     <ToolbarButton
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                         isActive={editor.isActive("heading", { level: 1 })}
@@ -177,7 +177,7 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                 </div>
 
                 {/* Lists */}
-                <div className="flex gap-1 pr-2 border-r border-white/10">
+                <div className="flex gap-1 pr-2 border-r border-gray-200">
                     <ToolbarButton
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         isActive={editor.isActive("bulletList")}
@@ -212,15 +212,15 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
             {/* Image URL Dialog */}
             {showImageDialog && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-[#1E293B] border border-white/10 rounded-lg p-6 w-full max-w-md">
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 w-full max-w-md shadow-xl">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-white">Chèn ảnh từ URL</h3>
+                            <h3 className="text-lg font-bold text-foreground">Chèn ảnh từ URL</h3>
                             <button
                                 onClick={() => {
                                     setShowImageDialog(false);
                                     setImageUrl("");
                                 }}
-                                className="text-[#9CA3AF] hover:text-white transition-colors"
+                                className="text-muted-foreground hover:text-foreground transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -228,7 +228,7 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-sm text-[#9CA3AF] mb-2 block">
+                                <label className="text-sm text-muted-foreground mb-2 block">
                                     URL ảnh công khai
                                 </label>
                                 <input
@@ -236,13 +236,13 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                                     value={imageUrl}
                                     onChange={(e) => setImageUrl(e.target.value)}
                                     placeholder="https://example.com/image.jpg"
-                                    className="w-full px-4 py-2 bg-[#0f172a] border border-white/10 rounded-lg text-white placeholder:text-[#9CA3AF] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none"
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                                 />
                             </div>
 
                             {imageUrl && (
-                                <div className="border border-white/10 rounded-lg p-2 bg-[#0f172a]">
-                                    <p className="text-xs text-[#9CA3AF] mb-2">Xem trước:</p>
+                                <div className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+                                    <p className="text-xs text-muted-foreground mb-2">Xem trước:</p>
                                     <img
                                         src={imageUrl}
                                         alt="Preview"
@@ -260,14 +260,14 @@ export default function ChapterEditor({ content, onChange, placeholder = "Bắt 
                                         setShowImageDialog(false);
                                         setImageUrl("");
                                     }}
-                                    className="px-4 py-2 text-[#9CA3AF] hover:text-white transition-colors"
+                                    className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Hủy
                                 </button>
                                 <button
                                     onClick={addImage}
                                     disabled={!imageUrl}
-                                    className="px-4 py-2 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Chèn ảnh
                                 </button>

@@ -70,7 +70,7 @@ export default function MainHeader() {
                 label="Xếp hạng"
               />
               <MenuLink
-                href="/library"
+                href="/tu-truyen"
                 icon={Library}
                 label="Tủ truyện"
               />

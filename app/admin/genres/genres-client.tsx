@@ -95,8 +95,8 @@ export default function GenresClient({ genres }: GenresClientProps) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Quản lý Thể loại</h1>
-                    <p className="text-[#9CA3AF] mt-1">
+                    <h1 className="text-3xl font-bold text-foreground">Quản lý Thể loại</h1>
+                    <p className="text-muted-foreground mt-1">
                         {genres.length} thể loại
                     </p>
                 </div>
@@ -104,20 +104,20 @@ export default function GenresClient({ genres }: GenresClientProps) {
 
             {/* Messages */}
             {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+                <div className="p-4 bg-red-100 border border-red-200 rounded-lg text-red-700">
                     {error}
                 </div>
             )}
             {success && (
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400">
+                <div className="p-4 bg-green-100 border border-green-200 rounded-lg text-green-700">
                     {success}
                 </div>
             )}
 
             {/* Add new genre */}
-            <div className="bg-[#1E293B] rounded-xl border border-white/10 p-4">
-                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-[#F59E0B]" />
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-emerald-500" />
                     Thêm thể loại mới
                 </h2>
                 <div className="flex gap-3">
@@ -127,13 +127,13 @@ export default function GenresClient({ genres }: GenresClientProps) {
                         onChange={(e) => setNewName(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                         placeholder="Tên thể loại (VD: Huyền Huyễn, Kiếm Hiệp...)"
-                        className="flex-1 px-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none"
+                        className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground placeholder:text-muted-foreground focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none"
                         disabled={isPending}
                     />
                     <button
                         onClick={handleCreate}
                         disabled={isPending || !newName.trim()}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isPending ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -146,24 +146,24 @@ export default function GenresClient({ genres }: GenresClientProps) {
             </div>
 
             {/* Genres list */}
-            <div className="bg-[#1E293B] rounded-xl border border-white/10 overflow-hidden">
-                <div className="p-4 border-b border-white/10">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-[#F59E0B]" />
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-emerald-500" />
                         Danh sách thể loại
                     </h2>
                 </div>
 
                 {genres.length === 0 ? (
-                    <div className="p-8 text-center text-[#9CA3AF]">
+                    <div className="p-8 text-center text-muted-foreground">
                         Chưa có thể loại nào. Thêm thể loại đầu tiên ở trên!
                     </div>
                 ) : (
-                    <div className="divide-y divide-white/5">
+                    <div className="divide-y divide-gray-100">
                         {genres.map((genre) => (
                             <div
                                 key={genre.id}
-                                className="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors"
+                                className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
                             >
                                 {editingId === genre.id ? (
                                     /* Edit mode */
@@ -176,7 +176,7 @@ export default function GenresClient({ genres }: GenresClientProps) {
                                                 if (e.key === "Enter") handleUpdate(genre.id);
                                                 if (e.key === "Escape") cancelEdit();
                                             }}
-                                            className="flex-1 px-3 py-2 bg-[#0B0C10] border border-[#F59E0B] rounded-lg text-white focus:ring-2 focus:ring-[#F59E0B]/20 outline-none"
+                                            className="flex-1 px-3 py-2 bg-gray-50 border border-emerald-500 rounded-lg text-foreground focus:ring-2 focus:ring-emerald-500/20 outline-none"
                                             autoFocus
                                             disabled={isPending}
                                         />
@@ -190,7 +190,7 @@ export default function GenresClient({ genres }: GenresClientProps) {
                                         <button
                                             onClick={cancelEdit}
                                             disabled={isPending}
-                                            className="px-4 py-2 text-[#9CA3AF] hover:text-white transition-colors"
+                                            className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                                         >
                                             Hủy
                                         </button>
@@ -199,17 +199,17 @@ export default function GenresClient({ genres }: GenresClientProps) {
                                     /* View mode */
                                     <>
                                         <div className="flex-1">
-                                            <span className="text-white font-medium">{genre.name}</span>
-                                            <span className="text-[#9CA3AF] text-sm ml-2">/{genre.slug}</span>
+                                            <span className="text-foreground font-medium">{genre.name}</span>
+                                            <span className="text-muted-foreground text-sm ml-2">/{genre.slug}</span>
                                         </div>
-                                        <div className="flex items-center gap-1 text-[#9CA3AF] text-sm">
+                                        <div className="flex items-center gap-1 text-muted-foreground text-sm">
                                             <BookOpen className="w-4 h-4" />
                                             <span>{genre._count.novels} truyện</span>
                                         </div>
                                         <button
                                             onClick={() => startEdit(genre)}
                                             disabled={isPending}
-                                            className="p-2 text-[#9CA3AF] hover:text-[#F59E0B] hover:bg-[#F59E0B]/10 rounded-lg transition-colors"
+                                            className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                                             title="Sửa"
                                         >
                                             <Pencil className="w-4 h-4" />
@@ -217,7 +217,7 @@ export default function GenresClient({ genres }: GenresClientProps) {
                                         <button
                                             onClick={() => handleDelete(genre.id, genre.name)}
                                             disabled={isPending || genre._count.novels > 0}
-                                            className="p-2 text-[#9CA3AF] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                             title={genre._count.novels > 0 ? "Không thể xóa - có truyện đang dùng" : "Xóa"}
                                         >
                                             <Trash2 className="w-4 h-4" />

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import MainHeader from "@/components/layout/main-header";
+import StudioHeader from "@/components/layout/studio-header";
 import DashboardLayoutClient from "@/components/studio/dashboard-layout-client";
 
 import { db } from "@/lib/db";
@@ -24,15 +24,15 @@ export default async function DashboardLayout({
   });
 
   return (
-    <div className="min-h-screen bg-[#0B0C10] flex flex-col relative">
+    <div className="min-h-screen bg-gray-50 flex flex-col relative">
       {/* Textured Background Overlay */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-[0.03] bg-noise-pattern"
+        className="fixed inset-0 pointer-events-none opacity-[0.02] bg-noise-pattern"
         style={{ zIndex: 0 }}
       />
 
-      {/* Header */}
-      <MainHeader />
+      {/* Simplified Studio Header */}
+      <StudioHeader user={session.user} />
 
       <DashboardLayoutClient
         userRole={session.user.role}

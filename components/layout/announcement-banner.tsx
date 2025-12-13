@@ -79,24 +79,24 @@ export function AnnouncementBanner() {
 
             {/* Modal */}
             <div
-                className={`relative w-full max-w-lg bg-linear-to-br from-[#1E293B]/95 to-[#0F172A]/95 
-                    backdrop-blur-xl rounded-2xl border border-[#F59E0B]/30 shadow-2xl shadow-[#F59E0B]/10
+                className={`relative w-full max-w-lg bg-white 
+                    backdrop-blur-xl rounded-2xl border border-amber-200 shadow-2xl
                     transform transition-all duration-300 ${isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
                     }`}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-[#F59E0B]/20">
-                            <Megaphone className="w-5 h-5 text-[#F59E0B]" />
+                        <div className="p-2 rounded-xl bg-amber-100">
+                            <Megaphone className="w-5 h-5 text-amber-600" />
                         </div>
-                        <h2 className="text-lg font-semibold text-white">
+                        <h2 className="text-lg font-semibold text-foreground">
                             Thông báo
                         </h2>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-gray-100 transition-colors"
                         title="Đóng"
                     >
                         <X className="w-5 h-5" />
@@ -106,15 +106,15 @@ export function AnnouncementBanner() {
                 {/* Content */}
                 <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
                     {announcement.title && (
-                        <h3 className="text-base font-semibold text-[#F59E0B] mb-3">
+                        <h3 className="text-base font-semibold text-amber-600 mb-3">
                             {announcement.title}
                         </h3>
                     )}
                     <div
-                        className="prose prose-sm prose-invert max-w-none text-gray-200 leading-relaxed
+                        className="prose prose-sm max-w-none text-muted-foreground leading-relaxed
                             prose-p:my-2 prose-p:text-sm
-                            prose-strong:text-[#F59E0B]
-                            prose-a:text-[#34D399] prose-a:no-underline hover:prose-a:underline
+                            prose-strong:text-amber-600
+                            prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline
                             prose-img:rounded-lg prose-img:max-h-64 prose-img:w-auto prose-img:mx-auto prose-img:my-3
                             prose-ul:my-2 prose-li:my-0.5"
                         dangerouslySetInnerHTML={{
@@ -124,11 +124,11 @@ export function AnnouncementBanner() {
                 </div>
 
                 {/* Footer with actions */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 px-5 py-4 border-t border-white/10 bg-white/5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 px-5 py-4 border-t border-gray-200 bg-gray-50">
                     <button
                         onClick={handleDismissForToday}
                         className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl 
-                            text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                            text-sm text-muted-foreground hover:text-foreground hover:bg-gray-100 transition-colors"
                     >
                         <BellOff className="w-4 h-4" />
                         <span>Không hiển thị lại trong ngày</span>
@@ -136,8 +136,8 @@ export function AnnouncementBanner() {
                     <div className="flex-1" />
                     <button
                         onClick={handleClose}
-                        className="px-6 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] 
-                            text-sm font-medium text-[#0B0C10] transition-colors"
+                        className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 
+                            text-sm font-medium text-white transition-colors"
                     >
                         Đã hiểu
                     </button>

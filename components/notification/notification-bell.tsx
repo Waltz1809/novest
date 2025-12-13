@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   async function loadUnreadCount() {
     try {
@@ -30,6 +31,7 @@ export function NotificationBell() {
   }
 
   useEffect(() => {
+    setMounted(true);
     const fetch = () => {
       loadUnreadCount();
     };
@@ -51,7 +53,7 @@ export function NotificationBell() {
           aria-label="Thông báo"
         >
           <Bell size={24} />
-          {unreadCount > 0 && (
+          {mounted && unreadCount > 0 && (
             <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full min-w-[20px]">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>

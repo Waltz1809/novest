@@ -81,14 +81,14 @@ export default function NovelsPageClient({
                 {/* Left side: Search + Owner Filter */}
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     {/* Search Bar */}
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-[#1E293B] text-white rounded-lg border border-[#34D399]/20 focus-within:border-[#F59E0B] transition-all flex-1 md:w-[300px]">
-                        <Search className="w-5 h-5 text-[#9CA3AF]" />
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-white text-foreground rounded-lg border border-gray-200 focus-within:border-primary transition-all flex-1 md:w-[300px]">
+                        <Search className="w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Nhập tên truyện..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="flex-1 bg-transparent outline-none text-white placeholder:text-[#9CA3AF]"
+                            className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
                         />
                     </div>
 
@@ -97,11 +97,11 @@ export default function NovelsPageClient({
                         <div className="relative">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-[#1E293B] text-white rounded-lg border border-[#34D399]/20 hover:border-[#F59E0B] transition-all whitespace-nowrap"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-white text-foreground rounded-lg border border-gray-200 hover:border-primary transition-all whitespace-nowrap"
                             >
-                                <currentOption.icon className="w-4 h-4 text-[#F59E0B]" />
+                                <currentOption.icon className="w-4 h-4 text-primary" />
                                 <span className="text-sm">{currentOption.label}</span>
-                                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
                             </button>
 
                             {/* Dropdown Menu */}
@@ -113,14 +113,14 @@ export default function NovelsPageClient({
                                         onClick={() => setIsDropdownOpen(false)}
                                     />
                                     {/* Menu */}
-                                    <div className="absolute top-full left-0 mt-2 w-48 bg-[#1E293B] border border-[#34D399]/20 rounded-lg shadow-xl z-50 overflow-hidden">
+                                    <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
                                         {ownerOptions.map((option) => (
                                             <button
                                                 key={option.value}
                                                 onClick={() => handleOwnerFilterChange(option.value)}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors ${currentOwnerFilter === option.value
-                                                    ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                                    : "text-gray-300 hover:bg-[#0B0C10] hover:text-white"
+                                                    ? "bg-primary/10 text-primary"
+                                                    : "text-foreground hover:bg-gray-100"
                                                     }`}
                                             >
                                                 <option.icon className="w-4 h-4" />
@@ -139,7 +139,7 @@ export default function NovelsPageClient({
                     {isAdmin && <ReindexButton />}
                     <Link
                         href="/studio/novels/create"
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#F59E0B] text-[#F59E0B] font-bold rounded-lg hover:bg-[#F59E0B] hover:text-[#0B0C10] transition-all duration-300 text-sm md:text-base whitespace-nowrap"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all duration-300 text-sm md:text-base whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" />
                         Tạo Mới
@@ -173,13 +173,13 @@ export default function NovelsPageClient({
                 </div>
             ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-20 h-20 rounded-full bg-[#1E293B] flex items-center justify-center mb-4">
-                        <Search className="w-10 h-10 text-[#9CA3AF]" />
+                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                        <Search className="w-10 h-10 text-muted-foreground" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
                         {searchQuery ? "No novels found" : "Chưa có truyện nào nè"}
                     </h3>
-                    <p className="text-[#9CA3AF] mb-6">
+                    <p className="text-muted-foreground mb-6">
                         {searchQuery
                             ? `No results for "${searchQuery}"`
                             : "Bắt đầu đăng tải siêu phẩm của bạn tại Novest thôi!"}
@@ -187,7 +187,7 @@ export default function NovelsPageClient({
                     {!searchQuery && (
                         <Link
                             href="/studio/novels/create"
-                            className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-colors glow-amber"
+                            className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors"
                         >
                             Tạo Truyện Mới
                         </Link>

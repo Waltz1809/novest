@@ -20,7 +20,7 @@ export default function NovelDescription({ description, className }: NovelDescri
         <div className={cn("relative", className)}>
             <div
                 className={cn(
-                    "prose prose-invert max-w-none text-gray-300 leading-relaxed text-sm md:text-base transition-all duration-300",
+                    "prose max-w-none text-foreground leading-relaxed text-sm md:text-base transition-all duration-300",
                     !isExpanded && "line-clamp-3 md:line-clamp-4"
                 )}
             >
@@ -30,7 +30,7 @@ export default function NovelDescription({ description, className }: NovelDescri
             {isLong && (
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="mt-2 flex items-center gap-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-wider"
+                    className="mt-2 flex items-center gap-1 text-xs font-bold text-amber-500 hover:text-amber-600 transition-colors uppercase tracking-wider"
                 >
                     {isExpanded ? (
                         <>

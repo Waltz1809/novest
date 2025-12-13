@@ -14,6 +14,8 @@ interface NovelGridCardProps {
     viewCount: number;
     chapterCount: number;
 }
+// Default cover image path
+const DEFAULT_COVER = "/images/default-cover.png";
 
 export default function NovelGridCard({
     id,
@@ -25,6 +27,11 @@ export default function NovelGridCard({
     viewCount,
     chapterCount,
 }: NovelGridCardProps) {
+    // Use cover image or default cover
+    const coverSrc = coverImage && (coverImage.startsWith("http") || coverImage.startsWith("/"))
+        ? coverImage
+        : DEFAULT_COVER;
+
     // Format view count (e.g., 1.2M, 450K)
     const formatViews = (count: number) => {
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
@@ -34,9 +41,9 @@ export default function NovelGridCard({
 
     // Status badge styling
     const statusStyles = {
-        ONGOING: "bg-[#34D399] text-[#0B0C10]",
-        COMPLETED: "bg-[#3B82F6] text-white",
-        HIATUS: "bg-[#9CA3AF] text-[#0B0C10]",
+        ONGOING: "bg-emerald-500 text-white",
+        COMPLETED: "bg-blue-500 text-white",
+        HIATUS: "bg-gray-400 text-white",
     };
 
     // Vietnamese status labels
@@ -57,23 +64,15 @@ export default function NovelGridCard({
     const approval = approvalStyles[approvalStatus];
 
     return (
-        <div className="group relative aspect-2/3 rounded-xl overflow-hidden bg-[#1E293B] border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 cursor-pointer">
-            {/* Cover Image or Gradient Fallback */}
-            {coverImage ? (
-                <Image
-                    src={coverImage}
-                    alt={title}
-                    fill
-                    className="object-cover group-hover:opacity-30 transition-opacity duration-300"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                />
-            ) : (
-                <div className="absolute inset-0 bg-linear-to-br from-[#1E293B] via-[#0B0C10] to-[#1E293B] flex items-center justify-center p-6 group-hover:opacity-30 transition-opacity duration-300">
-                    <h3 className="text-white text-center font-bold text-lg line-clamp-3">
-                        {title}
-                    </h3>
-                </div>
-            )}
+        <div className="group relative aspect-[2/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200 hover:border-primary/40 transition-all duration-300 cursor-pointer shadow-sm">
+            {/* Cover Image */}
+            <Image
+                src={coverSrc}
+                alt={title}
+                fill
+                className="object-cover group-hover:opacity-30 transition-opacity duration-300"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            />
 
             {/* Status Badge (Top-Right) - Show approval status if not approved, else show novel status */}
             <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
@@ -93,7 +92,7 @@ export default function NovelGridCard({
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 p-4">
                 <Link
                     href={`/studio/novels/edit/${id}`}
-                    className="px-6 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg shadow-lg hover:scale-105 transition-transform text-sm"
+                    className="px-6 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:scale-105 transition-transform text-sm"
                 >
                     Quản lý & Viết
                 </Link>
@@ -102,7 +101,7 @@ export default function NovelGridCard({
                 {approvalStatus !== "APPROVED" && (
                     <Link
                         href={`/truyen/${slug}/cho-duyet`}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors text-xs font-medium"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-black/20 text-white rounded-lg hover:bg-black/30 transition-colors text-xs font-medium"
                     >
                         <ExternalLink className="w-3.5 h-3.5" />
                         Xem trước
@@ -110,9 +109,13 @@ export default function NovelGridCard({
                 )}
             </div>
 
-            {/* Stats Footer */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 bg-[#0B0C10]/80 backdrop-blur-sm z-10">
-                <div className="flex items-center justify-between text-xs text-[#9CA3AF]">
+            {/* Stats Footer with Title */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-sm z-10 border-t border-gray-100">
+                {/* Title */}
+                <h3 className="text-sm font-bold text-foreground line-clamp-1 mb-1">
+                    {title}
+                </h3>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                         <Eye className="w-3 h-3" />
                         <span>{formatViews(viewCount)} Views</span>

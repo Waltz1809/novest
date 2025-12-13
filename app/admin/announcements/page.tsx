@@ -28,11 +28,11 @@ export default async function AnnouncementsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Thông báo</h1>
-                    <p className="text-gray-400">Quản lý banner thông báo cho người dùng.</p>
+                    <h1 className="text-3xl font-bold text-foreground">Thông báo</h1>
+                    <p className="text-muted-foreground">Quản lý banner thông báo cho người dùng.</p>
                 </div>
                 <Link href="/admin/announcements/new">
-                    <Button className="bg-[#F59E0B] hover:bg-[#D97706] text-[#0B0C10] font-bold">
+                    <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold">
                         <Plus className="w-4 h-4 mr-2" />
                         Tạo thông báo
                     </Button>
@@ -40,20 +40,20 @@ export default async function AnnouncementsPage() {
             </div>
 
             {/* Announcements Table */}
-            <div className="bg-[#1E293B] rounded-xl border border-white/10 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-white/10">
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Tiêu đề</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Trạng thái</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Thời gian</th>
-                            <th className="px-6 py-4 text-right text-sm font-medium text-gray-400">Hành động</th>
+                        <tr className="border-b border-gray-200">
+                            <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Tiêu đề</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Trạng thái</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Thời gian</th>
+                            <th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         {announcements.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
+                                <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">
                                     Chưa có thông báo nào. Tạo thông báo đầu tiên!
                                 </td>
                             </tr>
@@ -64,37 +64,37 @@ export default async function AnnouncementsPage() {
                                 const isLive = ann.isActive && !isExpired && !isNotStarted;
 
                                 return (
-                                    <tr key={ann.id} className="border-b border-white/5 hover:bg-white/2">
+                                    <tr key={ann.id} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-white">{ann.title}</div>
-                                            <div className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                            <div className="font-medium text-foreground">{ann.title}</div>
+                                            <div className="text-xs text-muted-foreground mt-1 line-clamp-1">
                                                 {ann.content.replace(/<[^>]*>/g, '').slice(0, 80)}...
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
                                                 {isLive ? (
-                                                    <Badge className="bg-green-500/20 text-green-500 border-green-500/20">
+                                                    <Badge className="bg-green-100 text-green-700 border-green-200">
                                                         <Eye className="w-3 h-3 mr-1" />
                                                         Đang hiển thị
                                                     </Badge>
                                                 ) : isExpired ? (
-                                                    <Badge className="bg-gray-500/20 text-gray-500 border-gray-500/20">
+                                                    <Badge className="bg-gray-100 text-gray-600 border-gray-200">
                                                         Đã hết hạn
                                                     </Badge>
                                                 ) : isNotStarted ? (
-                                                    <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/20">
+                                                    <Badge className="bg-amber-100 text-amber-700 border-amber-200">
                                                         Chưa bắt đầu
                                                     </Badge>
                                                 ) : (
-                                                    <Badge className="bg-gray-500/20 text-gray-500 border-gray-500/20">
+                                                    <Badge className="bg-gray-100 text-gray-600 border-gray-200">
                                                         <EyeOff className="w-3 h-3 mr-1" />
                                                         Đã tắt
                                                     </Badge>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-400">
+                                        <td className="px-6 py-4 text-sm text-muted-foreground">
                                             <div>Từ: {new Date(ann.startDate).toLocaleDateString("vi-VN")}</div>
                                             <div>
                                                 Đến: {ann.endDate
@@ -106,7 +106,7 @@ export default async function AnnouncementsPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link href={`/admin/announcements/${ann.id}`}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                                         <Edit className="w-4 h-4" />
                                                     </Button>
                                                 </Link>
@@ -118,7 +118,7 @@ export default async function AnnouncementsPage() {
                                                         type="submit"
                                                         variant="ghost"
                                                         size="icon"
-                                                        className={`h-8 w-8 ${ann.isActive ? "text-green-500 hover:text-green-400" : "text-gray-400 hover:text-white"}`}
+                                                        className={`h-8 w-8 ${ann.isActive ? "text-green-600 hover:text-green-500" : "text-muted-foreground hover:text-foreground"}`}
                                                         title={ann.isActive ? "Tắt thông báo" : "Bật thông báo"}
                                                     >
                                                         <Power className="w-4 h-4" />
@@ -132,7 +132,7 @@ export default async function AnnouncementsPage() {
                                                         type="submit"
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-gray-400 hover:text-red-500"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-red-500"
                                                         title="Xóa thông báo"
                                                     >
                                                         <Trash2 className="w-4 h-4" />

@@ -152,9 +152,9 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
     // Status info
     const statusInfo = {
-        PENDING: { bg: "bg-amber-500/20", border: "border-amber-500", text: "text-amber-400", icon: Clock, label: "Chờ duyệt" },
-        APPROVED: { bg: "bg-emerald-500/20", border: "border-emerald-500", text: "text-emerald-400", icon: CheckCircle, label: "Đã duyệt" },
-        REJECTED: { bg: "bg-red-500/20", border: "border-red-500", text: "text-red-400", icon: XCircle, label: "Bị từ chối" },
+        PENDING: { bg: "bg-amber-100", border: "border-amber-500", text: "text-amber-600", icon: Clock, label: "Chờ duyệt" },
+        APPROVED: { bg: "bg-emerald-100", border: "border-emerald-500", text: "text-emerald-600", icon: CheckCircle, label: "Đã duyệt" },
+        REJECTED: { bg: "bg-red-100", border: "border-red-500", text: "text-red-600", icon: XCircle, label: "Bị từ chối" },
     };
     const status = statusInfo[novel.approvalStatus as keyof typeof statusInfo] || statusInfo.PENDING;
     const StatusIcon = status.icon;
@@ -168,8 +168,8 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
             <div className={`${status.bg} border-b ${status.border}/30 py-3`}>
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
-                        <span className="text-amber-200 text-sm font-medium">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                        <span className="text-amber-700 text-sm font-medium">
                             Trang xem trước - Chỉ bạn và quản trị viên có thể thấy
                         </span>
                     </div>
@@ -194,9 +194,9 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
             {/* Rejection Reason Banner */}
             {novel.approvalStatus === "REJECTED" && novel.rejectionReason && (
-                <div className="bg-red-500/10 border-b border-red-500/30 py-3">
+                <div className="bg-red-50 border-b border-red-200 py-3">
                     <div className="container mx-auto px-4">
-                        <p className="text-red-300 text-sm">
+                        <p className="text-red-600 text-sm">
                             <strong>Lý do từ chối:</strong> {novel.rejectionReason}
                         </p>
                     </div>
@@ -205,19 +205,19 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
             {/* Word Count Indicator - Shows for uploader */}
             {isUploader && novel.approvalStatus !== "APPROVED" && (
-                <div className={`${totalWordCount >= MIN_WORDS_FOR_APPROVAL ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'} border-b py-3`}>
+                <div className={`${totalWordCount >= MIN_WORDS_FOR_APPROVAL ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} border-b py-3`}>
                     <div className="container mx-auto px-4 flex items-center gap-2">
                         {totalWordCount >= MIN_WORDS_FOR_APPROVAL ? (
                             <>
-                                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                                <span className="text-emerald-300 text-sm font-medium">
+                                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                                <span className="text-emerald-700 text-sm font-medium">
                                     {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Đủ điều kiện gửi duyệt
                                 </span>
                             </>
                         ) : (
                             <>
-                                <XCircle className="w-4 h-4 text-red-400" />
-                                <span className="text-red-300 text-sm font-medium">
+                                <XCircle className="w-4 h-4 text-red-600" />
+                                <span className="text-red-700 text-sm font-medium">
                                     {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Cần thêm {(MIN_WORDS_FOR_APPROVAL - totalWordCount).toLocaleString()} chữ để gửi duyệt
                                 </span>
                             </>
@@ -228,7 +228,7 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
             {/* Uploader Resubmit Controls - Only for rejected novels */}
             {isUploader && novel.approvalStatus === "REJECTED" && (
-                <div className="bg-[#1E293B] border-b border-white/10 py-4">
+                <div className="bg-white border-b border-gray-200 py-4">
                     <div className="container mx-auto px-4">
                         <ResubmitButton
                             novelId={novel.id}
@@ -241,7 +241,7 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
             {/* Uploader Submit/VIP Controls - For DRAFT or APPROVED novels */}
             {isUploader && (novel.approvalStatus === "DRAFT" || novel.approvalStatus === "APPROVED" || novel.approvalStatus === "PENDING") && (
-                <div className="bg-[#1E293B] border-b border-white/10 py-4">
+                <div className="bg-white border-b border-gray-200 py-4">
                     <div className="container mx-auto px-4 max-w-md">
                         <SubmitApprovalButton
                             novelId={novel.id}
@@ -257,7 +257,7 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
             {/* Admin Approval Controls */}
             {isAdmin && novel.approvalStatus === "PENDING" && (
-                <div className="bg-[#1E293B] border-b border-white/10 py-4">
+                <div className="bg-white border-b border-gray-200 py-4">
                     <div className="container mx-auto px-4">
                         <ApprovalControls novelId={novel.id} novelTitle={novel.title} />
                     </div>
@@ -265,69 +265,62 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
             )}
 
             <main>
-                {/* Hero Section - Dark Ink & Neon */}
+                {/* Hero Section */}
                 <div className="relative bg-background py-12 md:py-16">
                     <div className="container mx-auto px-4">
-                        {/* Dark Card with Jade Border Glow */}
-                        <div className="relative bg-[#1E293B] backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-[#374151]">
+                        {/* Light Card */}
+                        <div className="relative bg-white backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-gray-200">
                             {/* Content Container */}
                             <div className="relative z-10 p-6 md:p-8">
                                 {/* Top Row: Cover | Info | Stats */}
                                 <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_280px] gap-6 md:gap-8">
                                     {/* Left: Cover Image */}
-                                    <div className="w-40 md:w-48 shrink-0 relative group mx-auto md:mx-0">
-                                        <div className="aspect-2/3 relative rounded-lg overflow-hidden shadow-2xl ring-2 ring-[#F59E0B]/30 transition-all duration-300 group-hover:ring-[#F59E0B]/60 group-hover:scale-105">
-                                            {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
-                                                <Image
-                                                    src={novel.coverImage}
-                                                    alt={novel.title}
-                                                    fill
-                                                    className="object-cover"
-                                                    priority
-                                                    sizes="(max-width: 768px) 160px, 192px"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-linear-to-br from-[#F59E0B] to-[#FBBF24] flex flex-col items-center justify-center text-[#0B0C10]">
-                                                    <Book className="w-12 h-12 mb-2" />
-                                                    <span className="text-xs font-medium">No Cover</span>
-                                                </div>
-                                            )}
+                                    <div className="w-48 md:w-56 shrink-0 relative group mx-auto md:mx-0">
+                                        <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-xl ring-2 ring-amber-500/30 transition-all duration-300 group-hover:ring-amber-500/60 group-hover:scale-105">
+                                            <Image
+                                                src={novel.coverImage || "/images/default-cover.png"}
+                                                alt={novel.title}
+                                                fill
+                                                className="object-cover"
+                                                priority
+                                                sizes="(max-width: 768px) 192px, 224px"
+                                            />
                                         </div>
                                     </div>
 
                                     {/* Middle: Novel Info - Left Aligned */}
                                     <div className="flex flex-col gap-3 text-left">
                                         {/* Title */}
-                                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white">
+                                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-foreground">
                                             {novel.title}
                                         </h1>
 
                                         {/* Alternative Titles */}
                                         {novel.alternativeTitles && (
-                                            <p className="text-sm text-[#9CA3AF] italic">
+                                            <p className="text-sm text-muted-foreground italic">
                                                 Tên khác: {novel.alternativeTitles}
                                             </p>
                                         )}
 
                                         {/* Author */}
-                                        <div className="flex items-center gap-2 text-[#9CA3AF] text-sm">
+                                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                                             <User className="w-4 h-4" />
                                             <span>Tác giả:</span>
-                                            <span className="text-white font-medium">{novel.author}</span>
+                                            <span className="text-foreground font-medium">{novel.author}</span>
                                         </div>
 
                                         {/* Status & Genres */}
                                         <div className="flex flex-wrap items-center gap-2">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${novel.status === 'ONGOING'
-                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                ? 'bg-emerald-100 text-emerald-600'
                                                 : novel.status === 'COMPLETED'
-                                                    ? 'bg-amber-500/20 text-amber-400'
-                                                    : 'bg-gray-500/20 text-gray-400'
+                                                    ? 'bg-amber-100 text-amber-600'
+                                                    : 'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {novel.status === 'ONGOING' ? 'Đang tiến hành' : novel.status === 'COMPLETED' ? 'Hoàn thành' : 'Tạm dừng'}
                                             </span>
                                             {novel.genres.slice(0, 3).map((genre) => (
-                                                <span key={genre.id} className="px-3 py-1 rounded-full text-xs font-medium bg-[#374151] text-[#9CA3AF]">
+                                                <span key={genre.id} className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-muted-foreground">
                                                     {genre.name}
                                                 </span>
                                             ))}
@@ -337,7 +330,7 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                         <div className="flex flex-wrap gap-3 pt-2">
                                             <Link
                                                 href={`/studio/novels/edit/${novel.id}`}
-                                                className="flex items-center gap-2 px-6 py-2.5 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all"
+                                                className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition-all"
                                             >
                                                 <Edit className="w-5 h-5" />
                                                 <span>Chỉnh sửa</span>
@@ -357,35 +350,35 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
                                     {/* Right: Stats */}
                                     <div className="lg:block">
-                                        <div className="bg-[#0B0C10] rounded-xl p-4 border border-[#374151]">
+                                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                                             <div className="space-y-2">
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">Số từ:</span>
-                                                    <span className="font-bold text-white">{wordCount}</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">Số từ:</span>
+                                                    <span className="font-bold text-foreground">{wordCount}</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">Đề cử:</span>
-                                                    <span className="font-bold text-white">0</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">Đề cử:</span>
+                                                    <span className="font-bold text-foreground">0</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">Phiếu thưởng:</span>
-                                                    <span className="font-bold text-white">0</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">Phiếu thưởng:</span>
+                                                    <span className="font-bold text-foreground">0</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">View:</span>
-                                                    <span className="font-bold text-white">{novel.viewCount.toLocaleString('vi-VN')}</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">View:</span>
+                                                    <span className="font-bold text-foreground">{novel.viewCount.toLocaleString('vi-VN')}</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">Đánh giá:</span>
-                                                    <span className="font-bold text-white">{averageRating}/5</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">Đánh giá:</span>
+                                                    <span className="font-bold text-foreground">{averageRating}/5</span>
                                                 </div>
-                                                <div className="flex items-center justify-between py-2 border-b border-[#374151]">
-                                                    <span className="text-sm text-[#9CA3AF]">Cập nhật:</span>
-                                                    <span className="font-bold text-white">{lastUpdated}</span>
+                                                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                                                    <span className="text-sm text-muted-foreground">Cập nhật:</span>
+                                                    <span className="font-bold text-foreground">{lastUpdated}</span>
                                                 </div>
                                                 <div className="flex items-center justify-between py-2">
-                                                    <span className="text-sm text-[#9CA3AF]">Lượt theo dõi:</span>
-                                                    <span className="font-bold text-white">{followersCount.toLocaleString('vi-VN')}</span>
+                                                    <span className="text-sm text-muted-foreground">Lượt theo dõi:</span>
+                                                    <span className="font-bold text-foreground">{followersCount.toLocaleString('vi-VN')}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -393,39 +386,39 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                 </div>
 
                                 {/* Bottom Row: Summary | Badges */}
-                                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6 pt-6 border-t border-[#374151]">
+                                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6 pt-6 border-t border-gray-200">
                                     {/* Summary */}
                                     <div>
-                                        <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-[#9CA3AF] text-sm leading-relaxed" />
+                                        <NovelDescription description={novel.description || "Chưa có mô tả."} className="text-foreground/80 text-sm leading-relaxed" />
                                     </div>
 
                                     {/* Badges */}
                                     <div className="flex lg:flex-col gap-4">
-                                        <div className="bg-[#0B0C10] rounded-xl p-4 border border-[#374151] flex-1">
-                                            <h3 className="text-xs font-bold text-[#9CA3AF] mb-3 uppercase tracking-wide flex items-center gap-2">
-                                                <Award className="w-4 h-4 text-amber-400" /> Thành tích
+                                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 flex-1">
+                                            <h3 className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wide flex items-center gap-2">
+                                                <Award className="w-4 h-4 text-amber-500" /> Thành tích
                                             </h3>
                                             <div className="flex gap-2 flex-wrap">
-                                                <div className="w-10 h-10 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-sm" title="Top 1">🏆</div>
-                                                <div className="w-10 h-10 rounded-full bg-orange-500/20 border-2 border-orange-500 flex items-center justify-center text-sm" title="Trending">🔥</div>
-                                                <div className="w-10 h-10 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center text-sm" title="Popular">⭐</div>
+                                                <div className="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-500 flex items-center justify-center text-sm" title="Top 1">🏆</div>
+                                                <div className="w-10 h-10 rounded-full bg-orange-100 border-2 border-orange-500 flex items-center justify-center text-sm" title="Trending">🔥</div>
+                                                <div className="w-10 h-10 rounded-full bg-yellow-100 border-2 border-yellow-500 flex items-center justify-center text-sm" title="Popular">⭐</div>
                                             </div>
                                         </div>
 
                                         {/* Mobile Stats - Only visible on smaller screens */}
-                                        <div className="lg:hidden bg-[#0B0C10] rounded-xl p-4 border border-[#374151] flex-1">
+                                        <div className="lg:hidden bg-gray-50 rounded-xl p-4 border border-gray-200 flex-1">
                                             <div className="grid grid-cols-3 gap-2 text-center">
                                                 <div>
-                                                    <div className="font-bold text-white">{totalChapters}</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Chương</div>
+                                                    <div className="font-bold text-foreground">{totalChapters}</div>
+                                                    <div className="text-xs text-muted-foreground">Chương</div>
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-white">{averageRating}</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Đánh giá</div>
+                                                    <div className="font-bold text-foreground">{averageRating}</div>
+                                                    <div className="text-xs text-muted-foreground">Đánh giá</div>
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-white">{wordCount}</div>
-                                                    <div className="text-xs text-[#9CA3AF]">Chữ</div>
+                                                    <div className="font-bold text-foreground">{wordCount}</div>
+                                                    <div className="text-xs text-muted-foreground">Chữ</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -466,10 +459,10 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                             <div className="lg:col-span-1 space-y-8 order-2">
 
                                 {/* Translator Profile */}
-                                <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
+                                <div className="bg-white rounded-xl shadow-sm border border-emerald-100 p-5">
                                     {/* Uploader + Group */}
                                     <Link href={`/u/${novel.uploader.username || novel.uploader.id}`} className="flex items-center gap-3 mb-4 group">
-                                        <div className="w-12 h-12 rounded-full bg-[#34D399]/10 flex items-center justify-center text-[#34D399] overflow-hidden border border-[#34D399]/20 group-hover:border-[#F59E0B] transition-colors">
+                                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 overflow-hidden border border-emerald-100 group-hover:border-amber-500 transition-colors">
                                             {novel.uploader.image ? (
                                                 <Image
                                                     src={novel.uploader.image}
@@ -483,20 +476,20 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm text-gray-200 group-hover:text-[#F59E0B] transition-colors">
+                                            <h3 className="font-bold text-sm text-foreground group-hover:text-amber-600 transition-colors">
                                                 {novel.uploader.nickname || novel.uploader.name || "Ẩn danh"}
                                             </h3>
-                                            <p className="text-xs text-gray-500">{novel.translationGroup?.name || "Novest Official"}</p>
+                                            <p className="text-xs text-muted-foreground">{novel.translationGroup?.name || "Novest Official"}</p>
                                         </div>
                                     </Link>
-                                    <button className="w-full py-2 bg-[#F59E0B] text-[#0B0C10] font-bold text-sm rounded-lg hover:bg-[#D97706] hover:shadow-md transition-all">
+                                    <button className="w-full py-2 bg-amber-500 text-white font-bold text-sm rounded-lg hover:bg-amber-600 hover:shadow-md transition-all">
                                         🎁 Ủng hộ nhóm dịch
                                     </button>
                                 </div>
 
                                 {/* Related Novels */}
-                                <div className="bg-[#1E293B] rounded-xl shadow-sm border border-[#34D399]/20 p-5">
-                                    <h3 className="font-bold text-sm mb-3 flex items-center gap-2 text-[#F59E0B]">
+                                <div className="bg-white rounded-xl shadow-sm border border-emerald-100 p-5">
+                                    <h3 className="font-bold text-sm mb-3 flex items-center gap-2 text-amber-600">
                                         <Book className="w-4 h-4" />
                                         Truyện liên quan
                                     </h3>
@@ -505,9 +498,9 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                             <Link
                                                 key={related.id}
                                                 href={`/truyen/${related.slug}`}
-                                                className="flex gap-3 group hover:bg-[#0B0C10]/50 p-2 rounded-lg transition-colors"
+                                                className="flex gap-3 group hover:bg-gray-50 p-2 rounded-lg transition-colors"
                                             >
-                                                <div className="relative w-12 h-16 shrink-0 rounded overflow-hidden shadow-sm border border-[#34D399]/20">
+                                                <div className="relative w-12 h-16 shrink-0 rounded overflow-hidden shadow-sm border border-gray-100">
                                                     {related.coverImage ? (
                                                         <Image
                                                             src={related.coverImage}
@@ -517,21 +510,21 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                                                             sizes="48px"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full bg-[#0B0C10]" />
+                                                        <div className="w-full h-full bg-gray-100" />
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col justify-center min-w-0">
-                                                    <h4 className="text-sm font-medium truncate text-gray-300 group-hover:text-[#F59E0B] transition-colors">
+                                                    <h4 className="text-sm font-medium truncate text-foreground group-hover:text-amber-600 transition-colors">
                                                         {related.title}
                                                     </h4>
-                                                    <div className="flex items-center gap-1 text-xs text-gray-500 flex-wrap">
+                                                    <div className="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
                                                         <span className="truncate">{related.author}</span>
                                                     </div>
                                                 </div>
                                             </Link>
                                         ))}
                                         {relatedNovels.length === 0 && (
-                                            <p className="text-xs text-gray-500 italic">Chưa có truyện liên quan.</p>
+                                            <p className="text-xs text-muted-foreground italic">Chưa có truyện liên quan.</p>
                                         )}
                                     </div>
                                 </div>
@@ -539,10 +532,10 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
 
                             {/* Comments Section - Full width on desktop - For feedback/discussion */}
                             <div className="lg:col-span-4 order-3">
-                                <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-white/10">
-                                    <div className="bg-[#1E293B] shadow-lg rounded-xl overflow-hidden border-l-4 border-[#F59E0B]">
+                                <div className="mt-0 lg:mt-0 pt-0 lg:pt-8 lg:border-t lg:border-gray-200">
+                                    <div className="bg-white shadow-lg rounded-xl overflow-hidden border-l-4 border-amber-500">
                                         <div className="p-6 md:p-8">
-                                            <div className="mb-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20 text-amber-300 text-sm">
+                                            <div className="mb-4 p-3 bg-amber-50 rounded-lg border border-amber-100 text-amber-700 text-sm">
                                                 💬 Sử dụng phần bình luận này để thảo luận, phản hồi và đề xuất chỉnh sửa trước khi duyệt.
                                             </div>
                                             <CommentSection novelId={novel.id} />

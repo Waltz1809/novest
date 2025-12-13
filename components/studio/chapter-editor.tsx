@@ -200,33 +200,33 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
 
     if (isLoading) {
         return (
-            <div className="h-full flex items-center justify-center bg-[#020617]">
-                <Loader2 className="w-8 h-8 text-[#F59E0B] animate-spin" />
+            <div className="h-full flex items-center justify-center bg-white">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="h-full flex flex-col bg-[#020617]">
+        <div className="h-full flex flex-col bg-white">
             {/* Published Chapter Warning Modal */}
             {showPublishedWarning && !hasSeenWarning && (
-                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-                    <div className="bg-[#1E293B] rounded-xl max-w-md w-full p-6 border border-amber-500/30">
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 border border-amber-200 shadow-xl">
                         <div className="flex items-start gap-4">
-                            <div className="p-3 bg-amber-500/20 rounded-full">
+                            <div className="p-3 bg-amber-100 rounded-full">
                                 <AlertTriangle className="w-6 h-6 text-amber-500" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-white mb-2">
+                                <h3 className="text-lg font-bold text-foreground mb-2">
                                     Chương đã xuất bản
                                 </h3>
-                                <p className="text-[#9CA3AF] text-sm mb-4">
+                                <p className="text-muted-foreground text-sm mb-4">
                                     Chương này đã được xuất bản và người đọc có thể đang xem.
                                     Mọi thay đổi sẽ được lưu vào lịch sử phiên bản trong 7 ngày để có thể khôi phục nếu cần.
                                 </p>
                                 <button
                                     onClick={dismissWarning}
-                                    className="w-full px-4 py-2 bg-amber-500 text-black font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                                    className="w-full px-4 py-2 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-400 transition-colors"
                                 >
                                     Tôi hiểu, tiếp tục chỉnh sửa
                                 </button>
@@ -237,22 +237,22 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
             )}
 
             {/* Header */}
-            <div className="border-b border-white/10 p-6">
+            <div className="border-b border-gray-200 p-6">
                 <div className="max-w-5xl mx-auto">
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <h2 className="text-sm text-[#9CA3AF] uppercase tracking-wide mb-1">
+                            <h2 className="text-sm text-muted-foreground uppercase tracking-wide mb-1">
                                 {chapterId === "new" ? "Chương mới" : "Chỉnh sửa chương"}
                             </h2>
-                            <div className="flex items-center gap-3 text-xs text-[#9CA3AF]">
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                 <span>{currentVolume?.title}</span>
                                 {!isDraft && (
-                                    <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-xs">
+                                    <span className="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs">
                                         Đã xuất bản
                                     </span>
                                 )}
                                 {isDraft && (
-                                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full text-xs">
+                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-xs">
                                         Bản nháp
                                     </span>
                                 )}
@@ -260,7 +260,7 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                         </div>
                         <div className="flex items-center gap-2">
                             {showSaved && (
-                                <div className="flex items-center gap-2 text-[#34D399]">
+                                <div className="flex items-center gap-2 text-green-600">
                                     <Save className="w-4 h-4" />
                                     <span className="text-sm">Đã lưu</span>
                                 </div>
@@ -274,7 +274,7 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Tiêu đề chương..."
-                        className="w-full text-3xl font-bold text-white bg-transparent border-none outline-none placeholder:text-white/30 mb-4"
+                        className="w-full text-3xl font-bold text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/30 mb-4"
                     />
 
                     {/* Action Buttons */}
@@ -284,8 +284,8 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                             onClick={handleSave}
                             disabled={isSaving || !title.trim()}
                             className={`px-6 py-2 font-bold rounded-lg transition-all flex items-center gap-2 ${isSaving || !title.trim()
-                                ? "bg-[#9CA3AF]/20 text-[#9CA3AF] cursor-not-allowed"
-                                : "bg-[#F59E0B] text-[#0B0C10] hover:bg-[#FBBF24] cursor-pointer"
+                                ? "bg-gray-200 text-muted-foreground cursor-not-allowed"
+                                : "bg-primary text-white hover:bg-primary/90 cursor-pointer"
                                 }`}
                         >
                             {isSaving ? (
@@ -306,7 +306,7 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                             <div className="relative">
                                 <button
                                     onClick={toggleVersions}
-                                    className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#9CA3AF] hover:text-white rounded-lg transition-all flex items-center gap-2"
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-muted-foreground hover:text-foreground rounded-lg transition-all flex items-center gap-2"
                                 >
                                     <History className="w-4 h-4" />
                                     <span className="hidden sm:inline">Lịch sử</span>
@@ -314,12 +314,12 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
 
                                 {/* Version History Dropdown */}
                                 {showVersions && (
-                                    <div className="absolute right-0 top-full mt-2 w-80 bg-[#1E293B] rounded-xl border border-white/10 shadow-xl z-40">
-                                        <div className="p-3 border-b border-white/10 flex items-center justify-between">
-                                            <span className="font-medium text-white">Lịch sử phiên bản</span>
+                                    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-gray-200 shadow-xl z-40">
+                                        <div className="p-3 border-b border-gray-200 flex items-center justify-between">
+                                            <span className="font-medium text-foreground">Lịch sử phiên bản</span>
                                             <button
                                                 onClick={() => setShowVersions(false)}
-                                                className="p-1 hover:bg-white/10 rounded text-[#9CA3AF]"
+                                                className="p-1 hover:bg-gray-100 rounded text-muted-foreground"
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>
@@ -327,10 +327,10 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                                         <div className="max-h-64 overflow-y-auto">
                                             {loadingVersions ? (
                                                 <div className="p-4 flex justify-center">
-                                                    <Loader2 className="w-5 h-5 animate-spin text-[#9CA3AF]" />
+                                                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                                                 </div>
                                             ) : versions.length === 0 ? (
-                                                <div className="p-4 text-center text-[#9CA3AF] text-sm">
+                                                <div className="p-4 text-center text-muted-foreground text-sm">
                                                     Chưa có phiên bản nào được lưu
                                                 </div>
                                             ) : (
@@ -338,24 +338,24 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                                                     {versions.map((version) => (
                                                         <div
                                                             key={version.id}
-                                                            className="p-3 hover:bg-white/5 rounded-lg transition-colors"
+                                                            className="p-3 hover:bg-gray-50 rounded-lg transition-colors"
                                                         >
                                                             <div className="flex items-start justify-between gap-2">
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm text-white truncate">
+                                                                    <p className="text-sm text-foreground truncate">
                                                                         {version.title}
                                                                     </p>
-                                                                    <p className="text-xs text-[#9CA3AF] mt-1">
+                                                                    <p className="text-xs text-muted-foreground mt-1">
                                                                         {formatDate(version.createdAt)} • {version.wordCount.toLocaleString()} từ
                                                                     </p>
-                                                                    <p className="text-xs text-amber-400/80 mt-0.5">
+                                                                    <p className="text-xs text-amber-600 mt-0.5">
                                                                         {formatExpiry(version.expiresAt)}
                                                                     </p>
                                                                 </div>
                                                                 <button
                                                                     onClick={() => handleRevert(version.id)}
                                                                     disabled={revertingVersion === version.id}
-                                                                    className="shrink-0 p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors disabled:opacity-50"
+                                                                    className="shrink-0 p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors disabled:opacity-50"
                                                                     title="Khôi phục phiên bản này"
                                                                 >
                                                                     {revertingVersion === version.id ? (
@@ -370,8 +370,8 @@ export default function ChapterEditorWrapper({ chapterId, novelId, volumeId, vol
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="p-2 border-t border-white/10">
-                                            <p className="text-xs text-[#9CA3AF] text-center">
+                                        <div className="p-2 border-t border-gray-200">
+                                            <p className="text-xs text-muted-foreground text-center">
                                                 Phiên bản được lưu tự động khi chỉnh sửa và hết hạn sau 7 ngày
                                             </p>
                                         </div>

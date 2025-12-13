@@ -129,8 +129,8 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                 {/* Left Column: Cover Image */}
                 <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-[#0f172a] p-4 md:p-6 rounded-xl shadow-md border border-white/10 overflow-hidden">
-                        <label className="block text-sm font-medium text-[#9CA3AF] uppercase mb-3 tracking-wide">
+                    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <label className="block text-sm font-medium text-muted-foreground uppercase mb-3 tracking-wide">
                             Ảnh bìa
                         </label>
                         <ImageUpload
@@ -143,15 +143,15 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
 
                 {/* Right Column: Info */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-[#0f172a] p-4 md:p-6 rounded-xl shadow-md border border-white/10 space-y-5 md:space-y-6 overflow-hidden">
+                    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 space-y-5 md:space-y-6 overflow-hidden">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Tên truyện
                                 </label>
                                 <input
                                     {...register("title", { required: "Vui lòng nhập tên truyện" })}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     placeholder="Nhập tên truyện..."
                                 />
                                 {errors.title && (
@@ -160,26 +160,26 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Slug (URL) - Tự động tạo
                                 </label>
-                                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-[#020617]/50 border border-white/5 text-gray-400">
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gray-100 border border-gray-200 text-muted-foreground">
                                     <span className="text-sm">/truyen/</span>
-                                    <span className="text-gray-200 font-mono">{watch("slug") || "..."}</span>
+                                    <span className="text-foreground font-mono">{watch("slug") || "..."}</span>
                                 </div>
                                 <input type="hidden" {...register("slug")} />
-                                <p className="text-xs text-[#9CA3AF]/70">
+                                <p className="text-xs text-muted-foreground/70">
                                     Slug được tạo tự động từ tên truyện và không thể chỉnh sửa
                                 </p>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Tác giả
                                 </label>
                                 <input
                                     {...register("author", { required: "Vui lòng nhập tác giả" })}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     placeholder="Tên tác giả..."
                                 />
                                 {errors.author && (
@@ -188,23 +188,23 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Họa sĩ (tùy chọn)
                                 </label>
                                 <input
                                     {...register("artist")}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     placeholder="Tên họa sĩ (nếu có)..."
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Trạng thái
                                 </label>
                                 <select
                                     {...register("status")}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
                                 >
                                     <option value="ONGOING">Đang ra (ONGOING)</option>
                                     <option value="COMPLETED">Hoàn thành (COMPLETED)</option>
@@ -213,12 +213,12 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Quốc gia
                                 </label>
                                 <select
                                     {...register("nation")}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
                                 >
                                     <option value="CN">🇨🇳 Trung Quốc</option>
                                     <option value="KR">🇰🇷 Hàn Quốc</option>
@@ -229,12 +229,12 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Loại truyện
                                 </label>
                                 <select
                                     {...register("novelFormat")}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
                                 >
                                     <option value="WN">Web Novel (WN)</option>
                                     <option value="LN">Light Novel (LN)</option>
@@ -242,18 +242,18 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                             </div>
 
                             <div className="col-span-1 md:col-span-2 space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Tên khác (Alternative Titles)
                                 </label>
                                 <input
                                     {...register("alternativeTitles")}
-                                    className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                     placeholder="Tên gọi khác, ngăn cách bởi dấu phẩy..."
                                 />
                             </div>
 
                             <div className="col-span-1 md:col-span-2 space-y-2">
-                                <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                     Thể loại
                                 </label>
                                 <GenreSelector
@@ -268,9 +268,9 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                                     <input
                                         type="checkbox"
                                         {...register("isR18")}
-                                        className="w-5 h-5 rounded border-2 border-red-500/50 bg-[#020617] text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
+                                        className="w-5 h-5 rounded border-2 border-red-300 bg-gray-50 text-red-500 focus:ring-red-500/20 focus:ring-2 cursor-pointer"
                                     />
-                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                                         Nội dung người lớn (R18) - Chỉ hiển thị với người dùng đủ 18 tuổi
                                     </span>
                                 </label>
@@ -281,9 +281,9 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                                     <input
                                         type="checkbox"
                                         {...register("isLicensedDrop")}
-                                        className="w-5 h-5 rounded border-2 border-amber-500/50 bg-[#020617] text-amber-500 focus:ring-amber-500/20 focus:ring-2 cursor-pointer"
+                                        className="w-5 h-5 rounded border-2 border-amber-300 bg-gray-50 text-amber-500 focus:ring-amber-500/20 focus:ring-2 cursor-pointer"
                                     />
-                                    <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                                    <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                                         Truyện bản quyền đã drop - Chặn đặt chương VIP
                                     </span>
                                 </label>
@@ -291,13 +291,13 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
 
                             {groups.length > 0 && (
                                 <div className="col-span-1 md:col-span-2 space-y-2">
-                                    <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                                    <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                         Nhóm dịch
                                     </label>
                                     <div className="relative">
                                         <select
                                             {...register("groupId")}
-                                            className="w-full px-4 py-3 pr-16 rounded-lg bg-[#020617] border border-white/10 text-gray-100 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all appearance-none"
+                                            className="w-full px-4 py-3 pr-16 rounded-lg bg-gray-50 border border-gray-200 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
                                         >
                                             <option value="">Novest Official (Mặc định)</option>
                                             {groups.map(group => (
@@ -305,11 +305,11 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                                             ))}
                                         </select>
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                                            <Users className="w-4 h-4 text-amber-400" />
-                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                            <Users className="w-4 h-4 text-primary" />
+                                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                         </div>
                                     </div>
-                                    <p className="text-xs text-[#9CA3AF]/70">
+                                    <p className="text-xs text-muted-foreground/70">
                                         Gán truyện cho nhóm dịch để các thành viên khác có thể chỉnh sửa
                                     </p>
                                 </div>
@@ -317,13 +317,13 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs text-[#9CA3AF] uppercase block tracking-wide">
+                            <label className="text-xs text-muted-foreground uppercase block tracking-wide">
                                 Mô tả
                             </label>
                             <textarea
                                 {...register("description")}
                                 rows={6}
-                                className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-gray-100 placeholder:text-gray-600 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all resize-none"
+                                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                                 placeholder="Mô tả nội dung truyện..."
                             />
                         </div>
@@ -333,7 +333,7 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="flex items-center gap-2 px-8 py-3 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all shadow-lg shadow-[#F59E0B]/20 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center"
+                            className="flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto justify-center"
                         >
                             {isPending ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />

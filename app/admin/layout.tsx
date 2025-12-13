@@ -16,7 +16,7 @@ export default async function AdminLayout({
     }
 
     return (
-        <div className="min-h-screen bg-[#0B0C10] text-gray-100 font-family-name:var(--font-be-vietnam-pro) selection:bg-amber-500/30">
+        <div className="min-h-screen bg-gray-50 text-foreground font-family-name:var(--font-be-vietnam-pro) selection:bg-primary/20">
             <AdminSidebar />
             <main className="pl-20 transition-all duration-300 peer-data-[state=expanded]:pl-64">
                 <div className="container mx-auto p-8">

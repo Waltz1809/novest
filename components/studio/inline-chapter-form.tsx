@@ -79,16 +79,16 @@ export default function InlineChapterForm({
     };
 
     return (
-        <div className="bg-[#0B0C10] border border-amber-500/20 rounded-lg p-4 mt-4 animate-in fade-in slide-in-from-top-2">
+        <div className="bg-white border border-primary/20 rounded-lg p-4 mt-4 animate-in fade-in slide-in-from-top-2 shadow-sm">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-white font-bold">
+                    <h3 className="text-foreground font-bold">
                         {initialData ? "Chỉnh sửa chương" : "Thêm chương mới"}
                     </h3>
                 </div>
                 <button
                     onClick={onCancel}
-                    className="text-[#9CA3AF] hover:text-white transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -97,21 +97,21 @@ export default function InlineChapterForm({
             <div className="space-y-4">
                 {/* Title */}
                 <div>
-                    <label className="block text-xs text-[#9CA3AF] mb-1">Tiêu đề chương</label>
+                    <label className="block text-xs text-muted-foreground mb-1">Tiêu đề chương</label>
                     <input
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Ví dụ: Chương 1: Mở đầu"
-                        className="w-full bg-[#1E293B] border border-white/10 rounded-lg px-3 py-2 text-white placeholder:text-[#9CA3AF]/50 focus:outline-none focus:border-[#F59E0B]"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary"
                         autoFocus
                     />
                 </div>
 
                 {/* Editor */}
                 <div>
-                    <label className="block text-xs text-[#9CA3AF] mb-1">Nội dung</label>
-                    <div className="h-[400px] border border-white/10 rounded-lg overflow-hidden">
+                    <label className="block text-xs text-muted-foreground mb-1">Nội dung</label>
+                    <div className="h-[400px] border border-gray-200 rounded-lg overflow-hidden">
                         <ChapterEditor
                             content={content}
                             onChange={setContent}
@@ -122,7 +122,7 @@ export default function InlineChapterForm({
 
                 {/* Draft Toggle - Only for approved novels */}
                 {canToggleDraft && (
-                    <div className="bg-[#1E293B]/50 rounded-xl p-4 border border-white/5 space-y-4">
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-4">
                         <label className="flex items-center gap-3 cursor-pointer group">
                             <div className="relative">
                                 <input
@@ -134,14 +134,14 @@ export default function InlineChapterForm({
                                     }}
                                     className="sr-only peer"
                                 />
-                                <div className="w-11 h-6 bg-[#374151] peer-focus:outline-none rounded-full peer peer-checked:bg-amber-500 transition-colors"></div>
+                                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-primary transition-colors"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                             </div>
                             <div>
-                                <span className="text-sm font-medium text-white group-hover:text-amber-400 transition-colors">
+                                <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                                     Lưu làm bản nháp
                                 </span>
-                                <p className="text-xs text-[#9CA3AF]">
+                                <p className="text-xs text-muted-foreground">
                                     {isDraft
                                         ? "Chương sẽ không hiển thị cho độc giả cho đến khi xuất bản"
                                         : "Chương sẽ xuất bản ngay lập tức"
@@ -153,7 +153,7 @@ export default function InlineChapterForm({
                         {/* Schedule picker - Only show when draft is checked */}
                         {isDraft && (
                             <div className="pl-14 animate-in slide-in-from-top-2">
-                                <label className="block text-xs text-[#9CA3AF] mb-2">
+                                <label className="block text-xs text-muted-foreground mb-2">
                                     <Calendar className="w-3.5 h-3.5 inline mr-1" />
                                     Lên lịch xuất bản (tùy chọn)
                                 </label>
@@ -162,10 +162,10 @@ export default function InlineChapterForm({
                                     value={publishAt}
                                     onChange={(e) => setPublishAt(e.target.value)}
                                     min={minScheduleDate()}
-                                    className="w-full md:w-auto bg-[#0B0C10] border border-amber-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500"
+                                    className="w-full md:w-auto bg-white border border-primary/30 rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary"
                                 />
                                 {publishAt && (
-                                    <p className="text-xs text-amber-400 mt-2">
+                                    <p className="text-xs text-primary mt-2">
                                         📅 Sẽ tự động xuất bản vào {new Date(publishAt).toLocaleString("vi-VN")}
                                     </p>
                                 )}
@@ -185,7 +185,7 @@ export default function InlineChapterForm({
                 <div className="flex justify-end gap-2 pt-2">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-[#9CA3AF] hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
+                        className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-lg transition-all text-sm"
                         disabled={isSaving}
                     >
                         Hủy
@@ -196,9 +196,9 @@ export default function InlineChapterForm({
                         className={`
                             px-5 py-2 rounded-lg font-bold flex items-center gap-2 text-sm transition-all
                             ${isSaving || !title.trim()
-                                ? "bg-gray-600/50 text-gray-400 cursor-not-allowed"
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 : isDraft
-                                    ? "bg-amber-500 text-[#0B0C10] hover:bg-amber-400"
+                                    ? "bg-primary text-white hover:bg-primary/90"
                                     : "bg-emerald-600 text-white hover:bg-emerald-500"
                             }
                         `}

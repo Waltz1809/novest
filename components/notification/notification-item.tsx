@@ -113,19 +113,19 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
         <button
             onClick={handleClick}
             disabled={isNavigating}
-            className={`block w-full text-left px-4 py-3 hover:bg-[#1E293B] transition-colors border-b border-[#34D399]/10 last:border-b-0 ${!notification.isRead ? "bg-[#1E293B]/50" : ""
+            className={`block w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-b-0 ${!notification.isRead ? "bg-amber-50" : ""
                 } ${isNavigating ? "opacity-50 cursor-wait" : ""}`}
         >
             <div className="flex gap-3">
                 {/* Icon */}
                 <div className="shrink-0 mt-1">
                     <div className={`p-2 rounded-full ${notification.type === "NOVEL_APPROVED"
-                        ? "bg-green-500/20 text-green-500"
+                        ? "bg-green-100 text-green-600"
                         : notification.type === "NOVEL_REJECTED" || notification.type === "NOVEL_PERMANENTLY_DELETED"
-                            ? "bg-red-500/20 text-red-500"
+                            ? "bg-red-100 text-red-600"
                             : notification.type === "NEW_CHAPTER"
-                                ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                : "bg-[#34D399]/20 text-[#34D399]"
+                                ? "bg-amber-100 text-amber-600"
+                                : "bg-emerald-100 text-emerald-600"
                         }`}>
                         {isNavigating ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -137,11 +137,11 @@ export function NotificationItem({ notification, onClose, onUpdate }: Notificati
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                    <p className={`text-sm text-gray-200 line-clamp-2 wrap-break-word ${!notification.isRead ? "font-semibold" : "font-normal"
+                    <p className={`text-sm text-foreground line-clamp-2 wrap-break-word ${!notification.isRead ? "font-semibold" : "font-normal"
                         }`}>
                         {notification.message}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                         {formatRelativeTime(notification.createdAt)}
                     </p>
                 </div>

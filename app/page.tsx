@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 
 import MainHeader from "@/components/layout/main-header";
 import { HeroCarousel } from "@/components/home/hero-carousel";
-import { ContinueReading } from "@/components/home/continue-reading";
+// import { ContinueReading } from "@/components/home/continue-reading"; // Hidden section
 import { TopSeries } from "@/components/home/top-series";
 import { NovelSlider } from "@/components/novel/novel-slider";
 import { RecommendedNovelShelf } from "@/components/recommendation/recommended-novel-shelf";
@@ -12,9 +12,9 @@ import { HorizontalCard } from "@/components/novel/horizontal-card";
 import { ArrowRight } from "lucide-react";
 
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Hidden section
 import { getTopViewed, getTopRated } from "@/actions/ranking";
-import { getHistory } from "@/actions/library";
+// import { getHistory } from "@/actions/library"; // Hidden section
 
 // Revalidate data every 60 seconds (optional, good for static/ISR)
 export const revalidate = 60;
@@ -28,14 +28,13 @@ export default async function Home() {
     latestNovels,
     topViewed,
     topRated,
-    readingHistory,
     cnNovels,
     krNovels,
     jpNovels,
+    vnNovels,
     completedNovels,
 
     newArrivals,
-    generalRanking,
   ] = await Promise.all([
     // Get 5 top-rated novels for carousel
     db.novel
@@ -66,7 +65,7 @@ export default async function Home() {
             avgRating:
               novel.ratings.length > 0
                 ? novel.ratings.reduce((sum, r) => sum + r.score, 0) /
-                  novel.ratings.length
+                novel.ratings.length
                 : 0,
           }))
           .sort((a, b) => b.avgRating - a.avgRating)
@@ -116,15 +115,14 @@ export default async function Home() {
     // Get top rated novels
     getTopRated(20),
 
-    // Get reading history if user is logged in
-    session?.user ? getHistory() : Promise.resolve([]),
-
     // Get top CN novels
     getRankingByNation("CN"),
     // Get top KR novels
     getRankingByNation("KR"),
     // Get top JP novels
     getRankingByNation("JP"),
+    // Get top VN novels
+    getRankingByNation("VN"),
 
     // Get completed novels for recommendation
     db.novel
@@ -254,8 +252,8 @@ export default async function Home() {
           />
         </div>
 
-        {/* Ranking Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        {/* Ranking Columns by Nation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           <RankingColumn
             title="Xếp hạng truyện Trung"
             novels={cnNovels}
@@ -271,6 +269,11 @@ export default async function Home() {
             novels={jpNovels}
             link="/rankings?nation=JP"
           />
+          <RankingColumn
+            title="Xếp hạng truyện Việt"
+            novels={vnNovels}
+            link="/rankings?nation=VN"
+          />
         </div>
 
         {/* Recommended Slider */}
@@ -281,17 +284,17 @@ export default async function Home() {
           />
         </div>
 
-        {/* New Arrivals & Recently Updated */}
+        {/* Mới lên kệ & Truyện cập nhật */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
-          {/* New Arrivals (2/3 width) */}
+          {/* Mới lên kệ - Truyện mới đăng (2/3 width) */}
           <div className="lg:col-span-2 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 <span className="w-1.5 h-8 bg-primary rounded-full"></span>
-                Truyện cập nhật
+                Mới lên kệ
               </h3>
               <Link
-                href="/latest"
+                href="/latest?sort=newest"
                 className="text-sm font-bold text-gray-500 hover:text-primary flex items-center transition-colors"
               >
                 Xem tất cả <ArrowRight className="w-4 h-4 ml-1" />
@@ -307,15 +310,15 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Recently Updated (1/3 width) */}
+          {/* Truyện cập nhật - Truyện mới update (1/3 width) */}
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-4">
                 <span className="w-1.5 h-8 bg-[var(--secondary)] rounded-full"></span>
-                Mới lên kệ
+                Truyện cập nhật
               </h3>
               <Link
-                href="/latest"
+                href="/latest?sort=updated"
                 className="text-sm font-bold text-gray-500 hover:text-primary flex items-center transition-colors"
               >
                 Xem tất cả <ArrowRight className="w-4 h-4 ml-1" />
@@ -333,36 +336,17 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* General Ranking Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          <RankingColumn
-            title="Top Ngày"
-            novels={generalRanking.slice(0, 10)}
-            link="/rankings?sort=view&time=day"
-          />
-          <RankingColumn
-            title="Top Tuần"
-            novels={generalRanking.slice(10, 20)}
-            link="/rankings?sort=view&time=week"
-          />
-          <RankingColumn
-            title="Top Tháng"
-            novels={generalRanking.slice(20, 30)}
-            link="/rankings?sort=view&time=month"
-          />
-          <RankingColumn
-            title="Top Năm"
-            novels={generalRanking.slice(30, 40)}
-            link="/rankings?sort=view&time=year"
-          />
-        </div>
+        {/* TODO: Time-based Ranking - Hidden for now, will implement proper time filtering later */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+          <RankingColumn title="Top Ngày" novels={[]} link="/rankings?sort=view&time=day" />
+          <RankingColumn title="Top Tuần" novels={[]} link="/rankings?sort=view&time=week" />
+          <RankingColumn title="Top Tháng" novels={[]} link="/rankings?sort=view&time=month" />
+          <RankingColumn title="Top Năm" novels={[]} link="/rankings?sort=view&time=year" />
+        </div> */}
 
-        {/* Tabbed Slider Section */}
-        <div className="mt-12">
-          <Tabs
-            defaultValue="editors-choice"
-            className="w-full"
-          >
+        {/* TODO: Editor's Choice - Hidden until proper editor role is implemented */}
+        {/* <div className="mt-12">
+          <Tabs defaultValue="editors-choice" className="w-full">
             <div className="flex items-center justify-between mb-6">
               <TabsList className="bg-transparent p-0 h-auto gap-6">
                 <TabsTrigger
@@ -379,36 +363,14 @@ export default async function Home() {
                 </TabsTrigger>
               </TabsList>
             </div>
-
-            <TabsContent
-              value="editors-choice"
-              className="mt-0"
-            >
-              <NovelSlider
-                title=""
-                novels={topRated} // Using topRated as placeholder for Editor's Choice
-                controllerPosition="sides"
-              />
+            <TabsContent value="editors-choice" className="mt-0">
+              <NovelSlider title="" novels={topRated} controllerPosition="sides" />
             </TabsContent>
-            <TabsContent
-              value="completed"
-              className="mt-0"
-            >
-              <NovelSlider
-                title=""
-                novels={completedNovels}
-                controllerPosition="sides"
-              />
+            <TabsContent value="completed" className="mt-0">
+              <NovelSlider title="" novels={completedNovels} controllerPosition="sides" />
             </TabsContent>
           </Tabs>
-        </div>
-
-        {/* Continue Reading Section - At the bottom */}
-        {session?.user && readingHistory.length > 0 && (
-          <div className="container mx-auto max-w-md mt-8">
-            <ContinueReading history={readingHistory} />
-          </div>
-        )}
+        </div> */}
       </main>
     </>
   );

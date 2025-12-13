@@ -51,41 +51,41 @@ export function DataTable({
     return (
         <div className="space-y-4">
             {/* Toolbar */}
-            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/2 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
                 <div className="relative w-72">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Search className="h-4 w-4 text-gray-500" />
+                        <Search className="h-4 w-4 text-gray-400" />
                     </div>
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
                         defaultValue={searchParams.get("search")?.toString()}
                         onChange={(e) => handleSearch(e.target.value)}
-                        className="w-full rounded-lg border border-white/10 bg-black/20 py-2 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm text-foreground placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                 </div>
-                <div className="text-sm text-gray-400">
-                    Total: <span className="font-medium text-white">{metadata.total}</span>
+                <div className="text-sm text-muted-foreground">
+                    Total: <span className="font-medium text-foreground">{metadata.total}</span>
                 </div>
             </div>
 
             {/* Table */}
-            <div className="overflow-hidden rounded-lg border border-white/5 bg-white/2">
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead>
-                            <tr className="border-b border-white/5 bg-white/2">
+                            <tr className="border-b border-gray-200 bg-gray-50">
                                 {columns.map((col, i) => (
                                     <th
                                         key={i}
-                                        className={`px-6 py-4 font-medium text-gray-400 ${col.className || ""}`}
+                                        className={`px-6 py-4 font-medium text-muted-foreground ${col.className || ""}`}
                                     >
                                         {col.header}
                                     </th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={columns.length} className="py-24 text-center">
@@ -101,22 +101,22 @@ export function DataTable({
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                <div className="text-sm text-gray-500">
+            <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                <div className="text-sm text-muted-foreground">
                     Page {metadata.page} of {metadata.totalPages}
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={() => handlePageChange(metadata.page - 1)}
                         disabled={metadata.page <= 1}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-muted-foreground transition-colors hover:bg-gray-50 hover:text-foreground disabled:opacity-50"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </button>
                     <button
                         onClick={() => handlePageChange(metadata.page + 1)}
                         disabled={metadata.page >= metadata.totalPages}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-muted-foreground transition-colors hover:bg-gray-50 hover:text-foreground disabled:opacity-50"
                     >
                         <ChevronRight className="h-4 w-4" />
                     </button>

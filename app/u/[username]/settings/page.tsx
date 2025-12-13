@@ -173,8 +173,8 @@ export default function SettingsPage() {
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0B0C10]">
-                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
         );
     }
@@ -184,10 +184,10 @@ export default function SettingsPage() {
     const backLink = session.user.role === "ADMIN" || session.user.role === "TRANSLATOR" ? "/studio" : "/";
 
     return (
-        <div className="min-h-screen bg-[#0B0C10] text-slate-200 font-sans selection:bg-amber-500/30">
+        <div className="min-h-screen bg-gray-50 text-foreground font-sans selection:bg-emerald-500/30">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
             </div>
 
@@ -196,38 +196,38 @@ export default function SettingsPage() {
                 <div className="mb-10">
                     <Link
                         href={backLink}
-                        className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-amber-400 transition-colors mb-6 group"
+                        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-emerald-600 transition-colors mb-6 group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Trở về
                     </Link>
-                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-500 mb-2">
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-600 to-emerald-500 mb-2">
                         Thiết Lập Hồ Sơ
                     </h1>
-                    <p className="text-slate-400">
+                    <p className="text-muted-foreground">
                         Quản lý danh tính của bạn trong thế giới Novest.
                     </p>
                 </div>
 
                 {/* Main Card */}
-                <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-amber-500/50 to-transparent opacity-50" />
+                <div className="bg-white backdrop-blur-sm border border-gray-200 rounded-2xl p-8 shadow-lg relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Messages */}
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                            <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                                 <XCircle className="w-4 h-4" /> {error}
                             </div>
                         )}
                         {success && (
-                            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                            <div className="bg-emerald-100 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4" /> {success}
                             </div>
                         )}
 
                         {/* Avatar Section */}
-                        <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-white/5">
+                        <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-gray-200">
                             <div className="relative group">
                                 <div className="relative">
                                     <ImageUpload
@@ -239,8 +239,8 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-lg font-medium text-slate-200">Ảnh Đại Diện</h3>
-                                <p className="text-sm text-slate-500">
+                                <h3 className="text-lg font-medium text-foreground">Ảnh Đại Diện</h3>
+                                <p className="text-sm text-muted-foreground">
                                     Định dạng JPG, PNG hoặc GIF. Tối đa 4MB.<br />
                                     Hãy chọn một hình ảnh thể hiện khí chất của bạn.
                                 </p>
@@ -251,12 +251,12 @@ export default function SettingsPage() {
                         <div className="space-y-6">
                             {/* Nickname */}
                             <div className="space-y-2">
-                                <label htmlFor="nickname" className="block text-sm font-medium text-slate-300">
+                                <label htmlFor="nickname" className="block text-sm font-medium text-foreground">
                                     Biệt Danh (Display Name)
                                 </label>
-                                <div className="flex items-center bg-slate-950/50 border border-white/10 rounded-lg focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
+                                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
                                     <div className="pl-3 flex items-center justify-center">
-                                        <User className="w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <User className="w-4 h-4 text-muted-foreground pointer-events-none" />
                                     </div>
                                     <input
                                         id="nickname"
@@ -264,43 +264,43 @@ export default function SettingsPage() {
                                         value={nickname}
                                         onChange={(e) => setNickname(e.target.value)}
                                         disabled={isLoading}
-                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-4 text-slate-200 focus:ring-0 placeholder:text-slate-600"
+                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-4 text-foreground focus:ring-0 placeholder:text-muted-foreground"
                                         placeholder="Vị Đạo Hữu Vô Danh"
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                     Tên này sẽ hiển thị trên các bình luận và trang cá nhân của bạn.
                                 </p>
                             </div>
 
                             {/* Username */}
                             <div className="space-y-2">
-                                <label htmlFor="username" className="block text-sm font-medium text-slate-300">
+                                <label htmlFor="username" className="block text-sm font-medium text-foreground">
                                     Định Danh (Unique Handle)
                                 </label>
                                 {isUsernameLocked ? (
                                     // Locked Username (Read-only display)
-                                    <div className="bg-slate-950/30 border border-amber-500/20 rounded-lg p-4">
+                                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <AtSign className="w-5 h-5 text-amber-500" />
-                                            <span className="text-lg font-sans text-amber-400">{username}</span>
+                                            <AtSign className="w-5 h-5 text-emerald-600" />
+                                            <span className="text-lg font-sans text-emerald-600">{username}</span>
                                         </div>
-                                        <p className="text-xs text-slate-400 mb-1">
+                                        <p className="text-xs text-muted-foreground mb-1">
                                             Định danh của bạn đã được thiết lập và không thể thay đổi.
                                         </p>
-                                        <p className="text-xs text-slate-600 font-sans">
+                                        <p className="text-xs text-muted-foreground font-sans">
                                             novest.com/u/{username}
                                         </p>
                                     </div>
                                 ) : (
                                     // Editable Username (Can be changed once)
                                     <>
-                                        <div className={`flex items-center bg-slate-950/50 border rounded-lg transition-all relative ${usernameAvailable === true ? "border-emerald-500/50 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/20" :
-                                            usernameAvailable === false ? "border-red-500/50 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/20" :
-                                                "border-white/10 focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50"
+                                        <div className={`flex items-center bg-gray-50 border rounded-lg transition-all relative ${usernameAvailable === true ? "border-emerald-500 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/20" :
+                                            usernameAvailable === false ? "border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/20" :
+                                                "border-gray-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/50"
                                             }`}>
                                             <div className="pl-3 flex items-center justify-center">
-                                                <AtSign className="w-4 h-4 text-slate-500 pointer-events-none" />
+                                                <AtSign className="w-4 h-4 text-muted-foreground pointer-events-none" />
                                             </div>
                                             <input
                                                 id="username"
@@ -308,12 +308,12 @@ export default function SettingsPage() {
                                                 value={username}
                                                 onChange={(e) => setUsername(e.target.value)}
                                                 disabled={isLoading}
-                                                className="w-full bg-transparent border-none py-2.5 pl-3 pr-10 text-slate-200 focus:ring-0 placeholder:text-slate-600"
+                                                className="w-full bg-transparent border-none py-2.5 pl-3 pr-10 text-foreground focus:ring-0 placeholder:text-muted-foreground"
                                                 placeholder="dao_huu_123"
                                             />
                                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                                                 {isCheckingUsername && (
-                                                    <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
+                                                    <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
                                                 )}
                                                 {!isCheckingUsername && usernameAvailable === true && (
                                                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -324,13 +324,13 @@ export default function SettingsPage() {
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-start">
-                                            <p className={`text-xs transition-colors ${usernameAvailable === true ? "text-emerald-400" :
-                                                usernameAvailable === false ? "text-red-400" :
-                                                    "text-slate-500"
+                                            <p className={`text-xs transition-colors ${usernameAvailable === true ? "text-emerald-600" :
+                                                usernameAvailable === false ? "text-red-600" :
+                                                    "text-muted-foreground"
                                                 }`}>
                                                 {usernameMessage || "Định danh duy nhất dùng cho URL trang cá nhân của bạn. Bạn chỉ có thể thay đổi một lần."}
                                             </p>
-                                            <span className="text-xs text-slate-600 font-sans">
+                                            <span className="text-xs text-muted-foreground font-sans">
                                                 novest.com/u/{username || "..."}
                                             </span>
                                         </div>
@@ -341,21 +341,21 @@ export default function SettingsPage() {
 
                         {/* Birthday Section */}
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400">Ngày Sinh</h2>
-                            <div className="bg-slate-950/50 backdrop-blur-xs rounded-xl border border-white/10 p-6">
+                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-600 to-emerald-500">Ngày Sinh</h2>
+                            <div className="bg-gray-50 backdrop-blur-xs rounded-xl border border-gray-200 p-6">
                                 {isBirthdayLocked ? (
                                     // Locked Birthday (Read-only display)
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-3">
                                             <span className="text-2xl">🎂</span>
-                                            <span className="text-lg font-semibold text-amber-400">
+                                            <span className="text-lg font-semibold text-emerald-600">
                                                 {savedBirthday && new Date(savedBirthday).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-400">
+                                        <p className="text-xs text-muted-foreground">
                                             Ngày sinh của bạn đã được thiết lập và không thể thay đổi.
                                         </p>
-                                        <p className="text-sm text-amber-400 flex items-center gap-2 mt-3">
+                                        <p className="text-sm text-emerald-600 flex items-center gap-2 mt-3">
                                             🎁 Novest sẽ gửi quà vào ngày sinh nhật của bạn!
                                         </p>
                                     </div>
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                                             <select
                                                 value={birthDay}
                                                 onChange={(e) => setBirthDay(e.target.value)}
-                                                className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                                className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none"
                                             >
                                                 <option value="">Ngày</option>
                                                 {Array.from({ length: 31 }, (_, i) => (
@@ -376,7 +376,7 @@ export default function SettingsPage() {
                                             <select
                                                 value={birthMonth}
                                                 onChange={(e) => setBirthMonth(e.target.value)}
-                                                className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                                className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none"
                                             >
                                                 <option value="">Tháng</option>
                                                 {[
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                                             <select
                                                 value={birthYear}
                                                 onChange={(e) => setBirthYear(e.target.value)}
-                                                className="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none"
+                                                className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none"
                                             >
                                                 <option value="">Năm</option>
                                                 {Array.from({ length: 100 }, (_, i) => {
@@ -399,10 +399,10 @@ export default function SettingsPage() {
                                                 })}
                                             </select>
                                         </div>
-                                        <p className="text-xs text-slate-500 mb-2">
+                                        <p className="text-xs text-muted-foreground mb-2">
                                             ⚠️ Bạn chỉ có thể đặt ngày sinh một lần duy nhất.
                                         </p>
-                                        <p className="text-sm text-amber-400 flex items-center gap-2">
+                                        <p className="text-sm text-emerald-600 flex items-center gap-2">
                                             🎁 Novest sẽ gửi quà vào ngày sinh nhật của bạn!
                                         </p>
                                     </>
@@ -412,15 +412,15 @@ export default function SettingsPage() {
 
                         {/* Recommendation Preferences Section */}
                         <div id="preferences" className="space-y-4">
-                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400 flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-amber-500" />
+                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-600 to-emerald-500 flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-emerald-500" />
                                 Sở Thích Đề Xuất
                             </h2>
-                            <div className="bg-slate-950/50 backdrop-blur-xs rounded-xl border border-white/10 p-6 space-y-6">
+                            <div className="bg-gray-50 backdrop-blur-xs rounded-xl border border-gray-200 p-6 space-y-6">
                                 {/* Nations */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                                        <Globe className="w-4 h-4 text-amber-500" />
+                                    <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-emerald-500" />
                                         Nguồn gốc truyện
                                     </h3>
                                     <div className="flex gap-3 flex-wrap">
@@ -440,8 +440,8 @@ export default function SettingsPage() {
                                                 className={clsx(
                                                     "flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all",
                                                     selectedNations.includes(nation.code)
-                                                        ? "border-amber-500 bg-amber-500/10 text-amber-500"
-                                                        : "border-white/10 hover:border-white/20 text-gray-300"
+                                                        ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                                                        : "border-gray-200 hover:border-gray-300 text-foreground"
                                                 )}
                                             >
                                                 <span>{nation.emoji}</span>
@@ -453,13 +453,13 @@ export default function SettingsPage() {
 
                                 {/* Genres */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                                        <BookOpen className="w-4 h-4 text-amber-500" />
+                                    <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                                        <BookOpen className="w-4 h-4 text-emerald-500" />
                                         Thể loại yêu thích
                                     </h3>
                                     {loadingPreferences ? (
                                         <div className="flex justify-center py-4">
-                                            <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
+                                            <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
                                         </div>
                                     ) : (
                                         <div className="flex flex-wrap gap-2">
@@ -475,8 +475,8 @@ export default function SettingsPage() {
                                                     className={clsx(
                                                         "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
                                                         selectedGenres.includes(genre.id)
-                                                            ? "bg-amber-500 text-slate-900"
-                                                            : "bg-white/5 text-gray-300 hover:bg-white/10"
+                                                            ? "bg-emerald-500 text-white"
+                                                            : "bg-gray-100 text-foreground hover:bg-gray-200"
                                                     )}
                                                 >
                                                     {genre.name}
@@ -498,7 +498,7 @@ export default function SettingsPage() {
                                             setTimeout(() => setPreferencesSaved(false), 2000);
                                         }
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-600 hover:bg-emerald-200 transition-colors"
                                 >
                                     {preferencesSaved ? (
                                         <>
@@ -516,11 +516,11 @@ export default function SettingsPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="pt-6 border-t border-white/5 flex items-center gap-4">
+                        <div className="pt-6 border-t border-gray-200 flex items-center gap-4">
                             <button
                                 type="submit"
                                 disabled={isLoading || (usernameAvailable === false && username !== initialUsername)}
-                                className="bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="bg-linear-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 Lưu Thay Đổi
@@ -535,7 +535,7 @@ export default function SettingsPage() {
                                     setUsernameMessage("");
                                 }}
                                 disabled={isLoading}
-                                className="px-6 py-2.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-300 transition-colors disabled:opacity-50"
+                                className="px-6 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-muted-foreground transition-colors disabled:opacity-50"
                             >
                                 Đặt Lại
                             </button>
@@ -547,30 +547,30 @@ export default function SettingsPage() {
             {/* Welcome Modal */}
             {
                 showWelcome && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                        <div className="bg-slate-900 border border-amber-500/20 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-500 to-emerald-500" />
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <div className="bg-white border border-gray-200 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-emerald-500 to-emerald-400" />
                             <div className="text-center space-y-4">
-                                <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <User className="w-8 h-8 text-amber-500" />
+                                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <User className="w-8 h-8 text-emerald-600" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">Chào mừng đạo hữu!</h2>
-                                <p className="text-slate-400 text-sm">
+                                <h2 className="text-2xl font-bold text-foreground">Chào mừng đạo hữu!</h2>
+                                <p className="text-muted-foreground text-sm">
                                     Chào mừng bạn đến với Novest. Hệ thống đã tự động tạo cho bạn một định danh.
                                     Bạn có thể thay đổi nó ngay bây giờ hoặc để sau.
                                 </p>
 
                                 {/* Birthday Section in Welcome Modal */}
-                                <div className="bg-slate-800/50 rounded-xl p-4 mt-4 text-left">
+                                <div className="bg-gray-50 rounded-xl p-4 mt-4 text-left">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="text-xl">🎂</span>
-                                        <h3 className="font-semibold text-amber-400">Ngày sinh của bạn</h3>
+                                        <h3 className="font-semibold text-emerald-600">Ngày sinh của bạn</h3>
                                     </div>
                                     <div className="flex flex-wrap gap-2 mb-3">
                                         <select
                                             value={birthDay}
                                             onChange={(e) => setBirthDay(e.target.value)}
-                                            className="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none flex-1 min-w-[70px]"
+                                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none flex-1 min-w-[70px]"
                                         >
                                             <option value="">Ngày</option>
                                             {Array.from({ length: 31 }, (_, i) => (
@@ -580,7 +580,7 @@ export default function SettingsPage() {
                                         <select
                                             value={birthMonth}
                                             onChange={(e) => setBirthMonth(e.target.value)}
-                                            className="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none flex-1 min-w-[90px]"
+                                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none flex-1 min-w-[90px]"
                                         >
                                             <option value="">Tháng</option>
                                             {[
@@ -594,7 +594,7 @@ export default function SettingsPage() {
                                         <select
                                             value={birthYear}
                                             onChange={(e) => setBirthYear(e.target.value)}
-                                            className="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 outline-none flex-1 min-w-[80px]"
+                                            className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none flex-1 min-w-[80px]"
                                         >
                                             <option value="">Năm</option>
                                             {Array.from({ length: 100 }, (_, i) => {
@@ -603,7 +603,7 @@ export default function SettingsPage() {
                                             })}
                                         </select>
                                     </div>
-                                    <p className="text-xs text-amber-400/80 flex items-center gap-1">
+                                    <p className="text-xs text-emerald-600 flex items-center gap-1">
                                         🎁 Novest sẽ gửi quà đặc biệt vào ngày sinh nhật của bạn!
                                     </p>
                                 </div>
@@ -620,13 +620,13 @@ export default function SettingsPage() {
                                             setShowWelcome(false);
                                         }}
                                         disabled={!birthYear || !birthMonth || !birthDay}
-                                        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-700 disabled:text-slate-400 text-slate-950 font-bold py-3 rounded-lg transition-colors disabled:cursor-not-allowed"
+                                        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold py-3 rounded-lg transition-colors disabled:cursor-not-allowed"
                                     >
                                         {birthYear && birthMonth && birthDay ? "Lưu và Tiếp Tục" : "Chọn ngày sinh để tiếp tục"}
                                     </button>
                                     <button
                                         onClick={() => setShowWelcome(false)}
-                                        className="w-full text-slate-400 hover:text-slate-200 py-2 text-sm transition-colors"
+                                        className="w-full text-muted-foreground hover:text-foreground py-2 text-sm transition-colors"
                                     >
                                         Bỏ qua, để sau
                                     </button>

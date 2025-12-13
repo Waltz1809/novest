@@ -768,7 +768,7 @@ export async function resubmitNovel(novelId: number, message?: string) {
             },
         });
 
-        // Create a ticket for admin review (instead of notification)
+        // Create a ticket for admin review (for tracking/log purposes)
         const uploaderName = session.user.nickname || session.user.name || "Người dùng";
         await db.ticket.create({
             data: {
@@ -781,8 +781,30 @@ export async function resubmitNovel(novelId: number, message?: string) {
             },
         });
 
+        // Also notify admins/moderators so they don't miss it
+        const admins = await db.user.findMany({
+            where: { role: { in: ["ADMIN", "MODERATOR"] } },
+            select: { id: true },
+        });
+
+        await Promise.all(
+            admins.map((admin) =>
+                db.notification.create({
+                    data: {
+                        userId: admin.id,
+                        actorId: session.user.id,
+                        type: "NOVEL_RESUBMISSION",
+                        resourceId: novel.slug,
+                        resourceType: "NOVEL",
+                        message: `${uploaderName} xin duyệt lại truyện "${novel.title}" (lần ${(novel.rejectionCount || 0) + 1})`,
+                    },
+                })
+            )
+        );
+
         revalidatePath("/admin/tickets");
         revalidatePath("/admin/novels");
+        revalidatePath("/admin/novels/pending");
         revalidatePath(`/truyen/${novel.slug}/cho-duyet`);
         revalidatePath("/studio/novels");
 

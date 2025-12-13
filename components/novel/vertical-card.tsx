@@ -33,7 +33,7 @@ export function VerticalCard({ novel, className }: VerticalCardProps) {
         {/* 1. Ảnh Bìa (Tỉ lệ 2:3) */}
         <div className="relative w-full aspect-[2/3] overflow-hidden bg-gray-100">
           <Image
-            src={novel.coverImage || "/placeholder.jpg"}
+            src={novel.coverImage || "/images/default-cover.png"}
             alt={novel.title}
             fill
             className="card-img w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

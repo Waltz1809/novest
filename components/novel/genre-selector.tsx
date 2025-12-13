@@ -60,7 +60,7 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
     return (
         <div className="relative" ref={containerRef}>
             <div
-                className="flex flex-wrap gap-2 p-2 min-h-[46px] w-full rounded-lg bg-[#0f172a] border border-white/10 focus-within:border-[#F59E0B] focus-within:ring-2 focus-within:ring-[#F59E0B]/20 transition-all cursor-text"
+                className="flex flex-wrap gap-2 p-2 min-h-[46px] w-full rounded-lg bg-gray-50 border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all cursor-text"
                 onClick={() => {
                     inputRef.current?.focus();
                     setOpen(true);
@@ -69,7 +69,7 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
                 {selectedGenres.map((genre) => (
                     <span
                         key={genre.id}
-                        className="flex items-center gap-1 px-2 py-1 text-sm bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 rounded-md animate-in fade-in zoom-in duration-200"
+                        className="flex items-center gap-1 px-2 py-1 text-sm bg-primary/10 text-primary border border-primary/20 rounded-md animate-in fade-in zoom-in duration-200"
                     >
                         {genre.name}
                         <button
@@ -78,7 +78,7 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
                                 e.stopPropagation();
                                 handleRemove(genre.id);
                             }}
-                            className="hover:bg-[#F59E0B]/20 rounded-full p-0.5 transition-colors"
+                            className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -87,7 +87,7 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
                 <input
                     ref={inputRef}
                     type="text"
-                    className="flex-1 bg-transparent outline-none min-w-[80px] text-sm text-gray-100 placeholder:text-gray-500"
+                    className="flex-1 bg-transparent outline-none min-w-[80px] text-sm text-foreground placeholder:text-muted-foreground"
                     placeholder={selectedGenres.length === 0 ? "Chọn thể loại..." : ""}
                     value={query}
                     onChange={(e) => {
@@ -102,15 +102,15 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
                     }}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <ChevronsUpDown className="w-4 h-4 text-[#F59E0B]/50" />
+                    <ChevronsUpDown className="w-4 h-4 text-primary/50" />
                 </div>
             </div>
 
             {open && (
-                <div className="absolute z-50 w-full mt-2 bg-[#0f172a] border border-white/10 rounded-lg shadow-xl shadow-black/50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+                <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
                     <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
                         {filteredGenres.length === 0 ? (
-                            <div className="p-3 text-sm text-gray-500 text-center">
+                            <div className="p-3 text-sm text-muted-foreground text-center">
                                 Không tìm thấy thể loại.
                             </div>
                         ) : (
@@ -123,8 +123,8 @@ export default function GenreSelector({ genres, selectedValues, onChange }: Genr
                                         className={`
                                             flex items-center justify-between px-3 py-2 rounded-md text-sm cursor-pointer transition-colors mb-0.5
                                             ${isSelected
-                                                ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                                : "text-gray-300 hover:bg-white/5 hover:text-white"
+                                                ? "bg-primary/10 text-primary"
+                                                : "text-muted-foreground hover:bg-gray-50 hover:text-foreground"
                                             }
                                         `}
                                     >

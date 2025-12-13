@@ -75,8 +75,8 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h3 className="text-lg font-bold text-white">Quản lý duyệt truyện</h3>
-                    <p className="text-sm text-[#9CA3AF]">
+                    <h3 className="text-lg font-bold text-foreground">Quản lý duyệt truyện</h3>
+                    <p className="text-sm text-muted-foreground">
                         Truyện &quot;{novelTitle}&quot; đang chờ phê duyệt
                     </p>
                 </div>
@@ -120,11 +120,11 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
 
             {/* Reject form (with 3-strike) */}
             {isRejectOpen && (
-                <div className="bg-[#0B0C10] p-4 rounded-lg border border-amber-500/30 animate-in slide-in-from-top-2">
-                    <label className="block text-sm font-medium text-white mb-2">
-                        Lý do từ chối <span className="text-amber-400">*</span>
+                <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 animate-in slide-in-from-top-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                        Lý do từ chối <span className="text-amber-600">*</span>
                     </label>
-                    <p className="text-xs text-amber-400 mb-2">
+                    <p className="text-xs text-amber-600 mb-2">
                         💡 Người đăng có thể sửa và nộp lại. Sau 3 lần từ chối sẽ xoá vĩnh viễn.
                     </p>
                     <textarea
@@ -135,13 +135,13 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
                         }}
                         placeholder="Nhập lý do từ chối (ít nhất 10 ký tự)..."
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#1E293B] border border-white/10 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-foreground placeholder:text-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all resize-none"
                         disabled={isPending}
                     />
                     {error && (
-                        <p className="text-red-400 text-sm mt-2">{error}</p>
+                        <p className="text-red-500 text-sm mt-2">{error}</p>
                     )}
-                    <p className={`text-xs mt-1 ${reason.length >= 10 ? 'text-green-400' : 'text-amber-400'}`}>
+                    <p className={`text-xs mt-1 ${reason.length >= 10 ? 'text-green-600' : 'text-amber-600'}`}>
                         {reason.length}/10 ký tự {reason.length >= 10 ? '✓' : '(tối thiểu 10)'}
                     </p>
                     <div className="flex justify-end gap-3 mt-3">
@@ -151,7 +151,7 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
                                 setReason("");
                                 setError("");
                             }}
-                            className="px-4 py-2 text-[#9CA3AF] hover:text-white transition-colors"
+                            className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                             disabled={isPending}
                         >
                             Hủy
@@ -174,11 +174,11 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
 
             {/* Permanent reject form */}
             {isPermanentRejectOpen && (
-                <div className="bg-[#0B0C10] p-4 rounded-lg border border-red-500/30 animate-in slide-in-from-top-2">
-                    <label className="block text-sm font-medium text-white mb-2">
-                        Lý do từ chối & xoá vĩnh viễn <span className="text-red-400">*</span>
+                <div className="bg-red-50 p-4 rounded-lg border border-red-200 animate-in slide-in-from-top-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                        Lý do từ chối & xoá vĩnh viễn <span className="text-red-600">*</span>
                     </label>
-                    <p className="text-xs text-red-400 mb-2">
+                    <p className="text-xs text-red-600 mb-2">
                         ⚠️ CẢNH BÁO: Truyện sẽ bị XOÁ VĨNH VIỄN và KHÔNG THỂ khôi phục!
                     </p>
                     <textarea
@@ -189,13 +189,13 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
                         }}
                         placeholder="Nhập lý do từ chối (ít nhất 10 ký tự)..."
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#1E293B] border border-red-500/30 rounded-lg text-white placeholder:text-gray-600 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-3 bg-white border border-red-200 rounded-lg text-foreground placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all resize-none"
                         disabled={isPending}
                     />
                     {error && (
-                        <p className="text-red-400 text-sm mt-2">{error}</p>
+                        <p className="text-red-500 text-sm mt-2">{error}</p>
                     )}
-                    <p className={`text-xs mt-1 ${permanentReason.length >= 10 ? 'text-green-400' : 'text-red-400'}`}>
+                    <p className={`text-xs mt-1 ${permanentReason.length >= 10 ? 'text-green-600' : 'text-red-600'}`}>
                         {permanentReason.length}/10 ký tự {permanentReason.length >= 10 ? '✓' : '(tối thiểu 10)'}
                     </p>
                     <div className="flex justify-end gap-3 mt-3">
@@ -205,7 +205,7 @@ export function ApprovalControls({ novelId, novelTitle }: ApprovalControlsProps)
                                 setPermanentReason("");
                                 setError("");
                             }}
-                            className="px-4 py-2 text-[#9CA3AF] hover:text-white transition-colors"
+                            className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                             disabled={isPending}
                         >
                             Hủy

@@ -32,7 +32,7 @@ export function TopSeries({ novels }: TopSeriesProps) {
               className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg group-hover:shadow-2xl border border-gray-100/10"
             >
               <Image
-                src={novel.coverImage || "/placeholder.jpg"}
+                src={novel.coverImage || "/images/default-cover.png"}
                 alt={novel.title}
                 fill
                 className="w-full h-full object-cover"

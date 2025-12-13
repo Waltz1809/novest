@@ -93,7 +93,7 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
     return (
         <DropdownMenu open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white" disabled={isPending}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={isPending}>
                     {isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -101,22 +101,22 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#1E293B] border-white/10 text-gray-200">
+            <DropdownMenuContent align="end" className="bg-white border-gray-200 text-foreground shadow-lg">
                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuSeparator className="bg-gray-200" />
 
                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="hover:bg-white/5 focus:bg-white/5 cursor-pointer">
+                    <DropdownMenuSubTrigger className="hover:bg-gray-100 focus:bg-gray-100 cursor-pointer">
                         <Shield className="mr-2 h-4 w-4" />
                         <span>Đổi vai trò</span>
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="bg-[#1E293B] border-white/10 text-gray-200">
+                    <DropdownMenuSubContent className="bg-white border-gray-200 text-foreground shadow-lg">
                         {/* Note: ADMIN can only be assigned via database directly */}
                         {(["READER", "MODERATOR"] as const).map((role) => (
                             <DropdownMenuItem
                                 key={role}
                                 onClick={() => handleRoleChange(role)}
-                                className="cursor-pointer hover:bg-white/5 focus:bg-white/5"
+                                className="cursor-pointer hover:bg-gray-100 focus:bg-gray-100"
                                 disabled={isPending || user.role === role}
                             >
                                 {ROLE_LABELS[role]}
@@ -129,7 +129,7 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
                 {user.isBanned ? (
                     <DropdownMenuItem
                         onClick={handleUnban}
-                        className="text-green-500 hover:bg-green-500/10 focus:bg-green-500/10 cursor-pointer"
+                        className="text-green-600 hover:bg-green-50 focus:bg-green-50 cursor-pointer"
                         disabled={isPending}
                     >
                         <UserCheck className="mr-2 h-4 w-4" />
@@ -138,7 +138,7 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
                 ) : (
                     <DropdownMenuItem
                         onClick={handleBan}
-                        className="text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 cursor-pointer"
+                        className="text-red-600 hover:bg-red-50 focus:bg-red-50 cursor-pointer"
                         disabled={isPending}
                     >
                         <Ban className="mr-2 h-4 w-4" />

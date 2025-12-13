@@ -133,8 +133,8 @@ export default function WelcomePage() {
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0B0C10]">
-                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-emerald-50">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
         );
     }
@@ -142,46 +142,46 @@ export default function WelcomePage() {
     if (!session) return null;
 
     return (
-        <div className="min-h-screen bg-[#0B0C10] text-slate-200 font-sans selection:bg-amber-500/30 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 text-foreground font-sans selection:bg-primary/20 flex items-center justify-center px-4">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-pulse" />
             </div>
 
-            <div className="w-full max-w-xl relative z-10">
+            <div className="w-full max-w-xl relative z-10 mb-12">
                 {/* Welcome Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-amber-500 to-amber-600 rounded-2xl shadow-lg shadow-amber-500/30 mb-6">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-rose-500 rounded-2xl shadow-lg shadow-primary/30 mb-6">
                         <Sparkles className="w-10 h-10 text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-500 mb-3">
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-rose-600 mb-3">
                         Chào mừng Đạo Hữu!
                     </h1>
-                    <p className="text-slate-400 text-lg">
+                    <p className="text-muted-foreground text-lg">
                         Hãy thiết lập danh tính của bạn trong thế giới Novest
                     </p>
                 </div>
 
                 {/* Main Card */}
-                <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-amber-500 to-transparent opacity-50" />
+                <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Messages */}
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                                 <XCircle className="w-4 h-4 shrink-0" /> {error}
                             </div>
                         )}
                         {success && (
-                            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 shrink-0" /> {success}
                             </div>
                         )}
 
                         {/* Avatar Section */}
-                        <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start pb-6 border-b border-white/5">
+                        <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start pb-6 border-b border-gray-200">
                             <div className="relative">
                                 <ImageUpload
                                     value={image}
@@ -191,8 +191,8 @@ export default function WelcomePage() {
                                 />
                             </div>
                             <div className="space-y-1 text-center sm:text-left">
-                                <h3 className="text-lg font-medium text-slate-200">Ảnh Đại Diện</h3>
-                                <p className="text-sm text-slate-500">
+                                <h3 className="text-lg font-medium text-foreground">Ảnh Đại Diện</h3>
+                                <p className="text-sm text-muted-foreground">
                                     Tùy chọn. Bạn có thể thêm sau.
                                 </p>
                             </div>
@@ -202,12 +202,12 @@ export default function WelcomePage() {
                         <div className="space-y-6">
                             {/* Nickname */}
                             <div className="space-y-2">
-                                <label htmlFor="nickname" className="block text-sm font-medium text-slate-300">
-                                    Biệt Danh <span className="text-slate-500">(tùy chọn)</span>
+                                <label htmlFor="nickname" className="block text-sm font-medium text-foreground">
+                                    Biệt Danh <span className="text-muted-foreground">(tùy chọn)</span>
                                 </label>
-                                <div className="flex items-center bg-slate-950/50 border border-white/10 rounded-lg focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
+                                <div className="flex items-center bg-white border border-gray-200 rounded-lg focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
                                     <div className="pl-3 flex items-center justify-center">
-                                        <User className="w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <User className="w-4 h-4 text-gray-400 pointer-events-none" />
                                     </div>
                                     <input
                                         id="nickname"
@@ -215,26 +215,26 @@ export default function WelcomePage() {
                                         value={nickname}
                                         onChange={(e) => setNickname(e.target.value)}
                                         disabled={isLoading}
-                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-4 text-slate-200 focus:ring-0 placeholder:text-slate-600"
+                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-4 text-foreground focus:ring-0 placeholder:text-gray-400"
                                         placeholder="Vị Đạo Hữu Vô Danh"
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                     Tên hiển thị trên bình luận và trang cá nhân
                                 </p>
                             </div>
 
                             {/* Username (Required) */}
                             <div className="space-y-2">
-                                <label htmlFor="username" className="block text-sm font-medium text-slate-300">
-                                    Định Danh <span className="text-amber-500">*</span>
+                                <label htmlFor="username" className="block text-sm font-medium text-foreground">
+                                    Định Danh <span className="text-primary">*</span>
                                 </label>
-                                <div className={`flex items-center bg-slate-950/50 border rounded-lg transition-all relative ${usernameAvailable === true ? "border-emerald-500/50 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/20" :
-                                    usernameAvailable === false ? "border-red-500/50 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/20" :
-                                        "border-white/10 focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50"
+                                <div className={`flex items-center bg-white border rounded-lg transition-all relative ${usernameAvailable === true ? "border-emerald-500 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/20" :
+                                    usernameAvailable === false ? "border-red-400 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500/20" :
+                                        "border-gray-200 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30"
                                     }`}>
                                     <div className="pl-3 flex items-center justify-center">
-                                        <AtSign className="w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <AtSign className="w-4 h-4 text-gray-400 pointer-events-none" />
                                     </div>
                                     <input
                                         id="username"
@@ -242,12 +242,12 @@ export default function WelcomePage() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.toLowerCase())}
                                         disabled={isLoading}
-                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-10 text-slate-200 focus:ring-0 placeholder:text-slate-600"
+                                        className="w-full bg-transparent border-none py-2.5 pl-3 pr-10 text-foreground focus:ring-0 placeholder:text-gray-400"
                                         placeholder="dao_huu_123"
                                     />
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                                         {isCheckingUsername && (
-                                            <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
+                                            <Loader2 className="w-4 h-4 text-primary animate-spin" />
                                         )}
                                         {!isCheckingUsername && usernameAvailable === true && (
                                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -258,13 +258,13 @@ export default function WelcomePage() {
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-start gap-2">
-                                    <p className={`text-xs transition-colors ${usernameAvailable === true ? "text-emerald-400" :
-                                        usernameAvailable === false ? "text-red-400" :
-                                            "text-slate-500"
+                                    <p className={`text-xs transition-colors ${usernameAvailable === true ? "text-emerald-600" :
+                                        usernameAvailable === false ? "text-red-500" :
+                                            "text-muted-foreground"
                                         }`}>
                                         {usernameMessage || "Định danh dùng cho URL trang cá nhân. Không thể thay đổi sau này!"}
                                     </p>
-                                    <span className="text-xs text-slate-600 font-sans shrink-0">
+                                    <span className="text-xs text-muted-foreground font-sans shrink-0">
                                         novest.com/u/{username || "..."}
                                     </span>
                                 </div>
@@ -275,13 +275,13 @@ export default function WelcomePage() {
                         <button
                             type="submit"
                             disabled={isLoading || !username || usernameAvailable === false}
-                            className="w-full bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold py-3 px-6 rounded-lg shadow-lg shadow-amber-500/20 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full bg-gradient-to-r from-primary to-rose-500 hover:from-primary/90 hover:to-rose-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                             {isLoading ? "Đang lưu..." : "Bắt đầu hành trình"}
                         </button>
 
-                        <p className="text-center text-xs text-slate-600">
+                        <p className="text-center text-xs text-muted-foreground">
                             Bằng việc tiếp tục, bạn đồng ý với Điều khoản sử dụng của Novest
                         </p>
                     </form>

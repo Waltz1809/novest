@@ -111,39 +111,39 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Users className="w-7 h-7 text-amber-500" />
+                    <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                        <Users className="w-7 h-7 text-primary" />
                         Nhóm dịch của tôi
                     </h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-muted-foreground mt-1">
                         Quản lý các nhóm dịch bạn tham gia
                     </p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all"
                 >
                     <Plus className="w-5 h-5" />
                     Tạo nhóm mới
                 </button>
             </div>
 
-            <div className="bg-[#0B0C10] rounded-xl border border-white/10 p-4">
-                <p className="text-gray-400 text-sm">
-                    <strong className="text-amber-400">💡 Mặc định:</strong> Truyện không thuộc nhóm nào sẽ hiển thị là "Novest Official"
+            <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
+                <p className="text-amber-800 text-sm">
+                    <strong className="text-amber-600">💡 Mặc định:</strong> Truyện không thuộc nhóm nào sẽ hiển thị là "Novest Official"
                 </p>
             </div>
 
             {groups.length === 0 ? (
-                <div className="bg-[#1E293B] rounded-xl border border-white/10 p-8 text-center">
-                    <Users className="w-12 h-12 mx-auto text-gray-600 mb-4" />
-                    <h3 className="text-white font-medium mb-2">Bạn chưa tham gia nhóm dịch nào</h3>
-                    <p className="text-gray-400 text-sm mb-4">
+                <div className="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
+                    <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-foreground font-medium mb-2">Bạn chưa tham gia nhóm dịch nào</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
                         Tạo nhóm mới hoặc được mời vào nhóm để bắt đầu
                     </p>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg hover:bg-[#FBBF24] transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all"
                     >
                         <Plus className="w-5 h-5" />
                         Tạo nhóm đầu tiên
@@ -154,16 +154,16 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
                     {groups.map((group) => (
                         <div
                             key={group.id}
-                            className="bg-[#1E293B] rounded-xl border border-white/10 p-6 hover:border-amber-500/30 transition-colors"
+                            className="bg-white rounded-xl border border-gray-200 p-6 hover:border-primary/30 transition-colors shadow-sm"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                                        <Users className="w-5 h-5 text-amber-400" />
+                                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                        <Users className="w-5 h-5 text-primary" />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-semibold">{group.name}</h3>
-                                        <p className="text-sm text-gray-400">
+                                        <h3 className="text-foreground font-semibold">{group.name}</h3>
+                                        <p className="text-sm text-muted-foreground">
                                             {group.members?.length || 0} thành viên • {group._count?.novels || 0} truyện
                                         </p>
                                     </div>
@@ -171,12 +171,12 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2">
                                         {getRoleIcon(group.myRole)}
-                                        <span className="text-sm text-gray-400">{group.myRole}</span>
+                                        <span className="text-sm text-muted-foreground">{group.myRole}</span>
                                     </div>
                                     {(group.myRole === "OWNER" || group.myRole === "ADMIN") && (
                                         <button
                                             onClick={() => setManagingGroup(group)}
-                                            className="px-3 py-1.5 text-sm bg-[#0B0C10] text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors"
+                                            className="px-3 py-1.5 text-sm bg-gray-100 text-primary rounded-lg hover:bg-primary/10 transition-colors"
                                         >
                                             Quản lý
                                         </button>
@@ -185,20 +185,20 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
                             </div>
 
                             {/* Members Preview */}
-                            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
+                            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
                                 {group.members?.slice(0, 5).map((member) => (
                                     <div
                                         key={member.userId}
-                                        className="flex items-center gap-1 px-2 py-1 bg-[#0B0C10] rounded text-sm"
+                                        className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm"
                                     >
                                         {getRoleIcon(member.role)}
-                                        <span className="text-gray-300">
+                                        <span className="text-foreground">
                                             {member.user?.nickname || member.user?.name || "Unknown"}
                                         </span>
                                     </div>
                                 ))}
                                 {(group.members?.length || 0) > 5 && (
-                                    <span className="text-gray-400 text-sm px-2 py-1">
+                                    <span className="text-muted-foreground text-sm px-2 py-1">
                                         +{group.members.length - 5} khác
                                     </span>
                                 )}
@@ -210,13 +210,13 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
 
             {/* Create Group Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-[#1E293B] rounded-xl w-full max-w-md p-6 border border-white/10">
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl w-full max-w-md p-6 border border-gray-200 shadow-xl">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-white">Tạo nhóm dịch mới</h2>
+                            <h2 className="text-xl font-bold text-foreground">Tạo nhóm dịch mới</h2>
                             <button
                                 onClick={() => setShowCreateModal(false)}
-                                className="text-gray-400 hover:text-white"
+                                className="text-muted-foreground hover:text-foreground"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -226,19 +226,19 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
                             value={newGroupName}
                             onChange={(e) => setNewGroupName(e.target.value)}
                             placeholder="Tên nhóm dịch..."
-                            className="w-full px-4 py-3 rounded-lg bg-[#0B0C10] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none mb-4"
+                            className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none mb-4"
                         />
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowCreateModal(false)}
-                                className="flex-1 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                                className="flex-1 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
                             >
                                 Hủy
                             </button>
                             <button
                                 onClick={handleCreateGroup}
                                 disabled={isPending || !newGroupName.trim()}
-                                className="flex-1 px-4 py-2 bg-[#F59E0B] text-[#0B0C10] font-bold rounded-lg disabled:opacity-50 hover:bg-[#FBBF24] transition-all"
+                                className="flex-1 px-4 py-2 bg-primary text-white font-bold rounded-lg disabled:opacity-50 hover:bg-primary/90 transition-all"
                             >
                                 {isPending ? "Đang tạo..." : "Tạo nhóm"}
                             </button>
@@ -249,17 +249,17 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
 
             {/* Manage Members Modal */}
             {managingGroup && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-[#1E293B] rounded-xl w-full max-w-lg p-6 border border-white/10 max-h-[80vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl w-full max-w-lg p-6 border border-gray-200 shadow-xl max-h-[80vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-white">Quản lý: {managingGroup.name}</h2>
+                            <h2 className="text-xl font-bold text-foreground">Quản lý: {managingGroup.name}</h2>
                             <button
                                 onClick={() => {
                                     setManagingGroup(null);
                                     setSearchQuery("");
                                     setSearchResults([]);
                                 }}
-                                className="text-gray-400 hover:text-white"
+                                className="text-muted-foreground hover:text-foreground"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -267,20 +267,20 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
 
                         {/* Add Member */}
                         <div className="mb-6">
-                            <h3 className="text-sm font-medium text-gray-400 mb-2">Thêm thành viên</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-2">Thêm thành viên</h3>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Tìm user theo tên hoặc username..."
-                                    className="flex-1 px-4 py-2 rounded-lg bg-[#0B0C10] border border-white/10 text-gray-100 placeholder:text-gray-500 focus:border-[#F59E0B] outline-none"
+                                    className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground focus:border-primary outline-none"
                                     onKeyDown={(e) => e.key === "Enter" && handleSearchUsers()}
                                 />
                                 <button
                                     onClick={handleSearchUsers}
                                     disabled={isSearching}
-                                    className="px-4 py-2 bg-[#0B0C10] text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors"
+                                    className="px-4 py-2 bg-gray-100 text-primary rounded-lg hover:bg-primary/10 transition-colors"
                                 >
                                     <Search className="w-5 h-5" />
                                 </button>
@@ -291,14 +291,14 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
                                     {searchResults.map((user) => (
                                         <div
                                             key={user.id}
-                                            className="flex items-center justify-between px-3 py-2 bg-[#0B0C10] rounded-lg"
+                                            className="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg"
                                         >
-                                            <span className="text-gray-300">
+                                            <span className="text-foreground">
                                                 {user.nickname || user.name} (@{user.username})
                                             </span>
                                             <button
                                                 onClick={() => handleAddMember(user.id)}
-                                                className="text-emerald-400 hover:text-emerald-300"
+                                                className="text-emerald-500 hover:text-emerald-600"
                                             >
                                                 <UserPlus className="w-5 h-5" />
                                             </button>
@@ -310,24 +310,24 @@ export default function TranslationGroupManager({ groups: initialGroups }: Props
 
                         {/* Current Members */}
                         <div>
-                            <h3 className="text-sm font-medium text-gray-400 mb-2">Thành viên hiện tại</h3>
+                            <h3 className="text-sm font-medium text-muted-foreground mb-2">Thành viên hiện tại</h3>
                             <div className="space-y-2">
                                 {managingGroup.members?.map((member) => (
                                     <div
                                         key={member.userId}
-                                        className="flex items-center justify-between px-3 py-2 bg-[#0B0C10] rounded-lg"
+                                        className="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-lg"
                                     >
                                         <div className="flex items-center gap-2">
                                             {getRoleIcon(member.role)}
-                                            <span className="text-gray-300">
+                                            <span className="text-foreground">
                                                 {member.user?.nickname || member.user?.name}
                                             </span>
-                                            <span className="text-xs text-gray-500">({member.role})</span>
+                                            <span className="text-xs text-muted-foreground">({member.role})</span>
                                         </div>
                                         {member.role !== "OWNER" && managingGroup.myRole === "OWNER" && (
                                             <button
                                                 onClick={() => handleRemoveMember(member.userId)}
-                                                className="text-red-400 hover:text-red-300"
+                                                className="text-red-500 hover:text-red-600"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

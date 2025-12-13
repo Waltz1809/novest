@@ -22,8 +22,8 @@ export default async function CommentsPage({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="font-sans text-3xl font-bold text-white">Comments</h1>
-                <p className="text-gray-400">Moderate user discussions.</p>
+                <h1 className="font-sans text-3xl font-bold text-foreground">Comments</h1>
+                <p className="text-muted-foreground">Moderate user discussions.</p>
             </div>
 
             <DataTable
@@ -37,39 +37,39 @@ export default async function CommentsPage({
                 metadata={metadata}
             >
                 {comments.map((comment) => (
-                    <tr key={comment.id} className="group transition-colors hover:bg-white/2">
+                    <tr key={comment.id} className="group transition-colors hover:bg-gray-50">
                         <td className="px-6 py-4">
-                            <div className="line-clamp-2 text-sm text-gray-300">
+                            <div className="line-clamp-2 text-sm text-foreground">
                                 {comment.content}
                             </div>
                         </td>
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                                <Avatar className="h-6 w-6 border border-white/10">
+                                <Avatar className="h-6 w-6 border border-gray-200">
                                     <AvatarImage src={comment.user.image || ""} />
-                                    <AvatarFallback className="text-[10px]">
+                                    <AvatarFallback className="text-[10px] bg-emerald-100 text-emerald-600">
                                         {comment.user.name?.[0] || "U"}
                                     </AvatarFallback>
                                 </Avatar>
-                                <span className="text-sm font-medium text-gray-400">
+                                <span className="text-sm font-medium text-muted-foreground">
                                     {comment.user.nickname || comment.user.name}
                                 </span>
                             </div>
                         </td>
                         <td className="px-6 py-4">
                             <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-1 text-xs text-amber-500">
+                                <div className="flex items-center gap-1 text-xs text-emerald-600">
                                     <BookOpen className="h-3 w-3" />
                                     <span>{comment.novel.title}</span>
                                 </div>
                                 {comment.chapter && (
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-muted-foreground">
                                         Ch. {comment.chapter.title}
                                     </div>
                                 )}
                             </div>
                         </td>
-                        <td className="px-6 py-4 text-xs text-gray-500">
+                        <td className="px-6 py-4 text-xs text-muted-foreground">
                             {new Date(comment.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 text-right">

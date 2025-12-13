@@ -85,11 +85,11 @@ export default function ChapterPremiumControls({
     // Not eligible for premium
     if (!canBePremium) {
         return (
-            <div className="flex items-center gap-2 px-3 py-2 bg-[#0B0C10] border border-white/10 rounded-lg">
-                <Info className="w-4 h-4 text-[#9CA3AF]" />
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <Info className="w-4 h-4 text-muted-foreground" />
                 <div className="text-sm">
-                    <span className="text-[#9CA3AF]">Chương miễn phí</span>
-                    <p className="text-xs text-[#9CA3AF]/70 mt-0.5">
+                    <span className="text-muted-foreground">Chương miễn phí</span>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">
                         Truyện cần 50.000+ từ để có chương trả phí
                     </p>
                 </div>
@@ -111,7 +111,7 @@ export default function ChapterPremiumControls({
                 <button
                     onClick={handleUnlock}
                     disabled={isPending}
-                    className="px-3 py-2 bg-white/5 hover:bg-white/10 text-[#9CA3AF] hover:text-white text-sm rounded-lg transition-colors flex items-center gap-2"
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-muted-foreground hover:text-foreground text-sm rounded-lg transition-colors flex items-center gap-2"
                 >
                     {isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -129,7 +129,7 @@ export default function ChapterPremiumControls({
         <>
             <button
                 onClick={() => setShowSettings(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-[#9CA3AF] hover:text-white text-sm rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-muted-foreground hover:text-foreground text-sm rounded-lg transition-colors"
             >
                 <Lock className="w-4 h-4" />
                 <span>Đặt trả phí</span>
@@ -139,27 +139,27 @@ export default function ChapterPremiumControls({
             {showSettings && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                         onClick={() => !isPending && setShowSettings(false)}
                     />
-                    <div className="relative bg-[#1E293B] rounded-xl border border-white/10 shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <Lock className="w-5 h-5 text-amber-400" />
+                    <div className="relative bg-white rounded-xl border border-gray-200 shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+                        <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                            <Lock className="w-5 h-5 text-amber-500" />
                             Đặt chương trả phí
                         </h3>
 
                         <div className="space-y-4">
                             {/* Stats */}
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 bg-[#0B0C10] rounded-lg">
-                                    <p className="text-xs text-[#9CA3AF]">Số từ chương</p>
-                                    <p className="text-lg font-bold text-white">
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-muted-foreground">Số từ chương</p>
+                                    <p className="text-lg font-bold text-foreground">
                                         {wordCount.toLocaleString()}
                                     </p>
                                 </div>
-                                <div className="p-3 bg-[#0B0C10] rounded-lg">
-                                    <p className="text-xs text-[#9CA3AF]">Định dạng</p>
-                                    <p className="text-lg font-bold text-white">
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-muted-foreground">Định dạng</p>
+                                    <p className="text-lg font-bold text-foreground">
                                         {novelFormat} (x{formatMultiplier})
                                     </p>
                                 </div>
@@ -167,11 +167,11 @@ export default function ChapterPremiumControls({
 
                             {/* Price Input */}
                             <div>
-                                <label className="text-sm text-[#9CA3AF] mb-2 block">
+                                <label className="text-sm text-muted-foreground mb-2 block">
                                     Giá (vé)
                                 </label>
                                 <div className="relative">
-                                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-400" />
+                                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
                                     <input
                                         type="number"
                                         value={newPrice}
@@ -181,25 +181,25 @@ export default function ChapterPremiumControls({
                                         }}
                                         min={suggestedRange.min}
                                         max={suggestedRange.max}
-                                        className="w-full pl-10 pr-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white text-lg font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none"
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground text-lg font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none"
                                     />
                                 </div>
-                                <p className="text-xs text-[#9CA3AF] mt-2">
+                                <p className="text-xs text-muted-foreground mt-2">
                                     Đề xuất: {suggestedRange.min} - {suggestedRange.suggested} vé
-                                    <span className="text-[#9CA3AF]/50"> (tối đa {suggestedRange.max})</span>
+                                    <span className="text-muted-foreground/50"> (tối đa {suggestedRange.max})</span>
                                 </p>
                             </div>
 
                             {/* Preview */}
-                            <div className="p-3 bg-amber-500/10 rounded-lg flex items-center justify-between">
-                                <span className="text-sm text-amber-400">Giá hiển thị:</span>
-                                <span className="font-bold text-amber-400">
+                            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+                                <span className="text-sm text-amber-600">Giá hiển thị:</span>
+                                <span className="font-bold text-amber-600">
                                     {formatPrice(newPrice)}
                                 </span>
                             </div>
 
                             {error && (
-                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
                                     <AlertCircle className="w-4 h-4 shrink-0" />
                                     {error}
                                 </div>
@@ -210,14 +210,14 @@ export default function ChapterPremiumControls({
                                 <button
                                     onClick={() => setShowSettings(false)}
                                     disabled={isPending}
-                                    className="flex-1 px-4 py-2.5 bg-white/5 text-[#9CA3AF] rounded-lg hover:bg-white/10 transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-gray-100 text-muted-foreground rounded-lg hover:bg-gray-200 transition-colors"
                                 >
                                     Hủy
                                 </button>
                                 <button
                                     onClick={handleLock}
                                     disabled={isPending || newPrice <= 0}
-                                    className="flex-1 px-4 py-2.5 bg-amber-500 text-black font-medium rounded-lg hover:bg-amber-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="flex-1 px-4 py-2.5 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     {isPending ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />

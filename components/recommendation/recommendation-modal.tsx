@@ -88,20 +88,20 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
             />
 
             {/* Modal */}
-            <div className="relative bg-[#1E293B] rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto border border-white/10">
+            <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-200">
                 {/* Header */}
-                <div className="sticky top-0 bg-[#1E293B] p-6 pb-4 border-b border-white/5">
+                <div className="sticky top-0 bg-white p-6 pb-4 border-b border-gray-100">
                     <button
                         onClick={handleSkip}
-                        className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors"
+                        className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <BookOpen className="w-6 h-6 text-[#F59E0B]" />
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <BookOpen className="w-6 h-6 text-amber-500" />
                         Chọn sở thích đọc truyện
                     </h2>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                         Giúp chúng tôi đề xuất truyện phù hợp với bạn
                     </p>
                 </div>
@@ -110,8 +110,8 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
                 <div className="p-6 space-y-6">
                     {/* Nation Selection */}
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-[#F59E0B]" />
+                        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-amber-500" />
                             Nguồn gốc truyện
                         </h3>
                         <div className="grid grid-cols-3 gap-3">
@@ -122,19 +122,19 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
                                     className={clsx(
                                         "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
                                         selectedNations.includes(nation.code)
-                                            ? "border-[#F59E0B] bg-[#F59E0B]/10"
-                                            : "border-white/10 hover:border-white/20"
+                                            ? "border-amber-500 bg-amber-50"
+                                            : "border-gray-200 hover:border-gray-300"
                                     )}
                                 >
                                     <span className="text-2xl">{nation.emoji}</span>
                                     <span className={clsx(
                                         "text-xs font-medium",
-                                        selectedNations.includes(nation.code) ? "text-[#F59E0B]" : "text-gray-300"
+                                        selectedNations.includes(nation.code) ? "text-amber-600" : "text-muted-foreground"
                                     )}>
                                         {nation.label}
                                     </span>
                                     {selectedNations.includes(nation.code) && (
-                                        <Check className="w-4 h-4 text-[#F59E0B] absolute top-2 right-2" />
+                                        <Check className="w-4 h-4 text-amber-500 absolute top-2 right-2" />
                                     )}
                                 </button>
                             ))}
@@ -143,13 +143,13 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
 
                     {/* Genre Selection */}
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-[#F59E0B]" />
+                        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                            <BookOpen className="w-4 h-4 text-amber-500" />
                             Thể loại yêu thích
                         </h3>
                         {loadingGenres ? (
                             <div className="flex justify-center py-8">
-                                <Loader2 className="w-6 h-6 animate-spin text-[#F59E0B]" />
+                                <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
                             </div>
                         ) : (
                             <div className="flex flex-wrap gap-2">
@@ -160,8 +160,8 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
                                         className={clsx(
                                             "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
                                             selectedGenres.includes(genre.id)
-                                                ? "bg-[#F59E0B] text-[#0B0C10]"
-                                                : "bg-white/5 text-gray-300 hover:bg-white/10"
+                                                ? "bg-amber-500 text-white"
+                                                : "bg-gray-100 text-muted-foreground hover:bg-gray-200"
                                         )}
                                     >
                                         {genre.name}
@@ -173,11 +173,11 @@ export function RecommendationModal({ isOpen, onClose, onComplete }: Recommendat
                 </div>
 
                 {/* Footer */}
-                <div className="sticky bottom-0 bg-[#1E293B] p-6 pt-4 border-t border-white/5 flex gap-3">
+                <div className="sticky bottom-0 bg-white p-6 pt-4 border-t border-gray-100 flex gap-3">
                     <button
                         onClick={handleSkip}
                         disabled={isPending}
-                        className="flex-1 py-3 rounded-xl border border-white/10 text-gray-400 hover:bg-white/5 transition-colors font-medium"
+                        className="flex-1 py-3 rounded-xl border border-gray-200 text-muted-foreground hover:bg-gray-50 transition-colors font-medium"
                     >
                         Bỏ qua
                     </button>

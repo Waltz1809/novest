@@ -228,8 +228,8 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
             className={cn(
                 "p-1 rounded transition-colors",
                 isActive
-                    ? "bg-amber-500/20 text-amber-500"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5",
+                    ? "bg-amber-100 text-amber-600"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100",
                 isDisabled && "opacity-50 cursor-not-allowed"
             )}
         >
@@ -240,8 +240,8 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
     return (
         <div
             className={cn(
-                "rounded-xl border border-white/10 bg-slate-800/50 overflow-hidden",
-                "focus-within:border-amber-500/50 transition-colors",
+                "rounded-xl border border-gray-200 bg-white overflow-hidden",
+                "focus-within:border-amber-500 transition-colors",
                 isDisabled && "opacity-60",
                 className
             )}
@@ -250,11 +250,11 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
             {/* Editor Content */}
             <EditorContent
                 editor={editor}
-                className="prose prose-sm prose-invert max-w-none [&_.ProseMirror]:min-h-[60px] [&_.ProseMirror]:max-h-[200px] [&_.ProseMirror]:overflow-y-auto"
+                className="prose prose-sm max-w-none [&_.ProseMirror]:min-h-[60px] [&_.ProseMirror]:max-h-[200px] [&_.ProseMirror]:overflow-y-auto"
             />
 
             {/* Toolbar + Submit */}
-            <div className="flex items-center justify-between px-2 py-1.5 border-t border-white/5 bg-slate-900/30 flex-wrap gap-1">
+            <div className="flex items-center justify-between px-2 py-1.5 border-t border-gray-100 bg-gray-50 flex-wrap gap-1">
                 <div className="flex items-center gap-0.5 flex-wrap">
                     {/* Emoji Picker */}
                     <div className="relative" ref={emojiRef}>
@@ -266,13 +266,13 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                             <Smile className="w-3.5 h-3.5" />
                         </ToolbarButton>
                         {showEmojiPicker && (
-                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-slate-800 border border-white/10 rounded-lg shadow-xl z-50 w-64">
+                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 w-64">
                                 <div className="grid grid-cols-8 gap-1">
                                     {EMOJI_LIST.map((emoji) => (
                                         <button
                                             key={emoji}
                                             onClick={() => insertEmoji(emoji)}
-                                            className="text-lg hover:bg-white/10 rounded p-1 transition-colors"
+                                            className="text-lg hover:bg-gray-100 rounded p-1 transition-colors"
                                         >
                                             {emoji}
                                         </button>
@@ -282,7 +282,7 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                         )}
                     </div>
 
-                    <div className="w-px h-4 bg-white/10 mx-1" />
+                    <div className="w-px h-4 bg-gray-200 mx-1" />
 
                     {/* Undo/Redo */}
                     <ToolbarButton
@@ -298,7 +298,7 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                         <Redo className="w-3.5 h-3.5" />
                     </ToolbarButton>
 
-                    <div className="w-px h-4 bg-white/10 mx-1" />
+                    <div className="w-px h-4 bg-gray-200 mx-1" />
 
                     {/* Text Formatting */}
                     <ToolbarButton
@@ -330,7 +330,7 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                         <Strikethrough className="w-3.5 h-3.5" />
                     </ToolbarButton>
 
-                    <div className="w-px h-4 bg-white/10 mx-1" />
+                    <div className="w-px h-4 bg-gray-200 mx-1" />
 
                     {/* Text Color */}
                     <div className="relative" ref={colorRef}>
@@ -342,7 +342,7 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                             <Paintbrush className="w-3.5 h-3.5" />
                         </ToolbarButton>
                         {showColorPicker && (
-                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-slate-800 border border-white/10 rounded-lg shadow-xl z-50">
+                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50">
                                 <div className="flex gap-1">
                                     {COLOR_PALETTE.map((color) => (
                                         <button
@@ -350,8 +350,8 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                                             onClick={() => setTextColor(color.value)}
                                             title={color.name}
                                             className={cn(
-                                                "w-6 h-6 rounded border border-white/20 hover:scale-110 transition-transform",
-                                                !color.value && "bg-slate-400"
+                                                "w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform",
+                                                !color.value && "bg-gray-400"
                                             )}
                                             style={{ backgroundColor: color.value || undefined }}
                                         />
@@ -371,26 +371,26 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                             <LinkIcon className="w-3.5 h-3.5" />
                         </ToolbarButton>
                         {showLinkInput && (
-                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-slate-800 border border-white/10 rounded-lg shadow-xl z-50 w-64">
+                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 w-64">
                                 <div className="flex gap-2">
                                     <input
                                         type="url"
                                         value={linkUrl}
                                         onChange={(e) => setLinkUrl(e.target.value)}
                                         placeholder="https://..."
-                                        className="flex-1 px-2 py-1 text-xs bg-slate-700 border border-white/10 rounded text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                                        className="flex-1 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded text-foreground placeholder:text-gray-400 focus:outline-none focus:border-amber-500"
                                         onKeyDown={(e) => e.key === "Enter" && setLink()}
                                     />
                                     <button
                                         onClick={setLink}
-                                        className="px-2 py-1 text-xs bg-amber-500 text-black rounded hover:bg-amber-400"
+                                        className="px-2 py-1 text-xs bg-amber-500 text-white rounded hover:bg-amber-600"
                                     >
                                         OK
                                     </button>
                                     {editor.isActive("link") && (
                                         <button
                                             onClick={removeLink}
-                                            className="p-1 text-red-400 hover:text-red-300"
+                                            className="p-1 text-red-500 hover:text-red-600"
                                             title="Xóa link"
                                         >
                                             <X className="w-4 h-4" />
@@ -411,24 +411,24 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                             <ImageIcon className="w-3.5 h-3.5" />
                         </ToolbarButton>
                         {showImageInput && (
-                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-slate-800 border border-white/10 rounded-lg shadow-xl z-50 w-72">
+                            <div className="absolute bottom-full left-0 mb-1 p-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 w-72">
                                 <div className="flex gap-2">
                                     <input
                                         type="url"
                                         value={imageUrl}
                                         onChange={(e) => setImageUrl(e.target.value)}
                                         placeholder="https://i.imgur.com/..."
-                                        className="flex-1 px-2 py-1 text-xs bg-slate-700 border border-white/10 rounded text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                                        className="flex-1 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded text-foreground placeholder:text-gray-400 focus:outline-none focus:border-amber-500"
                                         onKeyDown={(e) => e.key === "Enter" && insertImage()}
                                     />
                                     <button
                                         onClick={insertImage}
-                                        className="px-2 py-1 text-xs bg-amber-500 text-black rounded hover:bg-amber-400"
+                                        className="px-2 py-1 text-xs bg-amber-500 text-white rounded hover:bg-amber-600"
                                     >
                                         OK
                                     </button>
                                 </div>
-                                <p className="text-[10px] text-slate-500 mt-1">
+                                <p className="text-[10px] text-muted-foreground mt-1">
                                     Chỉ hỗ trợ link ảnh public (imgur, i.postimg, ...)
                                 </p>
                             </div>
@@ -443,8 +443,8 @@ const CommentEditor = forwardRef<CommentEditorRef, CommentEditorProps>(({
                     className={cn(
                         "p-1.5 rounded-lg transition-colors",
                         !hasContent || isDisabled
-                            ? "text-slate-500 cursor-not-allowed"
-                            : "text-amber-500 hover:bg-amber-500/10"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-amber-600 hover:bg-amber-100"
                     )}
                     title="Gửi (Enter)"
                 >

@@ -28,8 +28,8 @@ export default async function UsersPage({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-white font-family-name:var(--font-be-vietnam-pro)">Người dùng</h1>
-                <p className="text-gray-400 font-family-name:var(--font-be-vietnam-pro)">Quản lý tài khoản và quyền hạn người dùng.</p>
+                <h1 className="text-3xl font-bold text-foreground font-family-name:var(--font-be-vietnam-pro)">Người dùng</h1>
+                <p className="text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">Quản lý tài khoản và quyền hạn người dùng.</p>
             </div>
 
             <DataTable
@@ -43,20 +43,20 @@ export default async function UsersPage({
                 metadata={metadata}
             >
                 {users.map((user) => (
-                    <tr key={user.id} className="group transition-colors hover:bg-white/2">
+                    <tr key={user.id} className="group transition-colors hover:bg-gray-50">
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10 border border-white/10">
+                                <Avatar className="h-10 w-10 border border-gray-200">
                                     <AvatarImage src={user.image || ""} />
-                                    <AvatarFallback className="bg-amber-500/10 text-amber-500">
+                                    <AvatarFallback className="bg-emerald-100 text-emerald-600">
                                         {user.name?.[0] || "U"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <div className="font-medium text-white font-family-name:var(--font-be-vietnam-pro)">{user.name || "Không tên"}</div>
-                                    <div className="text-xs text-gray-500">{user.email}</div>
+                                    <div className="font-medium text-foreground font-family-name:var(--font-be-vietnam-pro)">{user.name || "Không tên"}</div>
+                                    <div className="text-xs text-muted-foreground">{user.email}</div>
                                     {user.username && (
-                                        <div className="text-xs text-gray-600">@{user.username}</div>
+                                        <div className="text-xs text-muted-foreground">@{user.username}</div>
                                     )}
                                 </div>
                             </div>
@@ -66,10 +66,10 @@ export default async function UsersPage({
                                 variant="outline"
                                 className={
                                     user.role === "ADMIN"
-                                        ? "border-amber-500/20 bg-amber-500/10 text-amber-500"
+                                        ? "border-amber-200 bg-amber-100 text-amber-700"
                                         : user.role === "MODERATOR"
-                                            ? "border-blue-500/20 bg-blue-500/10 text-blue-500"
-                                            : "border-white/10 bg-white/5 text-gray-400"
+                                            ? "border-blue-200 bg-blue-100 text-blue-700"
+                                            : "border-gray-200 bg-gray-100 text-gray-600"
                                 }
                             >
                                 {ROLE_LABELS[user.role] || user.role}
@@ -79,11 +79,11 @@ export default async function UsersPage({
                             )}
                         </td>
                         <td className="px-6 py-4">
-                            <div className="text-sm text-gray-400 font-family-name:var(--font-be-vietnam-pro)">
+                            <div className="text-sm text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">
                                 {user._count.comments} bình luận
                             </div>
                         </td>
-                        <td className="px-6 py-4 text-gray-500 font-family-name:var(--font-be-vietnam-pro)">
+                        <td className="px-6 py-4 text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">
                             {new Date(user.createdAt).toLocaleDateString("vi-VN")}
                         </td>
                         <td className="px-6 py-4 text-right">

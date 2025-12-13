@@ -24,21 +24,21 @@ export default function StatCard({
 }: StatCardProps) {
     return (
         <div
-            className={`relative bg-[#1E293B] rounded-2xl p-6 border border-[#34D399]/20 hover:border-[#34D399]/40 transition-all duration-300 overflow-hidden group ${className}`}
+            className={`relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-sm ${className}`}
         >
             {/* Badge Number */}
-            <div className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-[#0B0C10] border border-[#F59E0B]/30 flex items-center justify-center">
-                <span className="text-[#F59E0B] font-bold text-sm">{badge}</span>
+            <div className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
+                <span className="text-primary font-bold text-sm">{badge}</span>
             </div>
 
             {/* Title */}
-            <h3 className="text-[#9CA3AF] text-sm font-medium uppercase tracking-wide mb-3">
+            <h3 className="text-muted-foreground text-sm font-medium uppercase tracking-wide mb-3">
                 {title}
             </h3>
 
             {/* Main Value with Glow */}
             <div className="flex items-baseline gap-3 mb-4">
-                <span className="text-4xl font-bold text-[#F59E0B] glow-gold-text">
+                <span className="text-4xl font-bold text-primary">
                     {value}
                 </span>
                 {trend && trendValue && (
@@ -79,7 +79,7 @@ export default function StatCard({
             )}
 
             {/* Hover Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/0 to-[#F59E0B]/0 group-hover:from-[#F59E0B]/5 group-hover:to-transparent transition-all duration-300 pointer-events-none rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-transparent transition-all duration-300 pointer-events-none rounded-2xl" />
         </div>
     );
 }

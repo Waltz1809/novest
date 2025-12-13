@@ -50,28 +50,28 @@ export default function UserMenu({ user }: UserMenuProps) {
                         alt={user.name || "User Avatar"}
                         width={32}
                         height={32}
-                        className="rounded-full border border-[#34D399]/30"
+                        className="rounded-full border border-gray-200"
                     />
                 ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#1F2937] flex items-center justify-center text-[#F59E0B] border border-[#F59E0B]/30">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-amber-500 border border-amber-200">
                         <User className="w-4 h-4" />
                     </div>
                 )}
-                <span className="text-sm font-medium text-gray-200 hidden sm:inline-block">
+                <span className="text-sm font-medium text-foreground hidden sm:inline-block">
                     {user.name}
                 </span>
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-[#0B0C10] rounded-xl shadow-2xl border border-[#1F2937] py-2 z-50 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-white/5">
-                    <div className="px-4 py-3 border-b border-[#1F2937] mb-2">
-                        <p className="text-sm font-medium text-gray-200">Tài khoản của tôi</p>
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-gray-100">
+                    <div className="px-4 py-3 border-b border-gray-100 mb-2">
+                        <p className="text-sm font-medium text-foreground">Tài khoản của tôi</p>
                     </div>
 
                     {/* Profile Link */}
                     <Link
                         href={`/u/${displayUsername}`}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:bg-gray-50 hover:text-amber-600 transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
                         <User className="w-4 h-4" />
@@ -81,7 +81,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Settings Link - For all users */}
                     <Link
                         href={`/u/${displayUsername}/settings`}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:bg-gray-50 hover:text-amber-600 transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
                         <Settings className="w-4 h-4" />
@@ -91,7 +91,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Creator Studio - Available to all users */}
                     <Link
                         href="/studio"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1F2937] hover:text-[#F59E0B] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:bg-gray-50 hover:text-amber-600 transition-colors"
                         onClick={() => setIsOpen(false)}
                     >
                         <LayoutDashboard className="w-4 h-4" />
@@ -104,7 +104,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {(user.role === "ADMIN" || user.role === "MODERATOR") && (
                         <Link
                             href="/admin"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#34D399] hover:bg-[#1F2937] hover:text-[#10B981] transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
                             <Settings className="w-4 h-4" />
@@ -115,7 +115,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     {/* Sign Out */}
                     <button
                         onClick={() => signOut()}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-900/20 transition-colors mt-2 border-t border-[#1F2937] pt-2"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors mt-2 border-t border-gray-100 pt-2"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Đăng xuất</span>

@@ -125,9 +125,9 @@ export function NovelActionsDropdown({
     if (isRejectOpen) {
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setIsRejectOpen(false)}>
-                <div className="bg-[#1E293B] rounded-xl p-6 max-w-md w-full mx-4 border border-white/10" onClick={e => e.stopPropagation()}>
-                    <h3 className="text-lg font-bold text-white mb-2">Từ chối truyện</h3>
-                    <p className="text-sm text-gray-400 mb-4">"{novelTitle}"</p>
+                <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 border border-gray-200 shadow-xl" onClick={e => e.stopPropagation()}>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Từ chối truyện</h3>
+                    <p className="text-sm text-muted-foreground mb-4">"{novelTitle}"</p>
 
                     <textarea
                         value={rejectReason}
@@ -137,11 +137,11 @@ export function NovelActionsDropdown({
                         }}
                         placeholder="Nhập lý do từ chối (ít nhất 10 ký tự)..."
                         rows={3}
-                        className="w-full px-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:border-amber-500 outline-none resize-none"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground placeholder:text-gray-400 focus:border-amber-500 outline-none resize-none"
                         disabled={isPending}
                     />
 
-                    {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
                     <div className="flex justify-end gap-3 mt-4">
                         <Button
@@ -176,7 +176,7 @@ export function NovelActionsDropdown({
                     {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#1E293B] border-white/10">
+            <DropdownMenuContent align="end" className="bg-white border-gray-200 shadow-lg">
                 {/* View Button */}
                 <DropdownMenuItem asChild>
                     <Link
@@ -189,16 +189,16 @@ export function NovelActionsDropdown({
                     </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuSeparator className="bg-gray-200" />
 
                 {/* PENDING: Show Approve and Reject */}
                 {approvalStatus === "PENDING" && (
                     <>
-                        <DropdownMenuItem onClick={handleApprove} className="flex items-center gap-2 cursor-pointer text-green-400 focus:text-green-400">
+                        <DropdownMenuItem onClick={handleApprove} className="flex items-center gap-2 cursor-pointer text-green-600 focus:text-green-600">
                             <CheckCircle className="w-4 h-4" />
                             Duyệt truyện
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setIsRejectOpen(true)} className="flex items-center gap-2 cursor-pointer text-red-400 focus:text-red-400">
+                        <DropdownMenuItem onClick={() => setIsRejectOpen(true)} className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600">
                             <XCircle className="w-4 h-4" />
                             Từ chối
                         </DropdownMenuItem>
@@ -207,7 +207,7 @@ export function NovelActionsDropdown({
 
                 {/* APPROVED: Show Soft Delete */}
                 {approvalStatus === "APPROVED" && (
-                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 cursor-pointer text-red-400 focus:text-red-400">
+                    <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600">
                         <Trash2 className="w-4 h-4" />
                         Ẩn truyện
                     </DropdownMenuItem>
@@ -216,12 +216,12 @@ export function NovelActionsDropdown({
                 {/* REJECTED: Show Restore and Permanent Delete */}
                 {approvalStatus === "REJECTED" && (
                     <>
-                        <DropdownMenuItem onClick={handleRestore} className="flex items-center gap-2 cursor-pointer text-green-400 focus:text-green-400">
+                        <DropdownMenuItem onClick={handleRestore} className="flex items-center gap-2 cursor-pointer text-green-600 focus:text-green-600">
                             <RotateCcw className="w-4 h-4" />
                             Khôi phục (Duyệt)
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-white/10" />
-                        <DropdownMenuItem onClick={handlePermanentDelete} className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-500/10">
+                        <DropdownMenuSeparator className="bg-gray-200" />
+                        <DropdownMenuItem onClick={handlePermanentDelete} className="flex items-center gap-2 cursor-pointer text-red-700 focus:text-red-700 focus:bg-red-50">
                             <AlertTriangle className="w-4 h-4" />
                             Xoá vĩnh viễn
                         </DropdownMenuItem>

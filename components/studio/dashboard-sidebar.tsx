@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, BookOpen, Menu, X, Clock, Users } from "lucide-react";
+import { LayoutDashboard, BookOpen, Menu, X, Clock, Users, Ticket, ShoppingBag } from "lucide-react";
 import UserMenu from "@/components/auth/user-menu";
 
 interface DashboardSidebarProps {
@@ -47,7 +47,7 @@ export default function DashboardSidebar({
 
             <aside
                 className={`
-                    bg-[#1E293B] border-r border-[#34D399]/20 flex flex-col 
+                    bg-white border-r border-gray-200 flex flex-col shadow-sm
                     transition-all duration-300 z-50
                     fixed top-16 bottom-0 left-0
                     ${isMobile
@@ -61,7 +61,7 @@ export default function DashboardSidebar({
                     <button
                         onClick={onToggle}
                         className={`
-                            absolute -right-3 top-6 w-6 h-6 bg-[#F59E0B] rounded-full flex items-center justify-center text-[#0B0C10] hover:bg-[#FBBF24] transition-colors shadow-lg glow-amber z-60 cursor-pointer
+                            absolute -right-3 top-6 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white hover:bg-primary/90 transition-colors shadow-lg z-60 cursor-pointer
                         `}
                         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                     >
@@ -76,7 +76,7 @@ export default function DashboardSidebar({
                     <Link
                         href="/studio"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
-                            } text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
+                            } text-muted-foreground hover:bg-gray-100 hover:text-foreground rounded-lg transition-colors font-medium group relative`}
                         title="Thống kê"
                     >
                         <LayoutDashboard className="w-5 h-5 shrink-0" />
@@ -85,7 +85,7 @@ export default function DashboardSidebar({
                     <Link
                         href="/studio/novels"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
-                            } text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
+                            } text-muted-foreground hover:bg-gray-100 hover:text-foreground rounded-lg transition-colors font-medium group relative`}
                         title="Quản lý Truyện"
                     >
                         <BookOpen className="w-5 h-5 shrink-0" />
@@ -94,7 +94,7 @@ export default function DashboardSidebar({
                     <Link
                         href="/studio/novels/pending"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
-                            } text-amber-400 hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
+                            } text-primary hover:bg-gray-100 hover:text-primary/80 rounded-lg transition-colors font-medium group relative`}
                         title="Chờ duyệt"
                     >
                         <Clock className="w-5 h-5 shrink-0" />
@@ -103,11 +103,29 @@ export default function DashboardSidebar({
                     <Link
                         href="/studio/groups"
                         className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
-                            } text-[#9CA3AF] hover:bg-[#0B0C10] hover:text-[#FBBF24] rounded-lg transition-colors font-medium group relative`}
+                            } text-muted-foreground hover:bg-gray-100 hover:text-foreground rounded-lg transition-colors font-medium group relative`}
                         title="Nhóm dịch"
                     >
                         <Users className="w-5 h-5 shrink-0" />
                         {(!isCollapsed && !isMobile) && <span>Nhóm dịch</span>}
+                    </Link>
+                    <Link
+                        href="/studio/tickets"
+                        className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
+                            } text-muted-foreground hover:bg-gray-100 hover:text-foreground rounded-lg transition-colors font-medium group relative`}
+                        title="Phiếu thưởng"
+                    >
+                        <Ticket className="w-5 h-5 shrink-0" />
+                        {(!isCollapsed && !isMobile) && <span>Phiếu thưởng</span>}
+                    </Link>
+                    <Link
+                        href="/studio/purchases"
+                        className={`flex items-center ${isCollapsed || isMobile ? "justify-center w-10 h-10 p-0" : "gap-3 px-4 py-3 w-full"
+                            } text-muted-foreground hover:bg-gray-100 hover:text-foreground rounded-lg transition-colors font-medium group relative`}
+                        title="Lịch sử mua"
+                    >
+                        <ShoppingBag className="w-5 h-5 shrink-0" />
+                        {(!isCollapsed && !isMobile) && <span>Lịch sử mua</span>}
                     </Link>
                 </nav>
             </aside>

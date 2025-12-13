@@ -39,8 +39,8 @@ export default async function TicketsPage({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-white font-family-name:var(--font-be-vietnam-pro)">Ticket</h1>
-                <p className="text-gray-400 font-family-name:var(--font-be-vietnam-pro)">Quản lý báo cáo và yêu cầu hỗ trợ.</p>
+                <h1 className="text-3xl font-bold text-foreground font-family-name:var(--font-be-vietnam-pro)">Ticket</h1>
+                <p className="text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">Quản lý báo cáo và yêu cầu hỗ trợ.</p>
             </div>
 
             <DataTable
@@ -56,32 +56,32 @@ export default async function TicketsPage({
                 searchPlaceholder="Lọc theo trạng thái..."
             >
                 {tickets.map((ticket) => (
-                    <tr key={ticket.id} className="group transition-colors hover:bg-white/2">
+                    <tr key={ticket.id} className="group transition-colors hover:bg-gray-50">
                         <td className="px-6 py-4">
                             <div>
-                                <div className="font-medium text-white font-family-name:var(--font-be-vietnam-pro)">{ticket.title}</div>
-                                <div className="text-xs text-gray-500 line-clamp-1 font-family-name:var(--font-be-vietnam-pro)">{ticket.description}</div>
+                                <div className="font-medium text-foreground font-family-name:var(--font-be-vietnam-pro)">{ticket.title}</div>
+                                <div className="text-xs text-muted-foreground line-clamp-1 font-family-name:var(--font-be-vietnam-pro)">{ticket.description}</div>
                                 {ticket.subType && (
-                                    <div className="text-xs text-gray-600 mt-1">
+                                    <div className="text-xs text-muted-foreground mt-1">
                                         Phân loại: {ticket.subType}
                                     </div>
                                 )}
                             </div>
                         </td>
                         <td className="px-6 py-4">
-                            <Badge variant="outline" className="border-white/10 bg-white/5 text-gray-400 font-family-name:var(--font-be-vietnam-pro)">
+                            <Badge variant="outline" className="border-gray-200 bg-gray-100 text-gray-600 font-family-name:var(--font-be-vietnam-pro)">
                                 {TYPE_LABELS[ticket.mainType] || ticket.mainType}
                             </Badge>
                         </td>
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                                <Avatar className="h-6 w-6 border border-white/10">
+                                <Avatar className="h-6 w-6 border border-gray-200">
                                     <AvatarImage src={ticket.user.image || ""} />
-                                    <AvatarFallback className="text-[10px] bg-amber-500/10 text-amber-500">
+                                    <AvatarFallback className="text-[10px] bg-emerald-100 text-emerald-600">
                                         {ticket.user.name?.[0] || "U"}
                                     </AvatarFallback>
                                 </Avatar>
-                                <span className="text-sm font-medium text-gray-400 font-family-name:var(--font-be-vietnam-pro)">
+                                <span className="text-sm font-medium text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">
                                     {ticket.user.name}
                                 </span>
                             </div>
@@ -91,18 +91,18 @@ export default async function TicketsPage({
                                 variant="outline"
                                 className={
                                     ticket.status === "OPEN"
-                                        ? "border-green-500/20 bg-green-500/10 text-green-500"
+                                        ? "border-green-200 bg-green-100 text-green-700"
                                         : ticket.status === "IN_PROGRESS"
-                                            ? "border-amber-500/20 bg-amber-500/10 text-amber-500"
+                                            ? "border-amber-200 bg-amber-100 text-amber-700"
                                             : ticket.status === "RESOLVED"
-                                                ? "border-blue-500/20 bg-blue-500/10 text-blue-500"
-                                                : "border-gray-500/20 bg-gray-500/10 text-gray-500"
+                                                ? "border-blue-200 bg-blue-100 text-blue-700"
+                                                : "border-gray-200 bg-gray-100 text-gray-600"
                                 }
                             >
                                 {STATUS_LABELS[ticket.status] || ticket.status}
                             </Badge>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 font-family-name:var(--font-be-vietnam-pro)">
+                        <td className="px-6 py-4 text-sm text-muted-foreground font-family-name:var(--font-be-vietnam-pro)">
                             {new Date(ticket.createdAt).toLocaleDateString("vi-VN")}
                         </td>
                         <td className="px-6 py-4 text-right">

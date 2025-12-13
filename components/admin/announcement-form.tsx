@@ -79,15 +79,15 @@ export default function AnnouncementForm({ announcement }: AnnouncementFormProps
             {/* Header */}
             <div className="flex items-center gap-4 mb-6">
                 <Link href="/admin/announcements">
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold text-white">
+                    <h1 className="text-2xl font-bold text-foreground">
                         {isEdit ? "Chỉnh sửa thông báo" : "Tạo thông báo mới"}
                     </h1>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                         Thông báo sẽ hiển thị cho người dùng mỗi ngày một lần.
                     </p>
                 </div>
@@ -96,8 +96,8 @@ export default function AnnouncementForm({ announcement }: AnnouncementFormProps
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Title */}
-                <div className="bg-[#1E293B] rounded-xl p-6 border border-white/10">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                         Tiêu đề (chỉ admin thấy)
                     </label>
                     <input
@@ -105,17 +105,17 @@ export default function AnnouncementForm({ announcement }: AnnouncementFormProps
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="VD: Thông báo bảo trì 15/12"
-                        className="w-full px-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:border-[#F59E0B] outline-none transition-colors"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground placeholder:text-gray-400 focus:border-amber-500 outline-none transition-colors"
                         disabled={isPending}
                     />
                 </div>
 
                 {/* Content */}
-                <div className="bg-[#1E293B] rounded-xl p-6 border border-white/10">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                         Nội dung thông báo
                     </label>
-                    <p className="text-xs text-gray-500 mb-3">
+                    <p className="text-xs text-muted-foreground mb-3">
                         Hỗ trợ văn bản, emoji, và ảnh. Giữ ngắn gọn để hiển thị tốt trên mobile.
                     </p>
                     <RichTextEditor
@@ -126,29 +126,29 @@ export default function AnnouncementForm({ announcement }: AnnouncementFormProps
                 </div>
 
                 {/* Date Range */}
-                <div className="bg-[#1E293B] rounded-xl p-6 border border-white/10">
-                    <label className="block text-sm font-medium text-gray-300 mb-4">
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <label className="block text-sm font-medium text-foreground mb-4">
                         <Calendar className="w-4 h-4 inline mr-2" />
                         Thời gian hiển thị
                     </label>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs text-gray-500 mb-2">Từ ngày</label>
+                            <label className="block text-xs text-muted-foreground mb-2">Từ ngày</label>
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full px-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white focus:border-[#F59E0B] outline-none transition-colors"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground focus:border-amber-500 outline-none transition-colors"
                                 disabled={isPending}
                             />
                         </div>
                         <div>
-                            <label className="block text-xs text-gray-500 mb-2">Đến ngày (để trống = không giới hạn)</label>
+                            <label className="block text-xs text-muted-foreground mb-2">Đến ngày (để trống = không giới hạn)</label>
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full px-4 py-3 bg-[#0B0C10] border border-white/10 rounded-lg text-white focus:border-[#F59E0B] outline-none transition-colors"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-foreground focus:border-amber-500 outline-none transition-colors"
                                 disabled={isPending}
                             />
                         </div>
@@ -157,7 +157,7 @@ export default function AnnouncementForm({ announcement }: AnnouncementFormProps
 
                 {/* Error */}
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-400 text-sm">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600 text-sm">
                         {error}
                     </div>
                 )}

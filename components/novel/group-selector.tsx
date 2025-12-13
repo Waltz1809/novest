@@ -42,29 +42,29 @@ export default function GroupSelector({ novelId, currentGroupId, groups }: Group
 
     return (
         <div className="relative">
-            <label className="text-xs text-[#9CA3AF] uppercase mb-2 block tracking-wide">
+            <label className="text-xs text-muted-foreground uppercase mb-2 block tracking-wide">
                 Nhóm dịch
             </label>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isPending}
-                className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-white/10 text-left flex items-center justify-between hover:border-amber-500/30 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-left flex items-center justify-between hover:border-primary/30 transition-colors disabled:opacity-50"
             >
                 <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-amber-400" />
-                    <span className="text-gray-100">{isPending ? "Đang lưu..." : displayName}</span>
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="text-foreground">{isPending ? "Đang lưu..." : displayName}</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-[#1E293B] border border-white/10 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                     {/* Default option */}
                     <button
                         type="button"
                         onClick={() => handleSelect(null)}
-                        className={`w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors flex items-center gap-2 ${selectedGroupId === null ? 'bg-amber-500/20 text-amber-400' : 'text-gray-300'
+                        className={`w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-2 ${selectedGroupId === null ? 'bg-primary/10 text-primary' : 'text-foreground'
                             }`}
                     >
                         <Users className="w-4 h-4" />
@@ -77,7 +77,7 @@ export default function GroupSelector({ novelId, currentGroupId, groups }: Group
                             key={group.id}
                             type="button"
                             onClick={() => handleSelect(group.id)}
-                            className={`w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors flex items-center gap-2 ${selectedGroupId === group.id ? 'bg-amber-500/20 text-amber-400' : 'text-gray-300'
+                            className={`w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-2 ${selectedGroupId === group.id ? 'bg-primary/10 text-primary' : 'text-foreground'
                                 }`}
                         >
                             <Users className="w-4 h-4" />
@@ -86,7 +86,7 @@ export default function GroupSelector({ novelId, currentGroupId, groups }: Group
                     ))}
 
                     {groups.length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500">
+                        <div className="px-4 py-3 text-sm text-muted-foreground">
                             Bạn chưa có nhóm dịch nào. Tạo nhóm tại Studio → Nhóm dịch.
                         </div>
                     )}

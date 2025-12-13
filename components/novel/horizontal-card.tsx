@@ -67,7 +67,7 @@ export function HorizontalCard({
         {variant === "compact" && (
           <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative bg-gray-100 dark:bg-gray-800">
             <Image
-              src={novel.coverImage || "/placeholder.jpg"}
+              src={novel.coverImage || "/images/default-cover.png"}
               alt={novel.title}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -80,10 +80,10 @@ export function HorizontalCard({
                   rank === 1
                     ? "bg-yellow-400"
                     : rank === 2
-                    ? "bg-gray-400"
-                    : rank === 3
-                    ? "bg-orange-400"
-                    : "bg-blue-400"
+                      ? "bg-gray-400"
+                      : rank === 3
+                        ? "bg-orange-400"
+                        : "bg-blue-400"
                 )}
               >
                 {rank}
@@ -129,7 +129,7 @@ export function HorizontalCard({
         className="w-32 md:w-40 shrink-0 relative overflow-hidden bg-gray-100 dark:bg-gray-800"
       >
         <Image
-          src={novel.coverImage || "/placeholder.jpg"}
+          src={novel.coverImage || "/images/default-cover.png"}
           alt={novel.title}
           fill
           className="card-img object-cover transition-transform duration-500 group-hover:scale-110"

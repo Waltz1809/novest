@@ -98,8 +98,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                                                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                                                     />
                                                 ) : (
-                                                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/50 group-hover:bg-indigo-50/30 transition-colors">
-                                                        <Book className="w-12 h-12 mb-2 text-muted-foreground/50 group-hover:text-indigo-200 transition-colors" />
+                                                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/50 group-hover:bg-emerald-50/30 transition-colors">
+                                                        <Book className="w-12 h-12 mb-2 text-muted-foreground/50 group-hover:text-emerald-200 transition-colors" />
                                                         <span className="text-xs font-medium text-muted-foreground">
                                                             No Cover
                                                         </span>
@@ -121,7 +121,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
                                             {/* Content */}
                                             <div className="p-3 md:p-4 flex flex-col grow">
-                                                <h3 className="font-bold text-card-foreground line-clamp-2 mb-1 group-hover:text-indigo-600 transition-colors text-sm md:text-base">
+                                                <h3 className="font-bold text-card-foreground line-clamp-2 mb-1 group-hover:text-emerald-600 transition-colors text-sm md:text-base">
                                                     {novel.title}
                                                 </h3>
                                                 <p className="text-xs md:text-sm text-muted-foreground mb-2 font-medium">
@@ -134,7 +134,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                                                         {novel.genres.slice(0, 2).map((genre) => (
                                                             <span
                                                                 key={genre.id}
-                                                                className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full"
+                                                                className="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full"
                                                             >
                                                                 {genre.name}
                                                             </span>

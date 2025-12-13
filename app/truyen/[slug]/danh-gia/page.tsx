@@ -23,8 +23,8 @@ function StarRating({ score }: { score: number }) {
                 <Star
                     key={star}
                     className={`w-5 h-5 ${star <= score
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-gray-600"
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-gray-300"
                         }`}
                 />
             ))}
@@ -67,14 +67,14 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
     const totalPages = Math.ceil(ratingsResult.total / limit);
 
     return (
-        <div className="min-h-screen bg-[#0B0C10]">
+        <div className="min-h-screen bg-background">
             <MainHeader />
 
             <main className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}
                 <Link
                     href={`/truyen/${novel.slug}`}
-                    className="inline-flex items-center gap-2 text-gray-400 hover:text-amber-400 transition-colors mb-6"
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-amber-600 transition-colors mb-6"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Quay lại {novel.title}
@@ -93,23 +93,23 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                         </div>
                     )}
                     <div>
-                        <h1 className="text-2xl font-bold text-white mb-2">
+                        <h1 className="text-2xl font-bold text-foreground mb-2">
                             Đánh giá - {novel.title}
                         </h1>
                         <div className="flex items-center gap-3">
                             <StarRating score={Math.round(parseFloat(averageRating))} />
-                            <span className="text-amber-400 font-bold text-lg">{averageRating}/5</span>
-                            <span className="text-gray-500">({ratingCount} đánh giá)</span>
+                            <span className="text-amber-600 font-bold text-lg">{averageRating}/5</span>
+                            <span className="text-muted-foreground">({ratingCount} đánh giá)</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Ratings List */}
                 {ratingsResult.ratings.length === 0 ? (
-                    <div className="bg-[#1E293B] rounded-xl border border-white/10 p-12 text-center">
-                        <Star className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                        <p className="text-gray-400">Chưa có đánh giá nào cho truyện này.</p>
-                        <p className="text-gray-500 text-sm mt-2">Hãy là người đầu tiên đánh giá!</p>
+                    <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                        <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-muted-foreground">Chưa có đánh giá nào cho truyện này.</p>
+                        <p className="text-muted-foreground text-sm mt-2">Hãy là người đầu tiên đánh giá!</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -123,7 +123,7 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                             return (
                                 <div
                                     key={rating.userId}
-                                    className="bg-[#1E293B] rounded-xl border border-white/10 p-6"
+                                    className="bg-white rounded-xl border border-gray-200 p-6"
                                 >
                                     <div className="flex gap-4">
                                         {/* Avatar */}
@@ -131,7 +131,7 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                                             href={`/u/${rating.user.username || rating.user.id}`}
                                             className="shrink-0"
                                         >
-                                            <div className="w-12 h-12 rounded-full bg-slate-700 overflow-hidden border border-white/10">
+                                            <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
                                                 {rating.user.image ? (
                                                     <Image
                                                         src={rating.user.image}
@@ -142,7 +142,7 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                                                     />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
-                                                        <User className="w-6 h-6 text-gray-500" />
+                                                        <User className="w-6 h-6 text-muted-foreground" />
                                                     </div>
                                                 )}
                                             </div>
@@ -153,19 +153,19 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                                             <div className="flex items-center gap-3 flex-wrap mb-2">
                                                 <Link
                                                     href={`/u/${rating.user.username || rating.user.id}`}
-                                                    className="font-medium text-white hover:text-amber-400 transition-colors"
+                                                    className="font-medium text-foreground hover:text-amber-600 transition-colors"
                                                 >
                                                     {displayName}
                                                 </Link>
                                                 <StarRating score={rating.score} />
-                                                <span className="text-sm text-gray-500">{timeAgo}</span>
+                                                <span className="text-sm text-muted-foreground">{timeAgo}</span>
                                             </div>
                                             {rating.content ? (
-                                                <p className="text-gray-300 whitespace-pre-wrap">
+                                                <p className="text-foreground whitespace-pre-wrap">
                                                     {rating.content}
                                                 </p>
                                             ) : (
-                                                <p className="text-gray-500 italic">
+                                                <p className="text-muted-foreground italic">
                                                     Không có nhận xét.
                                                 </p>
                                             )}
@@ -182,24 +182,24 @@ export default async function RatingsPage({ params, searchParams }: PageProps) {
                     <div className="flex items-center justify-center gap-4 mt-8">
                         <Link
                             href={`/truyen/${novel.slug}/danh-gia?page=${page - 1}`}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition-colors ${page <= 1
-                                ? "opacity-50 pointer-events-none text-gray-500"
-                                : "text-white hover:bg-white/5 hover:border-amber-500/50"
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 transition-colors ${page <= 1
+                                ? "opacity-50 pointer-events-none text-muted-foreground"
+                                : "text-foreground hover:bg-gray-50 hover:border-amber-500"
                                 }`}
                         >
                             <ChevronLeft className="w-4 h-4" />
                             Trước
                         </Link>
 
-                        <span className="text-gray-400">
+                        <span className="text-muted-foreground">
                             Trang {page} / {totalPages}
                         </span>
 
                         <Link
                             href={`/truyen/${novel.slug}/danh-gia?page=${page + 1}`}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition-colors ${page >= totalPages
-                                ? "opacity-50 pointer-events-none text-gray-500"
-                                : "text-white hover:bg-white/5 hover:border-amber-500/50"
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 transition-colors ${page >= totalPages
+                                ? "opacity-50 pointer-events-none text-muted-foreground"
+                                : "text-foreground hover:bg-gray-50 hover:border-amber-500"
                                 }`}
                         >
                             Sau

@@ -112,10 +112,10 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">Bộ lọc</h2>
+        <h2 className="text-lg font-bold text-foreground">Bộ lọc</h2>
         <button
           onClick={clearFilters}
-          className="text-sm text-[#F59E0B] hover:text-[#FBBF24] font-medium"
+          className="text-sm text-amber-600 hover:text-amber-700 font-medium"
         >
           Xóa tất cả
         </button>
@@ -123,12 +123,12 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
       {/* Sort */}
       <div>
-        <Label className="font-semibold text-white mb-3 block">Sắp xếp</Label>
+        <Label className="font-semibold text-foreground mb-3 block">Sắp xếp</Label>
         <Select
           value={selectedSort}
           onValueChange={handleSortChange}
         >
-          <SelectTrigger className="w-full bg-[#1F2937] border-[#374151] text-white focus:ring-[#F59E0B]">
+          <SelectTrigger className="w-full bg-gray-50 border-gray-200 text-foreground focus:ring-amber-500">
             <SelectValue placeholder="Sắp xếp theo" />
           </SelectTrigger>
           <SelectContent>
@@ -141,7 +141,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
       {/* Status */}
       <div>
-        <Label className="font-semibold text-white mb-3 block">
+        <Label className="font-semibold text-foreground mb-3 block">
           Trạng thái
         </Label>
         <RadioGroup
@@ -157,17 +157,17 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
               <RadioGroupItem
                 value={status}
                 id={`status-${status}`}
-                className="border-[#F59E0B] text-[#F59E0B]"
+                className="border-amber-500 text-amber-500"
               />
               <Label
                 htmlFor={`status-${status}`}
-                className="text-sm text-gray-300 hover:text-[#F59E0B] cursor-pointer"
+                className="text-sm text-muted-foreground hover:text-amber-600 cursor-pointer"
               >
                 {status === ""
                   ? "Tất cả"
                   : status === "ONGOING"
-                  ? "Đang ra"
-                  : "Hoàn thành"}
+                    ? "Đang ra"
+                    : "Hoàn thành"}
               </Label>
             </div>
           ))}
@@ -176,7 +176,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
       {/* Genres */}
       <div>
-        <Label className="font-semibold text-white mb-3 block">
+        <Label className="font-semibold text-foreground mb-3 block">
           Thể loại{" "}
           {selectedGenres.length > 0 && `(${selectedGenres.length} đã chọn)`}
         </Label>
@@ -190,11 +190,11 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
                 id={`genre-${genre.slug}`}
                 checked={selectedGenres.includes(genre.slug)}
                 onCheckedChange={() => handleGenreToggle(genre.slug)}
-                className="border-[#374151] data-[state=checked]:bg-[#F59E0B] data-[state=checked]:border-[#F59E0B]"
+                className="border-gray-300 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
               />
               <Label
                 htmlFor={`genre-${genre.slug}`}
-                className="text-sm text-gray-300 hover:text-[#F59E0B] cursor-pointer"
+                className="text-sm text-muted-foreground hover:text-amber-600 cursor-pointer"
               >
                 {genre.name}
               </Label>
@@ -218,7 +218,7 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block sticky top-6">
-        <div className="bg-[#1E293B] border border-[#374151] rounded-xl p-6 shadow-lg">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
           {renderFilterContent()}
         </div>
       </div>
@@ -233,12 +233,12 @@ export default function FilterSidebar({ genres }: FilterSidebarProps) {
           />
 
           {/* Panel */}
-          <div className="lg:hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#0B0C10] shadow-2xl z-50 overflow-y-auto transition-transform">
+          <div className="lg:hidden fixed inset-y-0 right-0 w-80 max-w-full bg-white shadow-2xl z-50 overflow-y-auto transition-transform">
             {/* Close Button - Fixed at top */}
-            <div className="sticky top-0 flex justify-end p-3 bg-[#0B0C10] border-b border-[#1F2937]">
+            <div className="sticky top-0 flex justify-end p-3 bg-white border-b border-gray-200">
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-[#1F2937] rounded-full transition-colors"
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

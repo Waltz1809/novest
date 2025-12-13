@@ -40,15 +40,15 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
 
     return (
         <div
-            className={`bg-[#1E293B] rounded-2xl p-6 border border-[#34D399]/20 ${className}`}
+            className={`bg-white rounded-2xl p-6 border border-gray-200 shadow-sm ${className}`}
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">Tăng trưởng độc giả</h2>
+                <h2 className="text-xl font-bold text-foreground">Tăng trưởng độc giả</h2>
                 <select
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(Number(e.target.value))}
-                    className="px-4 py-2 bg-[#0B0C10] text-[#9CA3AF] rounded-lg border border-[#34D399]/20 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 outline-none transition-all text-sm font-medium"
+                    className="px-4 py-2 bg-gray-50 text-foreground rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm font-medium"
                 >
                     {timePeriods.map((period) => (
                         <option key={period.value} value={period.value}>
@@ -74,20 +74,20 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#34D399"
-                            strokeOpacity={0.1}
+                            stroke="#e5e7eb"
+                            strokeOpacity={0.5}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="day"
-                            stroke="#9CA3AF"
-                            tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                            axisLine={{ stroke: "#34D399", strokeOpacity: 0.2 }}
+                            stroke="#6b7280"
+                            tick={{ fill: "#6b7280", fontSize: 12 }}
+                            axisLine={{ stroke: "#e5e7eb" }}
                         />
                         <YAxis
-                            stroke="#9CA3AF"
-                            tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                            axisLine={{ stroke: "#34D399", strokeOpacity: 0.2 }}
+                            stroke="#6b7280"
+                            tick={{ fill: "#6b7280", fontSize: 12 }}
+                            axisLine={{ stroke: "#e5e7eb" }}
                             tickFormatter={(value) => {
                                 if (value >= 1000000) return `${(value / 1000000).toFixed(0)}Tr`;
                                 if (value >= 1000) return `${(value / 1000).toFixed(0)}N`;
@@ -96,12 +96,12 @@ export default function ReadershipChart({ className = "" }: ReadershipChartProps
                         />
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: "#0B0C10",
-                                border: "1px solid rgba(52, 211, 153, 0.2)",
+                                backgroundColor: "white",
+                                border: "1px solid #e5e7eb",
                                 borderRadius: "8px",
-                                color: "#fff",
+                                color: "#1f2937",
                             }}
-                            labelStyle={{ color: "#9CA3AF" }}
+                            labelStyle={{ color: "#6b7280" }}
                             formatter={(value: number) => [
                                 value.toLocaleString("vi-VN"),
                                 "Lượt xem",

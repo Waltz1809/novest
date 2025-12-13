@@ -74,7 +74,7 @@ export default function ImageUpload({
         const isAvatar = variant === "avatar";
 
         return (
-            <div className={`relative bg-[#020617] border border-white/10 group overflow-hidden ${isAvatar
+            <div className={`relative bg-gray-50 border border-gray-200 group overflow-hidden ${isAvatar
                 ? "w-48 h-48 rounded-full mx-auto"
                 : "w-full h-64 rounded-lg"
                 }`}>
@@ -98,7 +98,7 @@ export default function ImageUpload({
                             disabled={disabled || isUploading}
                             className="hidden"
                         />
-                        <div className="flex items-center gap-2 px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] rounded-lg text-slate-950 font-medium transition-colors">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-white font-medium transition-colors">
                             <ImagePlus className="w-4 h-4" />
                             <span>Thay đổi ảnh</span>
                         </div>
@@ -113,7 +113,7 @@ export default function ImageUpload({
     const isAvatar = variant === "avatar";
 
     return (
-        <div className={`bg-[#020617] border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 hover:bg-[#F59E0B]/5 hover:border-[#F59E0B]/30 transition-all group overflow-hidden relative ${isAvatar
+        <div className={`bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-4 hover:bg-primary/5 hover:border-primary/30 transition-all group overflow-hidden relative ${isAvatar
             ? "w-48 h-48 rounded-full mx-auto"
             : "w-full h-64 rounded-lg"
             }`}>
@@ -124,7 +124,7 @@ export default function ImageUpload({
                 disabled={disabled || isUploading}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
             />
-            <div className="flex flex-col items-center justify-center gap-2 text-gray-400 group-hover:text-[#F59E0B] transition-colors">
+            <div className="flex flex-col items-center justify-center gap-2 text-gray-400 group-hover:text-primary transition-colors">
                 {isUploading ? (
                     <Loader2 className="w-10 h-10 animate-spin" />
                 ) : (
@@ -135,7 +135,7 @@ export default function ImageUpload({
                 </p>
             </div>
             {!isAvatar && (
-                <p className="text-xs text-gray-500 group-hover:text-[#F59E0B]/70 transition-colors">
+                <p className="text-xs text-gray-500 group-hover:text-primary/70 transition-colors">
                     Hỗ trợ ảnh tối đa 5MB
                 </p>
             )}

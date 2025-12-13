@@ -38,7 +38,7 @@ export default async function LibraryPage() {
                                         href={`/truyen/${item.novel.slug}`}
                                         className="group bg-card rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all flex flex-col"
                                     >
-                                        <div className="aspect-2/3 relative bg-muted">
+                                        <div className="aspect-[2/3] relative bg-muted">
                                             {item.novel.coverImage ? (
                                                 <Image
                                                     src={item.novel.coverImage}

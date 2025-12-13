@@ -164,21 +164,21 @@ export default function ChapterDraftControls({
             {showConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                         onClick={() => !isPending && setShowConfirm(false)}
                     />
-                    <div className="relative bg-[#1E293B] rounded-xl border border-white/10 shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
+                    <div className="relative bg-white rounded-xl border border-gray-200 shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Send className="w-6 h-6 text-green-400" />
+                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Send className="w-6 h-6 text-green-600" />
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-2">Xuất bản chương?</h3>
-                            <p className="text-sm text-[#9CA3AF] mb-6">
+                            <h3 className="text-lg font-bold text-foreground mb-2">Xuất bản chương?</h3>
+                            <p className="text-sm text-muted-foreground mb-6">
                                 Chương sẽ được hiển thị công khai và người đọc theo dõi sẽ nhận được thông báo.
                             </p>
 
                             {error && (
-                                <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                                <div className="p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                                     {error}
                                 </div>
                             )}
@@ -187,7 +187,7 @@ export default function ChapterDraftControls({
                                 <button
                                     onClick={() => setShowConfirm(false)}
                                     disabled={isPending}
-                                    className="flex-1 px-4 py-2 bg-white/5 text-[#9CA3AF] rounded-lg hover:bg-white/10 transition-colors"
+                                    className="flex-1 px-4 py-2 bg-gray-100 text-muted-foreground rounded-lg hover:bg-gray-200 transition-colors"
                                 >
                                     Hủy
                                 </button>
@@ -215,18 +215,18 @@ export default function ChapterDraftControls({
             {showSchedule && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                         onClick={() => !isPending && setShowSchedule(false)}
                     />
-                    <div className="relative bg-[#1E293B] rounded-xl border border-white/10 shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
+                    <div className="relative bg-white rounded-xl border border-gray-200 shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-blue-400" />
+                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-blue-500" />
                                 Lên lịch xuất bản
                             </h3>
                             <button
                                 onClick={() => setShowSchedule(false)}
-                                className="text-[#9CA3AF] hover:text-white"
+                                className="text-muted-foreground hover:text-foreground"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -234,7 +234,7 @@ export default function ChapterDraftControls({
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-sm text-[#9CA3AF] mb-2 block">Ngày</label>
+                                <label className="text-sm text-muted-foreground mb-2 block">Ngày</label>
                                 <input
                                     type="date"
                                     value={scheduleDate}
@@ -243,29 +243,29 @@ export default function ChapterDraftControls({
                                         setError("");
                                     }}
                                     min={new Date().toISOString().split("T")[0]}
-                                    className="w-full px-4 py-2.5 bg-[#0B0C10] border border-white/10 rounded-lg text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                 />
                             </div>
 
                             <div>
-                                <label className="text-sm text-[#9CA3AF] mb-2 block">Giờ</label>
+                                <label className="text-sm text-muted-foreground mb-2 block">Giờ</label>
                                 <input
                                     type="time"
                                     value={scheduleTime}
                                     onChange={(e) => setScheduleTime(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-[#0B0C10] border border-white/10 rounded-lg text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                 />
                             </div>
 
-                            <div className="flex items-start gap-2 p-3 bg-amber-500/10 rounded-lg">
-                                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-amber-400/80">
+                            <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                <p className="text-xs text-amber-600">
                                     Chương sẽ tự động xuất bản vào thời điểm đã chọn. Bạn có thể hủy lịch bất kỳ lúc nào.
                                 </p>
                             </div>
 
                             {error && (
-                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                                     {error}
                                 </div>
                             )}
@@ -274,7 +274,7 @@ export default function ChapterDraftControls({
                                 <button
                                     onClick={() => setShowSchedule(false)}
                                     disabled={isPending}
-                                    className="flex-1 px-4 py-2 bg-white/5 text-[#9CA3AF] rounded-lg hover:bg-white/10 transition-colors"
+                                    className="flex-1 px-4 py-2 bg-gray-100 text-muted-foreground rounded-lg hover:bg-gray-200 transition-colors"
                                 >
                                     Hủy
                                 </button>

@@ -50,10 +50,10 @@ export default function ChapterStructureTree({
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#0B0C10] border-r border-[#34D399]/20">
+        <div className="h-full flex flex-col bg-white border-r border-gray-200">
             {/* Header */}
-            <div className="p-4 border-b border-[#34D399]/20">
-                <h2 className="text-white font-bold text-sm">TRÌNH QUẢN LÝ TRUYỆN</h2>
+            <div className="p-4 border-b border-gray-200">
+                <h2 className="text-foreground font-bold text-sm">TRÌNH QUẢN LÝ TRUYỆN</h2>
             </div>
 
             {/* Structure Tree */}
@@ -65,17 +65,17 @@ export default function ChapterStructureTree({
                         w-full text-left p-3 mb-2 rounded-lg relative
                         transition-all duration-200
                         ${activeView === "novel"
-                            ? "text-white bg-[#1E293B]"
-                            : "text-[#9CA3AF] hover:text-white hover:bg-[#1E293B]/50"
+                            ? "text-foreground bg-gray-100"
+                            : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
                         }
                     `}
                 >
-                    {/* Amber Glow Bar */}
+                    {/* Primary Glow Bar */}
                     {activeView === "novel" && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F59E0B] glow-amber rounded-l-lg" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />
                     )}
                     <div className="ml-2">
-                        <div className="text-xs text-[#9CA3AF] mb-1">Truyện</div>
+                        <div className="text-xs text-muted-foreground mb-1">Truyện</div>
                         <div className="font-semibold line-clamp-2">{novelTitle}</div>
                     </div>
                 </button>
@@ -91,7 +91,7 @@ export default function ChapterStructureTree({
                                 <div className="flex items-center gap-1 group/volume">
                                     <button
                                         onClick={() => toggleVolume(volume.id)}
-                                        className="flex-1 flex items-center gap-2 p-2 text-[#9CA3AF] hover:text-white transition-colors overflow-hidden"
+                                        className="flex-1 flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground transition-colors overflow-hidden"
                                     >
                                         {isCollapsed ? (
                                             <ChevronRight className="w-4 h-4 shrink-0" />
@@ -112,7 +112,7 @@ export default function ChapterStructureTree({
                                                 onRenameVolume(volume.id, newTitle);
                                             }
                                         }}
-                                        className="p-1 text-[#9CA3AF] hover:text-[#F59E0B] opacity-0 group-hover/volume:opacity-100 transition-opacity"
+                                        className="p-1 text-muted-foreground hover:text-primary opacity-0 group-hover/volume:opacity-100 transition-opacity"
                                         title="Đổi tên tập"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
@@ -120,7 +120,7 @@ export default function ChapterStructureTree({
 
                                     <button
                                         onClick={() => onCreateNewChapter(volume.id)}
-                                        className="px-2 py-1 text-xs text-[#F59E0B] hover:text-[#FBBF24] transition-colors font-bold shrink-0"
+                                        className="px-2 py-1 text-xs text-primary hover:text-primary/80 transition-colors font-bold shrink-0"
                                         title="Thêm chương"
                                     >
                                         +
@@ -141,14 +141,14 @@ export default function ChapterStructureTree({
                                                         w-full text-left p-2 rounded-lg relative
                                                         transition-all duration-200 text-sm
                                                         ${isActive
-                                                            ? "text-white bg-[#1E293B]"
-                                                            : "text-[#9CA3AF] hover:text-white hover:bg-[#1E293B]/50"
+                                                            ? "text-foreground bg-gray-100"
+                                                            : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
                                                         }
                                                     `}
                                                 >
-                                                    {/* Amber Glow Bar */}
+                                                    {/* Primary Glow Bar */}
                                                     {isActive && (
-                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F59E0B] glow-amber rounded-l-lg" />
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />
                                                     )}
                                                     <div className="ml-2 truncate">
                                                         {chapter.title}
@@ -165,10 +165,10 @@ export default function ChapterStructureTree({
             </div>
 
             {/* New Volume Button */}
-            <div className="p-4 border-t border-[#34D399]/20">
+            <div className="p-4 border-t border-gray-200">
                 <button
                     onClick={onCreateNewVolume}
-                    className="w-full px-4 py-3 bg-[#34D399] text-[#0B0C10] font-bold rounded-lg hover:bg-[#6EE7B7] transition-colors"
+                    className="w-full px-4 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors"
                 >
                     + Thêm tập
                 </button>

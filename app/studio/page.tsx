@@ -49,10 +49,10 @@ export default async function DashboardPage() {
         <div className="space-y-6">
             {/* Welcome Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
                     Bảng điều khiển
                 </h1>
-                <p className="text-[#9CA3AF]">
+                <p className="text-muted-foreground">
                     Chào mừng quay lại, {session?.user?.name || session?.user?.nickname}
                 </p>
             </div>
