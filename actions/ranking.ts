@@ -9,6 +9,10 @@ export interface NovelWithViewCount {
   author: string;
   coverImage: string | null;
   viewCount: number;
+  chapterCount?: number;
+  avgRating?: number;
+  description?: string | null;
+  genre?: string;
 }
 
 export interface NovelWithRating {
@@ -18,7 +22,11 @@ export interface NovelWithRating {
   author: string;
   coverImage: string | null;
   averageRating: number;
+  avgRating?: number;
   ratingCount: number;
+  chapterCount?: number;
+  description?: string | null;
+  genre?: string;
   genres: { name: string }[];
 }
 
@@ -31,8 +39,8 @@ export async function getTopViewed(
 ): Promise<NovelWithViewCount[]> {
   const novels = await db.novel.findMany({
     where: {
-      approvalStatus: "APPROVED", // Only show approved novels
-      isR18: false, // Hide R18 from public listings
+      approvalStatus: "APPROVED",
+      isR18: false,
     },
     select: {
       id: true,
@@ -41,6 +49,14 @@ export async function getTopViewed(
       author: true,
       coverImage: true,
       viewCount: true,
+      description: true,
+      genres: { select: { name: true }, take: 1 },
+      ratings: { select: { score: true } },
+      volumes: {
+        select: {
+          _count: { select: { chapters: true } },
+        },
+      },
     },
     orderBy: {
       viewCount: "desc",
@@ -48,7 +64,24 @@ export async function getTopViewed(
     take: limit,
   });
 
-  return novels;
+  return novels.map((novel) => {
+    const chapterCount = novel.volumes.reduce((sum, v) => sum + v._count.chapters, 0);
+    const avgRating = novel.ratings.length > 0
+      ? novel.ratings.reduce((sum, r) => sum + r.score, 0) / novel.ratings.length
+      : 0;
+    return {
+      id: novel.id,
+      title: novel.title,
+      slug: novel.slug,
+      author: novel.author,
+      coverImage: novel.coverImage,
+      viewCount: novel.viewCount,
+      chapterCount,
+      avgRating,
+      description: novel.description,
+      genre: novel.genres[0]?.name,
+    };
+  });
 }
 
 /**
@@ -58,11 +91,10 @@ export async function getTopViewed(
 export async function getTopRated(
   limit: number = 10
 ): Promise<NovelWithRating[]> {
-  // Get all approved novels with their ratings
   const novelsWithRatings = await db.novel.findMany({
     where: {
-      approvalStatus: "APPROVED", // Only show approved novels
-      isR18: false, // Hide R18 from public listings
+      approvalStatus: "APPROVED",
+      isR18: false,
     },
     select: {
       id: true,
@@ -70,28 +102,23 @@ export async function getTopRated(
       slug: true,
       author: true,
       coverImage: true,
-      ratings: {
+      description: true,
+      ratings: { select: { score: true } },
+      genres: { select: { name: true } },
+      volumes: {
         select: {
-          score: true,
-        },
-      },
-      genres: {
-        select: {
-          name: true,
+          _count: { select: { chapters: true } },
         },
       },
     },
   });
 
-  // Calculate average rating for each novel
   const novelsWithAverage = novelsWithRatings
     .map((novel) => {
-      const totalScore = novel.ratings.reduce(
-        (sum, rating) => sum + rating.score,
-        0
-      );
+      const totalScore = novel.ratings.reduce((sum, rating) => sum + rating.score, 0);
       const ratingCount = novel.ratings.length;
       const averageRating = ratingCount > 0 ? totalScore / ratingCount : 0;
+      const chapterCount = novel.volumes.reduce((sum, v) => sum + v._count.chapters, 0);
 
       return {
         id: novel.id,
@@ -100,13 +127,15 @@ export async function getTopRated(
         author: novel.author,
         coverImage: novel.coverImage,
         averageRating: Number(averageRating.toFixed(2)),
+        avgRating: Number(averageRating.toFixed(2)),
         ratingCount,
+        chapterCount,
+        description: novel.description,
+        genre: novel.genres[0]?.name,
         genres: novel.genres,
       };
     })
-    // Only include novels with at least one rating
     .filter((novel) => novel.ratingCount > 0)
-    // Sort by average rating descending, then by rating count as tiebreaker
     .sort((a, b) => {
       if (b.averageRating !== a.averageRating) {
         return b.averageRating - a.averageRating;

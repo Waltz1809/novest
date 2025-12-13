@@ -24,6 +24,14 @@ interface HeroCarouselProps {
   novels: Novel[];
 }
 
+// Helper to truncate text by word count
+function truncateWords(text: string | null | undefined, maxWords: number): string {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(" ") + "...";
+}
+
 export function HeroCarousel({ novels }: HeroCarouselProps) {
   if (novels.length === 0) {
     return null;
@@ -92,10 +100,10 @@ export function HeroCarousel({ novels }: HeroCarouselProps) {
                   </span>
                 )}
                 <h2 className="text-3xl md:text-5xl font-extrabold mb-3 text-foreground leading-normal">
-                  {novel.title}
+                  {truncateWords(novel.title, 12)}
                 </h2>
                 <p className="text-muted-foreground mb-6 line-clamp-2 md:line-clamp-3 text-lg">
-                  {novel.description || "Chưa có mô tả..."}
+                  {truncateWords(novel.description, 12) || "Chưa có mô tả..."}
                 </p>
                 <div className="flex gap-4 justify-center md:justify-start">
                   <Link href={`/truyen/${novel.slug}`}>

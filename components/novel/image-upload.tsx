@@ -21,13 +21,34 @@ export default function ImageUpload({
 }: ImageUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
 
+    // Allowed image extensions
+    const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+
     const handleUpload = useCallback(
         async (e: React.ChangeEvent<HTMLInputElement>) => {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            if (file.size > 5 * 1024 * 1024) {
-                toast.error("File size too large (max 5MB)");
+            // Size limit: 2MB for avatar, 5MB for cover
+            const maxSize = variant === "avatar" ? 1 * 1024 * 1024 : 5 * 1024 * 1024;
+            const maxSizeLabel = variant === "avatar" ? "1MB" : "5MB";
+
+            if (file.size > maxSize) {
+                toast.error(`File quá lớn (tối đa ${maxSizeLabel})`);
+                return;
+            }
+
+            // STRICT VALIDATION: Check MIME type
+            if (!file.type.startsWith("image/")) {
+                toast.error("Chỉ được up file dạng ảnh, đuôi .jpg, .png,...");
+                return;
+            }
+
+            // STRICT VALIDATION: Check file extension to prevent renamed executables
+            const fileName = file.name.toLowerCase();
+            const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext));
+            if (!hasValidExtension) {
+                toast.error("File không hợp lệ. Chỉ chấp nhận: JPG, PNG, WEBP, GIF");
                 return;
             }
 
@@ -134,11 +155,9 @@ export default function ImageUpload({
                     {isUploading ? "Đang tải lên..." : "Click hoặc kéo thả ảnh vào đây"}
                 </p>
             </div>
-            {!isAvatar && (
-                <p className="text-xs text-gray-500 group-hover:text-primary/70 transition-colors">
-                    Hỗ trợ ảnh tối đa 5MB
-                </p>
-            )}
+            <p className="text-xs text-gray-500 group-hover:text-primary/70 transition-colors">
+                {isAvatar ? "Tối đa 2MB" : "Tối đa 5MB"}
+            </p>
         </div>
     );
 }

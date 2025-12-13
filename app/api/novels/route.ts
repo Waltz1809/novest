@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { generateSearchIndex } from "@/lib/utils";
+import { generateSearchIndex, toTitleCase, countVietnameseWords } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { safeParseInt, safeParseIntClamped } from "@/lib/api-utils";
 
@@ -148,6 +148,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Validate title word count (max 20 Vietnamese words)
+        const titleWordCount = countVietnameseWords(title);
+        if (titleWordCount > 20) {
+            return NextResponse.json(
+                { success: false, error: `Tiêu đề truyện quá dài (${titleWordCount}/20 từ). Vui lòng rút gọn.` },
+                { status: 400 }
+            );
+        }
+
+        // Apply title case to title
+        const processedTitle = toTitleCase(title);
+
         // Check if slug already exists
         const existingNovel = await db.novel.findUnique({
             where: { slug },
@@ -184,11 +196,11 @@ export async function POST(request: NextRequest) {
             validGenreIds = existingGenres.map(g => g.id);
         }
 
-        const searchIndex = generateSearchIndex(title, author, alternativeTitles || "");
+        const searchIndex = generateSearchIndex(processedTitle, author, alternativeTitles || "");
 
         const novel = await db.novel.create({
             data: {
-                title,
+                title: processedTitle,
                 slug,
                 author,
                 artist: artist || null,

@@ -10,6 +10,7 @@ import { useRealUsername } from "@/hooks/use-real-username";
 interface UserMenuProps {
     user: {
         name?: string | null;
+        nickname?: string | null;
         image?: string | null;
         role: string;
         username?: string | null;
@@ -22,6 +23,9 @@ export default function UserMenu({ user }: UserMenuProps) {
 
     // Fetch real username from DB to bypass stale JWT session
     const { username: realUsername } = useRealUsername(user.username);
+
+    // Display name priority: nickname > username (never show real name)
+    const displayName = user.nickname || user.username || "User";
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -58,7 +62,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     </div>
                 )}
                 <span className="text-sm font-medium text-foreground hidden sm:inline-block">
-                    {user.name}
+                    {displayName}
                 </span>
             </button>
 

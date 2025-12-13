@@ -20,7 +20,13 @@ export async function GET(
             include: {
                 volume: {
                     include: {
-                        novel: true,
+                        novel: {
+                            include: {
+                                collaborators: {
+                                    select: { userId: true }
+                                }
+                            }
+                        },
                     },
                 },
             },
@@ -31,9 +37,14 @@ export async function GET(
         }
 
         // Check authorization
+        const novel = chapter.volume.novel;
+        const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
+
         if (
             session.user.role !== "ADMIN" &&
-            chapter.volume.novel.uploaderId !== session.user.id
+            session.user.role !== "MODERATOR" &&
+            novel.uploaderId !== session.user.id &&
+            !isCollaborator
         ) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
@@ -64,7 +75,13 @@ export async function PATCH(
             include: {
                 volume: {
                     include: {
-                        novel: true,
+                        novel: {
+                            include: {
+                                collaborators: {
+                                    select: { userId: true }
+                                }
+                            }
+                        },
                     },
                 },
             },
@@ -75,10 +92,14 @@ export async function PATCH(
         }
 
         // Check authorization
+        const novel = chapter.volume.novel;
+        const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
+
         if (
             session.user.role !== "ADMIN" &&
             session.user.role !== "MODERATOR" &&
-            chapter.volume.novel.uploaderId !== session.user.id
+            novel.uploaderId !== session.user.id &&
+            !isCollaborator
         ) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }

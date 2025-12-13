@@ -48,6 +48,14 @@ function formatTime(date?: Date | string): string {
   return d.toLocaleDateString("vi-VN");
 }
 
+// Helper to truncate text by word count
+function truncateWords(text: string | null | undefined, maxWords: number): string {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(" ") + "...";
+}
+
 export function HorizontalCard({
   novel,
   variant = "default",
@@ -191,7 +199,7 @@ export function HorizontalCard({
         )}
 
         <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-2 mb-3 leading-relaxed hidden md:block">
-          {novel.description || "Chưa có mô tả..."}
+          {truncateWords(novel.description, 20) || "Chưa có mô tả..."}
         </p>
 
         <div className="mt-auto flex items-center gap-3 pt-3 border-t border-dashed border-gray-100 dark:border-gray-800">

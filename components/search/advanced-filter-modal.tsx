@@ -79,7 +79,7 @@ export default function AdvancedFilterModal({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[60vh]">
+        <ScrollArea className="flex-1 max-h-[60vh] overflow-y-auto touch-pan-y">
           <div className="px-6 py-6">
             {/* Status Filter */}
             <div className="mb-6">

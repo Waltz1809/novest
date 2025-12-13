@@ -26,13 +26,31 @@ export default async function NovelsPage({ searchParams }: PageProps) {
     let where: Record<string, unknown> = { approvalStatus: "APPROVED" };
 
     if (!isAdmin) {
-        // Regular users always see only their own
-        where.uploaderId = session.user.id;
+        // Regular users: own novels OR collaborator novels
+        where.OR = [
+            { uploaderId: session.user.id },
+            {
+                collaborators: {
+                    some: {
+                        userId: session.user.id
+                    }
+                }
+            }
+        ];
     } else if (ownerFilter === "self") {
-        // Admin/mod: default to their own novels
-        where.uploaderId = session.user.id;
+        // Admin/mod (filtering for self): own novels OR collaborator
+        where.OR = [
+            { uploaderId: session.user.id },
+            {
+                collaborators: {
+                    some: {
+                        userId: session.user.id
+                    }
+                }
+            }
+        ];
     }
-    // If ownerFilter === "all" and isAdmin, no uploaderId filter (show all)
+    // If ownerFilter === "all" and isAdmin, show all (no uploader/collaborator filter)
 
     const novelsData = await db.novel.findMany({
         where,

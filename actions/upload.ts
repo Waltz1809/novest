@@ -17,6 +17,20 @@ export async function getPresignedUrl(fileName: string, fileType: string) {
     const uniqueId = randomUUID();
     const key = `uploads/${userId}/${uniqueId}-${fileName}`;
 
+    // STRICT VALIDATION: Check for allowed image MIME types
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!fileType.startsWith("image/") || !allowedMimeTypes.includes(fileType)) {
+        return { error: "Invalid file type. Only images (JPG, PNG, WEBP, GIF) are allowed." };
+    }
+
+    // STRICT VALIDATION: Check file extension to prevent renamed executables
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+    const lowerFileName = fileName.toLowerCase();
+    const hasValidExtension = allowedExtensions.some(ext => lowerFileName.endsWith(ext));
+    if (!hasValidExtension) {
+        return { error: "Invalid file extension. Only JPG, PNG, WEBP, GIF are allowed." };
+    }
+
     try {
         const signedUrl = await getSignedUrl(
             r2,

@@ -91,22 +91,43 @@ export default async function Home() {
           genres: { select: { id: true, name: true }, take: 3 },
           createdAt: true,
           updatedAt: true,
+          volumes: {
+            select: {
+              chapters: {
+                orderBy: { createdAt: "desc" },
+                take: 1,
+                select: {
+                  title: true,
+                  order: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
         },
       })
       .then((novels) =>
-        novels.map((n) => ({
-          ...n,
-          views: n.viewCount,
-          rating:
-            n.ratings.length > 0
-              ? n.ratings.reduce((a, b) => a + b.score, 0) / n.ratings.length
-              : 0,
-          categories: n.genres,
-          latestChapter: {
-            title: "Chương mới nhất",
-            updatedAt: n.updatedAt,
-          },
-        }))
+        novels.map((n) => {
+          // Find the most recent chapter across all volumes
+          const allChapters = n.volumes.flatMap(v => v.chapters);
+          const latestChapter = allChapters.sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
+
+          return {
+            ...n,
+            views: n.viewCount,
+            rating:
+              n.ratings.length > 0
+                ? n.ratings.reduce((a, b) => a + b.score, 0) / n.ratings.length
+                : 0,
+            categories: n.genres,
+            latestChapter: latestChapter ? {
+              title: latestChapter.title,
+              updatedAt: latestChapter.createdAt,
+            } : null,
+          };
+        })
       ),
 
     // Get top viewed novels
@@ -175,23 +196,43 @@ export default async function Home() {
           ratings: { select: { score: true } },
           genres: { select: { id: true, name: true }, take: 3 },
           createdAt: true,
+          volumes: {
+            select: {
+              chapters: {
+                orderBy: { createdAt: "desc" },
+                take: 1,
+                select: {
+                  title: true,
+                  order: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
         },
       })
       .then((novels) =>
-        novels.map((n) => ({
-          ...n,
-          description: n.description || undefined,
-          views: n.viewCount,
-          rating:
-            n.ratings.length > 0
-              ? n.ratings.reduce((a, b) => a + b.score, 0) / n.ratings.length
-              : 0,
-          categories: n.genres,
-          latestChapter: {
-            title: "Chương 1: Khởi đầu",
-            updatedAt: n.createdAt,
-          },
-        }))
+        novels.map((n) => {
+          const allChapters = n.volumes.flatMap(v => v.chapters);
+          const latestChapter = allChapters.sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
+
+          return {
+            ...n,
+            description: n.description || undefined,
+            views: n.viewCount,
+            rating:
+              n.ratings.length > 0
+                ? n.ratings.reduce((a, b) => a + b.score, 0) / n.ratings.length
+                : 0,
+            categories: n.genres,
+            latestChapter: latestChapter ? {
+              title: latestChapter.title,
+              updatedAt: latestChapter.createdAt,
+            } : null,
+          };
+        })
       ),
 
     // Get general ranking (top 40 viewed)

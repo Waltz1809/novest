@@ -8,7 +8,7 @@ import GenreSelector from "@/components/novel/genre-selector";
 import { createNovel, updateNovel } from "@/actions/novel";
 import { getGenres } from "@/actions/search";
 import { Loader2, Save, Users, ChevronDown } from "lucide-react";
-import { toSlug } from "@/lib/utils";
+import { toSlug, countVietnameseWords } from "@/lib/utils";
 
 interface Genre {
     id: number;
@@ -89,6 +89,9 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
     const title = watch("title");
     const genreIds = watch("genreIds");
 
+    // Calculate title word count for validation
+    const titleWordCount = countVietnameseWords(title);
+
     // Auto-generate slug when title changes (only for new novels)
     useEffect(() => {
         if (!initialData && title) {
@@ -146,12 +149,28 @@ export default function NovelForm({ initialData, genres, groups = [] }: NovelFor
                     <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 space-y-5 md:space-y-6 overflow-hidden">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                             <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground uppercase block tracking-wide">
-                                    Tên truyện
-                                </label>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs text-muted-foreground uppercase tracking-wide">
+                                        Tên truyện
+                                    </label>
+                                    <span className={`text-xs font-medium ${titleWordCount > 20 ? "text-red-500" :
+                                            titleWordCount > 15 ? "text-amber-500" : "text-muted-foreground"
+                                        }`}>
+                                        {titleWordCount}/20 từ
+                                    </span>
+                                </div>
                                 <input
-                                    {...register("title", { required: "Vui lòng nhập tên truyện" })}
-                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                    {...register("title", {
+                                        required: "Vui lòng nhập tên truyện",
+                                        validate: (value) => {
+                                            const wordCount = countVietnameseWords(value);
+                                            return wordCount <= 20 || `Tiêu đề quá dài (${wordCount}/20 từ)`;
+                                        }
+                                    })}
+                                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border text-foreground placeholder:text-muted-foreground/50 focus:ring-2 outline-none transition-all ${errors.title || titleWordCount > 20
+                                            ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                            : "border-gray-200 focus:border-primary focus:ring-primary/20"
+                                        }`}
                                     placeholder="Nhập tên truyện..."
                                 />
                                 {errors.title && (

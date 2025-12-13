@@ -201,7 +201,7 @@ export default function SettingsPage() {
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Trở về
                     </Link>
-                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-600 to-emerald-500 mb-2">
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-500 mb-2">
                         Thiết Lập Hồ Sơ
                     </h1>
                     <p className="text-muted-foreground">
@@ -211,7 +211,7 @@ export default function SettingsPage() {
 
                 {/* Main Card */}
                 <div className="bg-white backdrop-blur-sm border border-gray-200 rounded-2xl p-8 shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Messages */}
@@ -520,7 +520,7 @@ export default function SettingsPage() {
                             <button
                                 type="submit"
                                 disabled={isLoading || (usernameAvailable === false && username !== initialUsername)}
-                                className="bg-linear-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 Lưu Thay Đổi

@@ -16,13 +16,16 @@ export async function POST(request: Request) {
         // Verify user owns the novel
         const novel = await db.novel.findUnique({
             where: { id: novelId },
+            include: { collaborators: { select: { userId: true } } }
         });
 
         if (!novel) {
             return NextResponse.json({ error: "Novel not found" }, { status: 404 });
         }
 
-        if (session.user.role !== "ADMIN" && novel.uploaderId !== session.user.id) {
+        const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
+
+        if (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR" && novel.uploaderId !== session.user.id && !isCollaborator) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
 

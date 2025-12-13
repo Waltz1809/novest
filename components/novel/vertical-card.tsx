@@ -23,6 +23,14 @@ interface VerticalCardProps {
   className?: string;
 }
 
+// Helper to truncate text by word count
+function truncateWords(text: string | null | undefined, maxWords: number): string {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return words.slice(0, maxWords).join(" ") + "...";
+}
+
 export function VerticalCard({ novel, className }: VerticalCardProps) {
   return (
     <Link
@@ -51,13 +59,13 @@ export function VerticalCard({ novel, className }: VerticalCardProps) {
             <span className="text-gray-600 font-bold flex items-center">
               <Eye className="w-3 h-3 text-blue-400 mr-1" />
               {novel.viewCount
-                ? (novel.viewCount / 1000).toFixed(0) + "K"
-                : "50K"}
+                ? novel.viewCount >= 1000 ? (novel.viewCount / 1000).toFixed(1) + "K" : novel.viewCount
+                : "0"}
             </span>
             <div className="w-px h-3 bg-gray-200"></div>
             <span className="text-gray-600 font-bold flex items-center">
               <Star className="w-3 h-3 text-yellow-400 mr-1 fill-current" />
-              {novel.avgRating ? novel.avgRating.toFixed(1) : "4.8"}
+              {novel.avgRating ? novel.avgRating.toFixed(1) : "0"}
             </span>
           </div>
 
@@ -75,9 +83,9 @@ export function VerticalCard({ novel, className }: VerticalCardProps) {
             {novel.title}
           </h3>
 
-          {/* Mô tả */}
-          <p className="text-xs text-gray-500 line-clamp-2 mb-4 h-8 leading-4">
-            {novel.description ||
+          {/* Mô tả - Giới hạn 20 từ */}
+          <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-4">
+            {truncateWords(novel.description, 20) ||
               "Một câu chuyện hấp dẫn đang chờ bạn khám phá."}
           </p>
 
@@ -85,12 +93,14 @@ export function VerticalCard({ novel, className }: VerticalCardProps) {
           <div className="mt-auto grid grid-cols-2 gap-2 text-xs border-t border-dashed border-gray-100 pt-3">
             <div className="text-gray-500 font-medium flex items-center">
               <Layers className="w-3 h-3 text-gray-300 mr-1.5" />
-              {novel.chapterCount || 500}c
+              {novel.chapterCount ?? 0} chương
             </div>
-            <div className="text-right font-bold text-primary flex items-center justify-end">
-              <Heart className="w-3 h-3 mr-1" />
-              {novel.voteCount || 900} Phiếu
-            </div>
+            {novel.voteCount && novel.voteCount > 0 ? (
+              <div className="text-right font-bold text-primary flex items-center justify-end">
+                <Heart className="w-3 h-3 mr-1" />
+                {novel.voteCount} Phiếu
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

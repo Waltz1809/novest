@@ -128,7 +128,7 @@ function ChapterDiscussionItem({ comment, novelSlug }: { comment: ChapterComment
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 mb-3 transition-colors"
             >
                 <Book className="h-3 w-3" />
-                Chương {Math.floor(chapterNumber)}: {chapterTitle.length > 40 ? chapterTitle.slice(0, 40) + "..." : chapterTitle}
+                {chapterTitle.length > 50 ? chapterTitle.slice(0, 50) + "..." : chapterTitle}
                 <ArrowRight className="h-3 w-3" />
             </Link>
 

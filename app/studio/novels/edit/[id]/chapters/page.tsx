@@ -27,6 +27,9 @@ export default async function ChaptersPage({ params, searchParams }: PageProps) 
             slug: true,
             approvalStatus: true,
             uploaderId: true,
+            collaborators: {
+                select: { userId: true }
+            },
             volumes: {
                 orderBy: {
                     order: "asc",
@@ -46,11 +49,12 @@ export default async function ChaptersPage({ params, searchParams }: PageProps) 
         redirect("/studio/novels");
     }
 
-    // Only uploader or admin/mod can edit
+    // Only uploader, collaborator, or admin/mod can edit
     const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
     const isUploader = session.user.id === novel.uploaderId;
+    const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
 
-    if (!isAdmin && !isUploader) {
+    if (!isAdmin && !isUploader && !isCollaborator) {
         redirect("/studio/novels");
     }
 

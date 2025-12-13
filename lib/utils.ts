@@ -37,3 +37,37 @@ export function calculateWordCount(content: string): number {
     .split(/\s+/)
     .filter((word) => word.length > 0).length;
 }
+
+/**
+ * Convert text to Title Case (viết hoa chữ cái đầu mỗi từ)
+ * Handles Vietnamese text properly
+ * @param text Input text to convert
+ * @returns Text with first letter of each word capitalized
+ */
+export function toTitleCase(text: string): string {
+  if (!text) return "";
+
+  return text
+    .toLowerCase()
+    .split(/\s+/)
+    .map(word => {
+      if (word.length === 0) return word;
+      // Capitalize first character, keep rest lowercase
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+/**
+ * Count words in Vietnamese text
+ * Words are separated by whitespace
+ * @param text Input text
+ * @returns Number of words
+ */
+export function countVietnameseWords(text: string): number {
+  if (!text || !text.trim()) return 0;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter(word => word.length > 0).length;
+}

@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 import ChapterEditForm from "@/components/novel/chapter-edit-form";
 
 interface PageProps {
@@ -13,6 +14,11 @@ export default async function EditChapterPage({ params }: PageProps) {
     const { novelId, chapterId } = await params;
     const nId = parseInt(novelId);
     const cId = parseInt(chapterId);
+
+    const session = await auth();
+    if (!session?.user) {
+        redirect("/login");
+    }
 
     if (isNaN(nId) || isNaN(cId)) {
         notFound();
@@ -29,6 +35,9 @@ export default async function EditChapterPage({ params }: PageProps) {
     const novel = await db.novel.findUnique({
         where: { id: nId },
         include: {
+            collaborators: {
+                select: { userId: true }
+            },
             volumes: {
                 orderBy: { order: "asc" },
                 select: {
@@ -42,6 +51,15 @@ export default async function EditChapterPage({ params }: PageProps) {
 
     if (!novel) {
         notFound();
+    }
+
+    // Permission Check
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    const isUploader = session.user.id === novel.uploaderId;
+    const isCollaborator = novel.collaborators.some(c => c.userId === session.user.id);
+
+    if (!isAdmin && !isUploader && !isCollaborator) {
+        redirect("/studio/novels");
     }
 
     return (
