@@ -26,3 +26,14 @@ export function toSlug(str: string): string {
     .replace(/^-+/, "")
     .replace(/-+$/, "");
 }
+
+// Calculate word count from HTML content
+export function calculateWordCount(content: string): number {
+  if (!content) return 0;
+  return content
+    .replace(/<[^>]*>/g, " ") // Remove HTML tags
+    .replace(/&nbsp;/g, " ") // Replace &nbsp;
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
+}
