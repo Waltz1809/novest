@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Be_Vietnam_Pro, Merriweather, Lora, Roboto, Noto_Sans, Nunito } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Be_Vietnam_Pro,
+  Merriweather,
+  Lora,
+  Roboto,
+  Noto_Sans,
+  Nunito,
+} from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import { auth } from "@/auth";
@@ -7,6 +16,7 @@ import { Providers } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import FooterWrapper from "@/components/layout/footer-wrapper";
 import { Toaster } from "sonner";
+import { BackToTop } from "@/components/ui/back-to-top";
 
 const GA_MEASUREMENT_ID = "G-48LS4WPMK7";
 
@@ -64,15 +74,18 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ),
   title: "Novest - LightNovel, WebNovel và hơn nữa",
-  description: "Nền tảng đọc truyện chữ online hàng đầu Việt Nam. Cập nhật liên tục, giao diện tối ưu.",
+  description:
+    "Nền tảng đọc truyện chữ online hàng đầu Việt Nam. Cập nhật liên tục, giao diện tối ưu.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0B0C10",
+  themeColor: "#e0fbfc",
 };
 
 export default async function RootLayout({
@@ -83,13 +96,16 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html
+      lang="vi"
+      suppressHydrationWarning
+    >
       {/* Google Analytics 4 - Using @next/third-parties for better integration */}
       {process.env.NODE_ENV === "production" && (
         <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
       )}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background text-foreground flex flex-col min-h-screen overflow-x-hidden font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background`}
       >
         <Providers session={session}>
           <ThemeProvider
@@ -97,9 +113,11 @@ export default async function RootLayout({
             defaultTheme="light"
             enableSystem={false}
             disableTransitionOnChange
+            forcedTheme="light"
           >
             {children}
             <FooterWrapper />
+            <BackToTop />
             <Toaster />
           </ThemeProvider>
         </Providers>
