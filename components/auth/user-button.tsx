@@ -1,22 +1,28 @@
-import { auth } from "@/auth"
-import { User } from "lucide-react"
-import UserMenu from "./user-menu"
-import Link from "next/link"
+import { auth } from "@/auth";
+import { User } from "lucide-react";
+import UserMenu from "./user-menu";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function UserButton() {
-    const session = await auth()
+  const session = await auth();
 
-    if (!session?.user) {
-        return (
-            <Link
-                href="/login"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0B0C10] bg-[#F59E0B] hover:bg-[#D97706] rounded-full transition-colors shadow-[0_0_10px_rgba(245,158,11,0.3)]"
-            >
-                <User className="w-4 h-4" />
-                <span>Đăng nhập</span>
-            </Link>
-        )
-    }
+  if (!session?.user) {
+    return (
+      <Button
+        asChild
+        size="lg"
+      >
+        <Link
+          href="/login"
+          className="flex items-center gap-2"
+        >
+          <User size={24} />
+          Đăng nhập
+        </Link>
+      </Button>
+    );
+  }
 
-    return <UserMenu user={session.user} />
+  return <UserMenu user={session.user} />;
 }
