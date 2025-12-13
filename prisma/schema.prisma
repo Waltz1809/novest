@@ -91,6 +91,9 @@ model User {
 
   // Translation groups
   translationGroups TranslationGroupMember[]
+
+  // Novel collaborations (co-uploader)
+  collaborations NovelCollaborator[]
 }
 
 model Ticket {
@@ -235,6 +238,7 @@ model Novel {
   approvalStatus  String  @default("PENDING") // PENDING, APPROVED, REJECTED
   rejectionReason String?
   rejectionCount  Int     @default(0) // 3 rejections = permanent delete
+  vipStatus       String  @default("NONE") // NONE, PENDING, APPROVED
 
   // Discount for completed novels (uploader can set 10-100%)
   discountPercent Int @default(0)
@@ -262,6 +266,9 @@ model Novel {
   // Translation group
   translationGroupId String?
   translationGroup   TranslationGroup? @relation(fields: [translationGroupId], references: [id], onDelete: SetNull)
+
+  // Co-uploaders (phó thớt)
+  collaborators NovelCollaborator[]
 
   @@index([approvalStatus])
   @@index([nation, novelFormat])
@@ -308,6 +315,7 @@ model Chapter {
   versions         ChapterVersion[] // Version history for reverting
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   wordCount Int      @default(0)
 
   @@index([isDraft, publishAt])
@@ -325,9 +333,10 @@ model UserPurchase {
 }
 
 model Library {
-  userId    String
-  novelId   Int
-  createdAt DateTime @default(now())
+  userId     String
+  novelId    Int
+  createdAt  DateTime @default(now())
+  lastReadAt DateTime @default(now()) // When user last "caught up" with updates
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
@@ -498,4 +507,18 @@ model TranslationGroupMember {
   user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([groupId, userId])
+}
+
+// ================= NOVEL COLLABORATOR (Co-uploader / Phó thớt) =================
+model NovelCollaborator {
+  id      Int      @id @default(autoincrement())
+  novelId Int
+  userId  String
+  addedAt DateTime @default(now())
+
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([novelId, userId])
+  @@index([userId])
 }

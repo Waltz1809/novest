@@ -15,6 +15,31 @@ interface Props {
     params: Promise<{ slug: string }>;
 }
 
+/**
+ * Fetch external image and convert to base64 data URL
+ * Required for Edge runtime to display external images
+ */
+async function fetchImageAsDataUrl(url: string): Promise<string | null> {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'image/*',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        const arrayBuffer = await response.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString('base64');
+        const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+        return `data:${contentType};base64,${base64}`;
+    } catch (error) {
+        console.error('Failed to fetch image:', error);
+        return null;
+    }
+}
+
 export default async function Image({ params }: Props) {
     const { slug } = await params;
 
@@ -53,6 +78,12 @@ export default async function Image({ params }: Props) {
         );
     }
 
+    // Fetch cover image as base64 (required for Edge runtime)
+    let coverImageDataUrl: string | null = null;
+    if (novel.coverImage && novel.coverImage.startsWith('http')) {
+        coverImageDataUrl = await fetchImageAsDataUrl(novel.coverImage);
+    }
+
     // Format view count
     const formatViews = (count: number) => {
         if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
@@ -68,8 +99,8 @@ export default async function Image({ params }: Props) {
                     width: '100%',
                     display: 'flex',
                     backgroundColor: '#0B0C10',
-                    backgroundImage: novel.coverImage
-                        ? `linear-gradient(rgba(11, 12, 16, 0.85), rgba(11, 12, 16, 0.95)), url(${novel.coverImage})`
+                    backgroundImage: coverImageDataUrl
+                        ? `linear-gradient(rgba(11, 12, 16, 0.85), rgba(11, 12, 16, 0.95))`
                         : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -99,9 +130,9 @@ export default async function Image({ params }: Props) {
                             flexShrink: 0,
                         }}
                     >
-                        {novel.coverImage && (novel.coverImage.startsWith('http') || novel.coverImage.startsWith('/')) ? (
+                        {coverImageDataUrl ? (
                             <img
-                                src={novel.coverImage}
+                                src={coverImageDataUrl}
                                 alt={novel.title}
                                 style={{
                                     width: '100%',

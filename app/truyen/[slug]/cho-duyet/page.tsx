@@ -12,6 +12,8 @@ import NovelDescription from "@/components/novel/novel-description";
 import VolumeList from "@/components/novel/volume-list";
 import { ApprovalControls } from "@/components/admin/approval-controls";
 import { ResubmitButton } from "@/components/admin/resubmit-button";
+import { SubmitApprovalButton } from "@/components/admin/submit-approval-button";
+import { MIN_WORDS_FOR_APPROVAL, MIN_WORDS_FOR_VIP } from "@/lib/pricing";
 
 // No caching for preview pages
 export const dynamic = "force-dynamic";
@@ -201,6 +203,29 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                 </div>
             )}
 
+            {/* Word Count Indicator - Shows for uploader */}
+            {isUploader && novel.approvalStatus !== "APPROVED" && (
+                <div className={`${totalWordCount >= MIN_WORDS_FOR_APPROVAL ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'} border-b py-3`}>
+                    <div className="container mx-auto px-4 flex items-center gap-2">
+                        {totalWordCount >= MIN_WORDS_FOR_APPROVAL ? (
+                            <>
+                                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                <span className="text-emerald-300 text-sm font-medium">
+                                    {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Đủ điều kiện gửi duyệt
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <XCircle className="w-4 h-4 text-red-400" />
+                                <span className="text-red-300 text-sm font-medium">
+                                    {totalWordCount.toLocaleString()}/{MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ - Cần thêm {(MIN_WORDS_FOR_APPROVAL - totalWordCount).toLocaleString()} chữ để gửi duyệt
+                                </span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Uploader Resubmit Controls - Only for rejected novels */}
             {isUploader && novel.approvalStatus === "REJECTED" && (
                 <div className="bg-[#1E293B] border-b border-white/10 py-4">
@@ -209,6 +234,22 @@ export default async function PendingNovelPreviewPage({ params }: PageProps) {
                             novelId={novel.id}
                             novelTitle={novel.title}
                             rejectionCount={novel.rejectionCount ?? 0}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Uploader Submit/VIP Controls - For DRAFT or APPROVED novels */}
+            {isUploader && (novel.approvalStatus === "DRAFT" || novel.approvalStatus === "APPROVED" || novel.approvalStatus === "PENDING") && (
+                <div className="bg-[#1E293B] border-b border-white/10 py-4">
+                    <div className="container mx-auto px-4 max-w-md">
+                        <SubmitApprovalButton
+                            novelId={novel.id}
+                            approvalStatus={novel.approvalStatus}
+                            vipStatus={novel.vipStatus || "NONE"}
+                            totalWordCount={totalWordCount}
+                            minWordsForApproval={MIN_WORDS_FOR_APPROVAL}
+                            minWordsForVip={MIN_WORDS_FOR_VIP}
                         />
                     </div>
                 </div>

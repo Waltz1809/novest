@@ -95,3 +95,42 @@
     pointer-events: none;
   }
 }
+
+/* Amber themed scrollbar for editor */
+.scrollbar-amber {
+    scrollbar-width: thin;
+    scrollbar-color: #F59E0B #1E293B;
+}
+.scrollbar-amber::-webkit-scrollbar {
+    width: 8px;
+}
+.scrollbar-amber::-webkit-scrollbar-track {
+    background: #1E293B;
+    border-radius: 4px;
+}
+.scrollbar-amber::-webkit-scrollbar-thumb {
+    background: #F59E0B;
+    border-radius: 4px;
+}
+.scrollbar-amber::-webkit-scrollbar-thumb:hover {
+    background: #FBBF24;
+}
+
+/* Fix ProseMirror/TipTap editor scroll issues */
+.ProseMirror {
+    outline: none;
+}
+.ProseMirror > *:first-child {
+    margin-top: 0 !important;
+}
+.ProseMirror > *:last-child {
+    margin-bottom: 0 !important;
+}
+/* Override prose negative margins in editor */
+.prose > :first-child {
+    margin-top: 0 !important;
+}
+.prose > :last-child {
+    margin-bottom: 0 !important;
+}
+

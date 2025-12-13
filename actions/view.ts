@@ -4,9 +4,10 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 
 const VIEWED_NOVELS_COOKIE = "viewed_novels_today";
+const VIEWED_CHAPTERS_COOKIE = "viewed_chapters_today";
 
 /**
- * Increment view count for a novel
+ * Increment view count for a novel (legacy - called from novel detail page)
  * Uses cookie-based tracking to prevent spam (1 view per novel per user per day)
  * 
  * NOTE: This function can only READ cookies when called from Server Component.
@@ -74,3 +75,58 @@ export async function markNovelViewed(novelId: number): Promise<void> {
         console.error("[markNovelViewed] Error:", error);
     }
 }
+
+/**
+ * Increment view count based on chapter reading completion
+ * Called when user scrolls >= 85% of chapter content (from GA4 tracker)
+ * Uses per-chapter cookie tracking to prevent spam
+ * 
+ * @param novelId - The novel ID to increment view for
+ * @param chapterId - The chapter ID (for tracking which chapters have been counted)
+ * @returns true if view was counted, false if already counted or error
+ */
+export async function incrementChapterView(novelId: number, chapterId: number): Promise<boolean> {
+    try {
+        const cookieStore = await cookies();
+        const viewedChaptersStr = cookieStore.get(VIEWED_CHAPTERS_COOKIE)?.value || "";
+        const viewedChapters = viewedChaptersStr ? viewedChaptersStr.split(",").map(Number) : [];
+
+        // Check if this chapter was already counted today
+        if (viewedChapters.includes(chapterId)) {
+            return false; // Already counted today
+        }
+
+        // Increment view count in database
+        await db.novel.update({
+            where: { id: novelId },
+            data: {
+                viewCount: {
+                    increment: 1,
+                },
+            },
+        });
+
+        // Update cookie with this chapter
+        viewedChapters.push(chapterId);
+
+        // Set cookie with expiration at midnight
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
+
+        cookieStore.set(VIEWED_CHAPTERS_COOKIE, viewedChapters.join(","), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: secondsUntilMidnight,
+            path: "/",
+        });
+
+        return true; // View counted
+    } catch (error) {
+        console.error("[incrementChapterView] Error:", error);
+        return false;
+    }
+}
+

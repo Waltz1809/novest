@@ -9,6 +9,7 @@ import { DiscussionDrawer } from "@/components/comment/discussion-drawer"
 import { ReadingSettings, ReadingConfig, getFontFamily } from "@/components/novel/reading-settings"
 import { SpeedDialFab } from "@/components/reading/speed-dial-fab"
 import { ChapterListSidebar } from "@/components/reading/chapter-list-sidebar"
+import { GA4ReadingTracker } from "@/components/reading/ga4-reading-tracker"
 import { useOnClickOutside } from "@/hooks/use-click-outside"
 import { getChapterParagraphCommentCounts } from "@/actions/interaction"
 import { clsx } from "clsx"
@@ -21,6 +22,7 @@ interface ChapterPageClientProps {
     nextChapter: any
     isLocked: boolean
     session: Session | null
+    isUploader?: boolean  // For FAB edit button
 }
 
 export function ChapterPageClient({
@@ -30,6 +32,7 @@ export function ChapterPageClient({
     nextChapter,
     isLocked,
     session,
+    isUploader = false,
 }: ChapterPageClientProps) {
     const [config, setConfig] = useState<ReadingConfig>({
         font: "lora",
@@ -48,6 +51,7 @@ export function ChapterPageClient({
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const isRestoring = useRef(true)
     const settingsRef = useRef<HTMLDivElement>(null)
+    const contentRef = useRef<HTMLDivElement>(null) // For GA4 scroll tracking
 
     // Close settings panel when clicking outside
     useOnClickOutside(settingsRef, () => {
@@ -255,10 +259,18 @@ export function ChapterPageClient({
                     <h1 className="text-3xl md:text-4xl font-bold leading-tight font-display">
                         {chapter.title}
                     </h1>
+                    {/* Chapter Metadata */}
+                    <p className="text-sm opacity-50 mt-3 font-sans">
+                        {chapter.wordCount?.toLocaleString() || 0} chữ
+                        {chapter.updatedAt && (
+                            <span> • Cập nhật: {new Date(chapter.updatedAt).toLocaleDateString("vi-VN")}</span>
+                        )}
+                    </p>
                 </div>
 
                 {/* Content */}
                 <div
+                    ref={contentRef}
                     className="relative"
                     style={{
                         fontSize: `${config.fontSize}px`,
@@ -349,6 +361,10 @@ export function ChapterPageClient({
                 }}
                 isHidden={showTOC}
                 themeId={config.theme}
+                isPending={novel.approvalStatus !== "APPROVED"}
+                isUploader={isUploader}
+                novelId={novel.id}
+                chapterId={chapter.id}
             />
 
             {/* TOC Sidebar */}
@@ -371,6 +387,7 @@ export function ChapterPageClient({
                 chapterId={chapter.id}
                 themeId={config.theme}
                 paragraphId={selectedParagraphId}
+                uploaderId={novel.uploaderId}
                 onCommentAdded={() => {
                     // Refresh paragraph comment counts
                     getChapterParagraphCommentCounts(chapter.id).then(counts => {
@@ -378,6 +395,20 @@ export function ChapterPageClient({
                     })
                 }}
             />
+
+            {/* GA4 Reading Analytics - Only in production and when not locked */}
+            {process.env.NODE_ENV === "production" && !isLocked && (
+                <GA4ReadingTracker
+                    novelSlug={novel.slug}
+                    chapterSlug={chapter.slug}
+                    novelId={novel.id}
+                    chapterId={chapter.id}
+                    wordCount={chapter.wordCount || 0}
+                    novelTitle={novel.title}
+                    chapterTitle={chapter.title}
+                    contentRef={contentRef}
+                />
+            )}
         </div>
     )
 }

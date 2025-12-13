@@ -90,7 +90,7 @@ export function NotificationList({ onUpdate }: NotificationListProps) {
               <NotificationItem
                 key={notification.id}
                 notification={notification}
-                onClose={() => {}} // Popover handles closing on click outside usually, or we can pass a close handler if needed
+                onClose={() => { }} // Popover handles closing on click outside usually, or we can pass a close handler if needed
                 onUpdate={onUpdate}
               />
             ))}

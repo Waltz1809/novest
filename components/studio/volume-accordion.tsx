@@ -18,6 +18,7 @@ interface Chapter {
   createdAt: Date;
   content: string;
   price: number;
+  isDraft?: boolean; // Draft chapters show in orange
 }
 
 interface Volume {
@@ -82,11 +83,10 @@ export default function VolumeAccordion({
               onClick={() => toggleVolume(volume.id)}
               className={`
                                 p-4 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors
-                                ${
-                                  isExpanded
-                                    ? "bg-muted/50 border-b border-border"
-                                    : ""
-                                }
+                                ${isExpanded
+                  ? "bg-muted/50 border-b border-border"
+                  : ""
+                }
                             `}
             >
               <div className="flex items-center gap-3">
@@ -146,12 +146,15 @@ export default function VolumeAccordion({
                           className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors group"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-muted rounded-md text-primary">
+                            <div className={`p-2 bg-muted rounded-md ${chapter.isDraft ? 'text-amber-500' : 'text-primary'}`}>
                               <FileText className="w-4 h-4" />
                             </div>
                             <div>
-                              <div className="font-medium text-foreground group-hover:text-primary transition-colors">
+                              <div className={`font-medium ${chapter.isDraft ? 'text-amber-500' : 'text-foreground'} group-hover:text-primary transition-colors flex items-center gap-2`}>
                                 {chapter.title}
+                                {chapter.isDraft && (
+                                  <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-500 rounded font-bold">Nháp</span>
+                                )}
                               </div>
                               <div className="text-xs text-muted-foreground flex items-center gap-2">
                                 <span>

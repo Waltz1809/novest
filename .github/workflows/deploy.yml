@@ -41,16 +41,37 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          script_stop: true
           script: |
+            set -e  # Exit immediately if a command fails
+            
+            # Use absolute path to avoid user confusion
+            APP_DIR="/home/novest_admin/novest"
+            
             # Load NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            cd ~/novest
+            cd $APP_DIR
+            
+            # ===== OPTIONAL: BACKUP DATABASE =====
+            BACKUP_DIR="$HOME/backups"
+            mkdir -p $BACKUP_DIR
+            BACKUP_FILE="$BACKUP_DIR/novest_$(date +%Y%m%d_%H%M%S).sql"
+            echo "📦 Attempting database backup..."
+            sudo -u postgres pg_dump novest_prod > $BACKUP_FILE 2>/dev/null && echo "✅ Backup saved!" || echo "⚠️ Backup skipped"
+            
+            # Clean old backups (keep last 30)
+            ls -t $BACKUP_DIR/novest_*.sql 2>/dev/null | tail -n +31 | xargs -r rm 2>/dev/null || true
+            
+            # ===== DEPLOY =====
+            echo "🚀 Starting deploy..."
             git fetch --all
             git reset --hard origin/master
             npm install
             npx prisma generate
-            npx prisma migrate deploy
+            npx prisma db push
             npm run build
             pm2 restart novest --update-env
+            echo "✅ Deploy completed successfully!"
+

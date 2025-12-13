@@ -6,6 +6,52 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { generateSearchIndex } from "@/lib/utils";
 import { logAdminAction } from "./admin-log";
+import { MIN_WORDS_FOR_APPROVAL, MIN_WORDS_FOR_VIP } from "@/lib/pricing";
+
+/**
+ * Helper to delete a novel and all its related records in correct order.
+ * This manually handles the cascade because Chapter → Volume doesn't have onDelete: Cascade in schema.
+ */
+async function deleteNovelWithCascade(novelId: number): Promise<void> {
+    // Get all volume IDs for this novel
+    const volumes = await db.volume.findMany({
+        where: { novelId },
+        select: { id: true },
+    });
+    const volumeIds = volumes.map(v => v.id);
+
+    // Delete in correct order to avoid FK constraint violations:
+    // 1. Delete chapters (they reference volumes)
+    if (volumeIds.length > 0) {
+        await db.chapter.deleteMany({
+            where: { volumeId: { in: volumeIds } },
+        });
+    }
+
+    // 2. Delete volumes (they reference novel)
+    await db.volume.deleteMany({
+        where: { novelId },
+    });
+
+    // 3. Delete the novel itself (other cascades like comments, ratings handled by schema)
+    await db.novel.delete({
+        where: { id: novelId },
+    });
+}
+
+/**
+ * Get total word count of a novel (sum of all chapters)
+ */
+export async function getNovelWordCount(novelId: number): Promise<number> {
+    const result = await db.chapter.aggregate({
+        where: {
+            volume: { novelId },
+            isDraft: false,
+        },
+        _sum: { wordCount: true },
+    });
+    return result._sum.wordCount || 0;
+}
 
 /**
  * Get novel approval status by slug (for smart notification routing)
@@ -92,7 +138,7 @@ export async function createNovel(data: {
                 alternativeTitles: data.alternativeTitles,
                 searchIndex,
                 uploaderId: session.user.id,
-                approvalStatus: "PENDING", // New novels require approval
+                approvalStatus: "DRAFT", // New novels start as draft until submitted
                 nation: data.nation || "CN",
                 novelFormat: data.novelFormat || "WN",
                 isR18: data.isR18 ?? false,
@@ -104,44 +150,101 @@ export async function createNovel(data: {
             },
         });
 
-        // Notify all admins and moderators about new novel submission
-        try {
-            const admins = await db.user.findMany({
-                where: {
-                    role: { in: ["ADMIN", "MODERATOR"] },
-                },
-                select: { id: true },
-            });
-
-            const uploaderName = session.user.nickname || session.user.name || "Người dùng";
-
-            await Promise.all(
-                admins.map((admin) =>
-                    db.notification.create({
-                        data: {
-                            userId: admin.id,
-                            actorId: session.user.id,
-                            type: "NEW_NOVEL_SUBMISSION",
-                            resourceId: novel.slug, // Store slug for direct navigation
-                            resourceType: "NOVEL",
-                            message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
-                        },
-                    })
-                )
-            );
-        } catch (notifyError) {
-            console.error("Failed to notify admins:", notifyError);
-            // Don't fail the main action if notification fails
-        }
+        // NOTE: No notification sent here because novel is DRAFT.
+        // Admin notification will be sent when user submits for approval
+        // via submitNovelForApproval() after meeting 5k words requirement.
 
         revalidatePath("/studio/novels");
-        revalidatePath("/admin/novels/pending");
         revalidatePath("/");
 
         return { success: true, novelId: novel.id };
     } catch (error) {
         console.error("Failed to create novel:", error);
         return { error: "Có lỗi xảy ra khi tạo truyện. Vui lòng thử lại." };
+    }
+}
+
+/**
+ * Submit a novel for approval (first-time submission)
+ * Requires MIN_WORDS_FOR_APPROVAL (5000 words)
+ */
+export async function submitNovelForApproval(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                uploaderId: true,
+                approvalStatus: true,
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        // Only the uploader can submit
+        if (novel.uploaderId !== session.user.id) {
+            return { error: "Chỉ người đăng mới có thể gửi yêu cầu duyệt" };
+        }
+
+        // Can only submit if DRAFT
+        if (novel.approvalStatus !== "DRAFT") {
+            return { error: "Truyện này đã được gửi duyệt hoặc đã được duyệt rồi" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_APPROVAL) {
+            return {
+                error: `Cần tối thiểu ${MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ để gửi duyệt. Hiện tại: ${wordCount.toLocaleString()} chữ.`
+            };
+        }
+
+        // Update novel to pending
+        await db.novel.update({
+            where: { id: novelId },
+            data: { approvalStatus: "PENDING" },
+        });
+
+        // Notify admins
+        const admins = await db.user.findMany({
+            where: { role: { in: ["ADMIN", "MODERATOR"] } },
+            select: { id: true },
+        });
+
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+
+        await Promise.all(
+            admins.map((admin) =>
+                db.notification.create({
+                    data: {
+                        userId: admin.id,
+                        actorId: session.user.id,
+                        type: "NEW_NOVEL_SUBMISSION",
+                        resourceId: novel.slug,
+                        resourceType: "NOVEL",
+                        message: `${uploaderName} đã gửi truyện "${novel.title}" chờ duyệt`,
+                    },
+                })
+            )
+        );
+
+        revalidatePath("/admin/novels/pending");
+        revalidatePath(`/truyen/${novel.slug}/cho-duyet`);
+        revalidatePath("/studio/novels");
+
+        return { success: "Đã gửi yêu cầu duyệt. Admin sẽ xem xét trong thời gian sớm nhất." };
+    } catch (error) {
+        console.error("Submit novel for approval error:", error);
+        return { error: "Lỗi khi gửi yêu cầu duyệt" };
     }
 }
 export async function updateNovel(id: number, data: {
@@ -233,9 +336,7 @@ export async function deleteNovel(id: number) {
         throw new Error("Unauthorized");
     }
 
-    await db.novel.delete({
-        where: { id },
-    });
+    await deleteNovelWithCascade(id);
 
     revalidatePath("/studio/novels");
     revalidatePath("/");
@@ -472,10 +573,8 @@ export async function rejectNovel(novelId: number, reason: string) {
 
         // 3 strikes = permanent delete
         if (newRejectionCount >= 3) {
-            // Hard delete the novel (cascade will handle related records)
-            await db.novel.delete({
-                where: { id: novelId },
-            });
+            // Hard delete the novel with proper cascade order
+            await deleteNovelWithCascade(novelId);
 
             // Notify uploader about permanent deletion
             if (novel.uploaderId) {
@@ -580,10 +679,8 @@ export async function permanentlyRejectNovel(novelId: number, reason: string) {
             return { error: "Không tìm thấy truyện" };
         }
 
-        // Hard delete the novel immediately
-        await db.novel.delete({
-            where: { id: novelId },
-        });
+        // Hard delete the novel with proper cascade order
+        await deleteNovelWithCascade(novelId);
 
         // Notify uploader about permanent deletion
         if (novel.uploaderId) {
@@ -652,6 +749,14 @@ export async function resubmitNovel(novelId: number, message?: string) {
         // Can only resubmit if rejected
         if (novel.approvalStatus !== "REJECTED") {
             return { error: "Chỉ có thể gửi lại truyện đã bị từ chối" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_APPROVAL) {
+            return {
+                error: `Cần tối thiểu ${MIN_WORDS_FOR_APPROVAL.toLocaleString()} chữ để gửi duyệt. Hiện tại: ${wordCount.toLocaleString()} chữ.`
+            };
         }
 
         // Update novel to pending
@@ -725,3 +830,144 @@ export async function getPendingNovels() {
         return { error: "Lỗi khi tải danh sách truyện chờ duyệt" };
     }
 }
+
+/**
+ * Request VIP status for a novel (50k words required)
+ * Uploader only - creates ticket for admin review
+ */
+export async function requestVipStatus(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                uploaderId: true,
+                approvalStatus: true,
+                vipStatus: true,
+            }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        if (novel.uploaderId !== session.user.id) {
+            return { error: "Chỉ người đăng mới có thể yêu cầu VIP" };
+        }
+
+        if (novel.approvalStatus !== "APPROVED") {
+            return { error: "Truyện phải được duyệt trước khi yêu cầu VIP" };
+        }
+
+        if (novel.vipStatus === "APPROVED") {
+            return { error: "Truyện đã là VIP" };
+        }
+
+        if (novel.vipStatus === "PENDING") {
+            return { error: "Yêu cầu VIP đang chờ duyệt" };
+        }
+
+        // Check word count
+        const wordCount = await getNovelWordCount(novelId);
+        if (wordCount < MIN_WORDS_FOR_VIP) {
+            const remaining = MIN_WORDS_FOR_VIP - wordCount;
+            return {
+                error: `Cần thêm ${remaining.toLocaleString()} chữ nữa để đủ điều kiện VIP (đã có ${wordCount.toLocaleString()}/${MIN_WORDS_FOR_VIP.toLocaleString()})`
+            };
+        }
+
+        // Update to pending VIP
+        await db.novel.update({
+            where: { id: novelId },
+            data: { vipStatus: "PENDING" },
+        });
+
+        // Create ticket for admin
+        const uploaderName = session.user.nickname || session.user.name || "Người dùng";
+        await db.ticket.create({
+            data: {
+                userId: session.user.id,
+                mainType: "VIP_REQUEST",
+                title: `Yêu cầu VIP: ${novel.title}`,
+                description: `${uploaderName} yêu cầu chuyển truyện "${novel.title}" sang chế độ VIP. Truyện hiện có ${wordCount.toLocaleString()} chữ.`,
+                novelId: novel.id,
+                status: "OPEN",
+            },
+        });
+
+        revalidatePath("/admin/tickets");
+        revalidatePath(`/studio/novels/edit/${novel.slug}`);
+
+        return { success: "Đã gửi yêu cầu VIP. Admin sẽ xem xét trong thời gian sớm nhất." };
+    } catch (error) {
+        console.error("Request VIP status error:", error);
+        return { error: "Lỗi khi gửi yêu cầu VIP" };
+    }
+}
+
+/**
+ * Approve VIP status for a novel (Admin/Moderator only)
+ */
+export async function approveVipStatus(novelId: number) {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "Chưa đăng nhập" };
+    }
+
+    const isAdmin = session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+    if (!isAdmin) {
+        return { error: "Không có quyền thực hiện" };
+    }
+
+    try {
+        const novel = await db.novel.findUnique({
+            where: { id: novelId },
+            select: { id: true, title: true, uploaderId: true, vipStatus: true }
+        });
+
+        if (!novel) {
+            return { error: "Không tìm thấy truyện" };
+        }
+
+        await db.novel.update({
+            where: { id: novelId },
+            data: { vipStatus: "APPROVED" },
+        });
+
+        // Notify uploader
+        if (novel.uploaderId) {
+            const { createNotification } = await import("./notification");
+            await createNotification({
+                userId: novel.uploaderId,
+                actorId: session.user.id,
+                type: "VIP_APPROVED",
+                resourceId: String(novel.id),
+                resourceType: "NOVEL",
+                message: `Truyện "${novel.title}" đã được chuyển sang chế độ VIP!`,
+            });
+        }
+
+        revalidatePath("/admin/novels");
+        revalidatePath(`/truyen/${novelId}`);
+
+        await logAdminAction(
+            "APPROVE_VIP",
+            String(novelId),
+            "NOVEL",
+            `Duyệt VIP cho truyện "${novel.title}"`
+        );
+
+        return { success: "Đã duyệt VIP thành công" };
+    } catch (error) {
+        console.error("Approve VIP status error:", error);
+        return { error: "Lỗi khi duyệt VIP" };
+    }
+}
+

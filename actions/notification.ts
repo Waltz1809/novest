@@ -154,7 +154,8 @@ export async function createNotification(data: {
 }
 
 /**
- * Get novels from user's library that have new chapters since follow date
+ * Get novels from user's library that have new chapters since lastReadAt
+ * Includes nextChapterSlug for smart routing to next unread chapter
  */
 export async function getLibraryUpdates(limit: number = 5) {
     const session = await auth();
@@ -163,9 +164,11 @@ export async function getLibraryUpdates(limit: number = 5) {
     }
 
     try {
-        // Get library entries with novels that have chapters newer than follow date
+        const userId = session.user.id;
+
+        // Get library entries with novels, chapters, and reading history
         const libraryWithUpdates = await db.library.findMany({
-            where: { userId: session.user.id },
+            where: { userId },
             include: {
                 novel: {
                     select: {
@@ -174,15 +177,17 @@ export async function getLibraryUpdates(limit: number = 5) {
                         slug: true,
                         coverImage: true,
                         volumes: {
+                            orderBy: { order: "asc" },
                             select: {
+                                order: true,
                                 chapters: {
                                     where: { isDraft: false },
-                                    orderBy: { createdAt: "desc" },
-                                    take: 1,
+                                    orderBy: { order: "asc" },
                                     select: {
                                         id: true,
                                         title: true,
                                         slug: true,
+                                        order: true,
                                         createdAt: true,
                                     },
                                 },
@@ -194,18 +199,57 @@ export async function getLibraryUpdates(limit: number = 5) {
             orderBy: { createdAt: "desc" },
         });
 
-        // Filter novels with chapters newer than follow date
+        // Get reading history for all novels in library
+        const novelIds = libraryWithUpdates.map(lib => lib.novelId);
+        const readingHistories = await db.readingHistory.findMany({
+            where: {
+                userId,
+                novelId: { in: novelIds },
+            },
+            include: {
+                chapter: {
+                    select: { order: true, volumeId: true },
+                },
+            },
+        });
+
+        const historyMap = new Map(readingHistories.map(h => [h.novelId, h]));
+
+        // Process each library entry
         const novelsWithUpdates = libraryWithUpdates
             .map((lib) => {
-                const allChapters = lib.novel.volumes.flatMap((v) => v.chapters);
-                const latestChapter = allChapters[0];
+                // Flatten all chapters sorted by volume order then chapter order
+                const allChapters = lib.novel.volumes.flatMap((v) =>
+                    v.chapters.map(ch => ({ ...ch, volumeOrder: v.order }))
+                );
 
-                // Count chapters since follow
+                if (allChapters.length === 0) return null;
+
+                // Count new chapters since lastReadAt
                 const newChaptersCount = allChapters.filter(
-                    (ch) => new Date(ch.createdAt) > new Date(lib.createdAt)
+                    (ch) => new Date(ch.createdAt) > new Date(lib.lastReadAt)
                 ).length;
 
-                if (!latestChapter || newChaptersCount === 0) return null;
+                if (newChaptersCount === 0) return null;
+
+                // Find next unread chapter based on reading history
+                const history = historyMap.get(lib.novelId);
+                let nextChapter = allChapters[0]; // Default to first chapter
+
+                if (history && history.chapter) {
+                    const lastReadOrder = history.chapter.order;
+                    // Find first chapter with order > lastReadOrder
+                    const nextUnread = allChapters.find(ch => ch.order > lastReadOrder);
+                    if (nextUnread) {
+                        nextChapter = nextUnread;
+                    } else {
+                        // User has read all, show latest
+                        nextChapter = allChapters[allChapters.length - 1];
+                    }
+                }
+
+                // Latest chapter for display
+                const latestChapter = allChapters[allChapters.length - 1];
 
                 return {
                     novelId: lib.novel.id,
@@ -217,8 +261,9 @@ export async function getLibraryUpdates(limit: number = 5) {
                         title: latestChapter.title,
                         slug: latestChapter.slug,
                     },
+                    nextChapterSlug: nextChapter.slug, // For smart routing
                     newChaptersCount,
-                    followedAt: lib.createdAt,
+                    lastReadAt: lib.lastReadAt,
                 };
             })
             .filter((n): n is NonNullable<typeof n> => n !== null);
@@ -233,6 +278,7 @@ export async function getLibraryUpdates(limit: number = 5) {
     }
 }
 
+
 /**
  * Get count of novels with updates for badge
  */
@@ -245,7 +291,8 @@ export async function getLibraryUpdateCount() {
     try {
         const libraryWithUpdates = await db.library.findMany({
             where: { userId: session.user.id },
-            include: {
+            select: {
+                lastReadAt: true,
                 novel: {
                     select: {
                         volumes: {
@@ -261,11 +308,11 @@ export async function getLibraryUpdateCount() {
             },
         });
 
-        // Count novels that have at least one chapter newer than follow date
+        // Count novels that have at least one chapter newer than lastReadAt
         let count = 0;
         for (const lib of libraryWithUpdates) {
             const hasNewChapters = lib.novel.volumes.some((v) =>
-                v.chapters.some((ch) => new Date(ch.createdAt) > new Date(lib.createdAt))
+                v.chapters.some((ch) => new Date(ch.createdAt) > new Date(lib.lastReadAt))
             );
             if (hasNewChapters) count++;
         }
@@ -276,3 +323,41 @@ export async function getLibraryUpdateCount() {
         return 0;
     }
 }
+
+/**
+ * Mark library entry as read (update lastReadAt to now)
+ */
+export async function markLibraryAsRead(novelId?: number) {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+        return { error: "Unauthorized" };
+    }
+
+    try {
+        if (novelId) {
+            // Mark single novel as read
+            await db.library.update({
+                where: {
+                    userId_novelId: {
+                        userId: session.user.id,
+                        novelId,
+                    },
+                },
+                data: { lastReadAt: new Date() },
+            });
+        } else {
+            // Mark all as read
+            await db.library.updateMany({
+                where: { userId: session.user.id },
+                data: { lastReadAt: new Date() },
+            });
+        }
+
+        revalidatePath("/");
+        return { success: true };
+    } catch (error) {
+        console.error("Error marking library as read:", error);
+        return { error: "Failed to mark as read" };
+    }
+}
+

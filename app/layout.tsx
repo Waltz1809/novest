@@ -9,6 +9,7 @@ import {
   Noto_Sans,
   Nunito,
 } from "next/font/google";
+import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/providers";
@@ -16,6 +17,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import FooterWrapper from "@/components/layout/footer-wrapper";
 import { Toaster } from "sonner";
 import { BackToTop } from "@/components/ui/back-to-top";
+
+const GA_MEASUREMENT_ID = "G-48LS4WPMK7";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,6 +100,10 @@ export default async function RootLayout({
       lang="vi"
       suppressHydrationWarning
     >
+      {/* Google Analytics 4 - Using @next/third-parties for better integration */}
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
+      )}
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${beVietnamPro.variable} ${merriweather.variable} ${lora.variable} ${roboto.variable} ${notoSans.variable} ${nunito.variable} antialiased bg-background`}
       >

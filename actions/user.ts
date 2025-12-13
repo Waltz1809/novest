@@ -293,6 +293,23 @@ export async function getUserProfile(username: string) {
                     include: {
                         badge: true
                     }
+                },
+                // Novels uploaded by this user (limit 6, approved only)
+                novels: {
+                    where: {
+                        approvalStatus: "APPROVED"
+                    },
+                    take: 6,
+                    orderBy: {
+                        createdAt: "desc"
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        coverImage: true,
+                        author: true,
+                    }
                 }
             }
         });

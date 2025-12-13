@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useState, useEffect, useTransition, useMemo, useRef } from "react"
 import { commentService, CommentItem as CommentItemType } from "@/services"
 import { Loader2, MessageCircle, MessageSquare, Reply, Send, User, Pencil, Trash2, Pin, X, Check, ChevronDown } from "lucide-react"
 import Image from "next/image"
@@ -12,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { ThumbsUp, ThumbsDown } from "lucide-react"
 import Link from "next/link"
 import { ReadingTheme, READING_THEMES } from "@/lib/reading-themes"
+import CommentEditor, { CommentEditorRef } from "@/components/editor/comment-editor"
 
 interface CommentUser {
     id: string
@@ -663,9 +663,11 @@ export function CommentItem({
                             </div>
                         </div>
                     ) : (
-                        <p className="text-sm whitespace-pre-wrap wrap-break-word" style={{ color: t.foreground, opacity: 0.9 }}>
-                            {localContent}
-                        </p>
+                        <div
+                            className="text-sm prose prose-sm prose-invert max-w-none [&_p]:my-0 [&_strong]:text-inherit [&_em]:text-inherit"
+                            style={{ color: t.foreground, opacity: 0.9 }}
+                            dangerouslySetInnerHTML={{ __html: localContent }}
+                        />
                     )}
 
                     {/* Actions: Vote + Reply */}
@@ -826,9 +828,7 @@ function CommentForm({
     theme?: ReadingTheme
     cooldown?: number  // Optional external cooldown (from parent)
 }) {
-    const { register, handleSubmit, reset } = useForm<{ content: string }>({
-        defaultValues: { content: "" }
-    })
+    const editorRef = useRef<CommentEditorRef>(null)
     const [isPending, startTransition] = useTransition()
     // Local cooldown for reply forms
     const [localCooldown, setLocalCooldown] = useState(0)
@@ -843,24 +843,24 @@ function CommentForm({
         return () => clearTimeout(timer)
     }, [localCooldown, externalCooldown])
 
-    // Default theme fallback
-    const t = theme || READING_THEMES["night"]
-    const isDark = theme ? ["dark", "night", "onyx", "dusk"].includes(theme.id) : true
-
-    const onSubmit = (data: { content: string }) => {
-        // Early return if content is empty (extra safety)
-        if (!data.content || !data.content.trim()) {
-            return
+    // Auto focus
+    useEffect(() => {
+        if (autoFocus && editorRef.current) {
+            editorRef.current.focus()
         }
+    }, [autoFocus])
+
+    const handleSubmit = (html: string) => {
+        // Strip HTML tags to check if there's actual text content
+        const textContent = html.replace(/<[^>]*>/g, '').trim()
+        if (!textContent) return
 
         // Check cooldown
-        if (cooldown > 0) {
-            return
-        }
+        if (cooldown > 0) return
 
         startTransition(async () => {
             const res = await commentService.create({
-                content: data.content.trim(),
+                content: html,
                 novelId,
                 chapterId,
                 parentId,
@@ -870,11 +870,11 @@ function CommentForm({
             if (!res.success) {
                 alert(res.error)
             } else {
-                // Explicitly reset with empty content
-                reset({ content: "" })
-                // Start 30s cooldown (only for local/reply forms without external cooldown)
+                // Clear editor
+                editorRef.current?.clear()
+                // Start cooldown (only for local/reply forms without external cooldown)
                 if (externalCooldown === undefined) {
-                    setLocalCooldown(30)
+                    setLocalCooldown(10)
                 }
                 // Pass the new comment to parent if available
                 const newComment = res.data as unknown as Comment
@@ -883,34 +883,14 @@ function CommentForm({
         })
     }
 
-    const isDisabled = isPending || cooldown > 0
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-            <textarea
-                {...register("content", { required: true })}
-                placeholder={parentId ? "Viết câu trả lời..." : "Viết bình luận của bạn..."}
-                className="w-full rounded-md p-3 text-sm focus:outline-none transition-colors"
-                style={{
-                    backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                    borderWidth: 1,
-                    borderStyle: "solid",
-                    borderColor: t.ui.border,
-                    color: t.foreground,
-                }}
-                rows={3}
-                autoFocus={autoFocus}
-            />
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    disabled={isDisabled}
-                    className="flex items-center gap-2 rounded-md bg-[#F59E0B] px-4 py-2 text-sm font-medium text-[#0B0C10] hover:bg-[#D97706] disabled:opacity-50"
-                >
-                    {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    {cooldown > 0 ? `Chờ ${cooldown}s` : (parentId ? "Trả lời" : "Gửi bình luận")}
-                </button>
-            </div>
-        </form>
+        <CommentEditor
+            ref={editorRef}
+            placeholder={parentId ? "Viết câu trả lời..." : "Viết bình luận của bạn..."}
+            onSubmit={handleSubmit}
+            disabled={isPending}
+            loading={isPending}
+            cooldown={cooldown}
+        />
     )
 }

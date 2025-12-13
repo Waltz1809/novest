@@ -271,12 +271,26 @@ export async function POST(request: NextRequest) {
             });
 
             if (parentComment && parentComment.userId !== session.user.id) {
+                // Build proper URL for the notification
+                // If comment is on a chapter, link to that chapter; otherwise link to novel page
+                let notificationUrl = `/truyen/${novel.slug}`;
+
+                if (chapterId) {
+                    const chapter = await db.chapter.findUnique({
+                        where: { id: chapterId },
+                        select: { slug: true },
+                    });
+                    if (chapter) {
+                        notificationUrl = `/truyen/${novel.slug}/${chapter.slug}#comment-${comment.id}`;
+                    }
+                }
+
                 await db.notification.create({
                     data: {
                         userId: parentComment.userId,
                         actorId: session.user.id,
                         type: "REPLY_COMMENT",
-                        resourceId: comment.id.toString(),
+                        resourceId: notificationUrl,
                         resourceType: "comment",
                         message: `${session.user.nickname || session.user.name} đã phản hồi bình luận của bạn ở "${novel.title}"`,
                     },

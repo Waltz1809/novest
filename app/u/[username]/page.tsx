@@ -134,12 +134,51 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                         )}
                     </div>
 
-                    {/* Sidebar / Recent Activity Placeholder */}
+                    {/* Uploaded Novels Section */}
                     <div className="space-y-6">
-                        <h2 className="text-xl font-bold text-slate-200">Hoạt Động Gần Đây</h2>
-                        <div className="bg-slate-900/30 border border-white/5 rounded-xl p-6 text-center text-slate-500 text-sm">
-                            Tính năng đang phát triển...
-                        </div>
+                        <h2 className="text-xl font-bold text-slate-200 flex items-center gap-2">
+                            <PenTool className="w-5 h-5 text-emerald-500" />
+                            Truyện Đã Đăng
+                        </h2>
+
+                        {user.novels && user.novels.length > 0 ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {user.novels.map((novel) => (
+                                    <Link
+                                        key={novel.id}
+                                        href={`/truyen/${novel.slug}`}
+                                        className="group bg-slate-900/30 border border-white/5 rounded-xl overflow-hidden hover:border-amber-500/30 transition-all hover:-translate-y-1"
+                                    >
+                                        <div className="aspect-3/4 relative bg-slate-950">
+                                            {novel.coverImage ? (
+                                                <Image
+                                                    src={novel.coverImage}
+                                                    alt={novel.title}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <BookOpen className="w-8 h-8 text-slate-600" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="p-3">
+                                            <h3 className="font-semibold text-sm text-slate-200 line-clamp-2 group-hover:text-amber-400 transition-colors">
+                                                {novel.title}
+                                            </h3>
+                                            <p className="text-xs text-slate-500 mt-1 truncate">
+                                                {novel.author}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-slate-900/30 border border-white/5 rounded-xl p-6 text-center text-slate-500 text-sm italic">
+                                Chưa đăng truyện nào.
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

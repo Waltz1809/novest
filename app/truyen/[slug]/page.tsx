@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Book, User, Calendar, Eye, Star, List, ChevronRight, BookOpen, Heart, MessageSquare, Award } from "lucide-react";
+import { Book, User, Calendar, Eye, Star, List, ChevronRight, BookOpen, Heart, MessageSquare, Award, Edit } from "lucide-react";
 import MainHeader from "@/components/layout/main-header";
 import { auth } from "@/auth";
 import LibraryButton from "@/components/novel/library-button";
@@ -296,6 +296,17 @@ export default async function NovelDetailPage({ params }: PageProps) {
                                                 initialContent={userRating?.content || ""}
                                                 className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#0B0C10] text-white border border-[#374151] hover:border-[#F59E0B] font-medium transition-all"
                                             />
+
+                                            {/* Quick Edit Button - Only for uploader */}
+                                            {isUploader && (
+                                                <Link
+                                                    href={`/studio/novels/edit/${novel.id}`}
+                                                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-500 transition-all"
+                                                >
+                                                    <Edit className="w-5 h-5" />
+                                                    <span>Chỉnh sửa</span>
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
 
